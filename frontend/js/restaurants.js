@@ -1,7 +1,8 @@
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const API_BASE_URL = "http://localhost:5000/api";
+  const API_BASE_URL =
+  "https://coastconnectkenya.onrender.com/api";
 
   const restaurantSearchForm = document.getElementById(
     "restaurantSearchForm"
