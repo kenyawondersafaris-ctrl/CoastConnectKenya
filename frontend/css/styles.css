@@ -1253,8 +1253,21 @@ select {
 }
 
 .mobile-join-link {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 20px !important;
+  border: 1px solid var(--primary) !important;
+  border-radius: 12px;
   background: var(--primary);
-  color: var(--white);
+  color: var(--white) !important;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.18);
+}
+
+.mobile-join-link:hover,
+.mobile-join-link:focus {
+  background: var(--primary-dark);
+  color: var(--white) !important;
 }
 }
 
