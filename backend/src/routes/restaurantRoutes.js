@@ -1,0 +1,99 @@
+"use strict";
+
+const express = require("express");
+
+const {
+  getRestaurants,
+  getRestaurantByIdentifier,
+  getOwnerRestaurant,
+  createOwnerRestaurant,
+  updateOwnerRestaurant,
+  getOwnerOpeningHours,
+  updateOwnerOpeningHours,
+  getOwnerRestaurantReviews,
+  getOwnerRestaurantAnalytics,
+  updateOwnerOrderAvailability,
+} = require("../controllers/restaurantController");
+
+const {
+  getRestaurantDeliveryZones,
+} = require(
+  "../controllers/restaurantDeliveryZoneController"
+);
+
+const authenticate = require("../middleware/authMiddleware");
+const requireRole = require("../middleware/requireRole");
+
+const router = express.Router();
+
+router.get("/", getRestaurants);
+
+router.get(
+  "/owner/profile",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  getOwnerRestaurant
+);
+
+router.post(
+  "/owner/profile",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  createOwnerRestaurant
+);
+
+
+
+router.put(
+  "/owner/profile",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  updateOwnerRestaurant
+);
+
+router.get(
+  "/owner/opening-hours",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  getOwnerOpeningHours
+);
+
+router.put(
+  "/owner/opening-hours",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  updateOwnerOpeningHours
+);
+
+router.get(
+  "/owner/reviews",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  getOwnerRestaurantReviews
+);
+
+router.get(
+  "/owner/analytics",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  getOwnerRestaurantAnalytics
+);
+
+router.put(
+  "/owner/order-availability",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  updateOwnerOrderAvailability
+);
+
+router.get(
+  "/:restaurantId/delivery-zones",
+  getRestaurantDeliveryZones
+);
+
+router.get(
+  "/:identifier",
+  getRestaurantByIdentifier
+);
+
+module.exports = router;

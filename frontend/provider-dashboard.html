@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Provider Dashboard | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/provider-dashboard.css"
+  >
+</head>
+
+<body>
+
+  <header class="provider-header">
+    <div class="provider-header-inner">
+
+      <a
+        href="index.html"
+        class="provider-brand"
+      >
+        <span class="provider-brand-icon">
+          CC
+        </span>
+
+        <span>
+          <strong>Coast Connect</strong>
+          <small>Provider Portal</small>
+        </span>
+      </a>
+
+      <div class="provider-header-actions">
+
+  <a
+    href="#"
+    id="providerBookingsLink"
+    class="provider-bookings-link"
+  >
+    📅 Bookings
+  </a>
+
+  <div
+    class="provider-account-menu"
+    id="providerAccountMenu"
+  >
+
+    <button
+      type="button"
+      class="provider-account-button"
+      id="providerAccountButton"
+      aria-expanded="false"
+    >
+
+      <span
+        class="provider-account-avatar"
+        id="providerAccountAvatar"
+      >
+        P
+      </span>
+
+      <span
+        class="provider-account-name"
+        id="providerHeaderName"
+      >
+        Provider
+      </span>
+
+      <span class="provider-account-chevron">
+        ▾
+      </span>
+
+    </button>
+
+    <div
+      class="provider-account-dropdown"
+      id="providerAccountDropdown"
+      hidden
+    >
+
+      <div class="provider-account-user">
+
+        <strong id="providerDropdownName">
+          Provider
+        </strong>
+
+        <span id="providerDropdownEmail">
+          provider@example.com
+        </span>
+
+      </div>
+
+      <a href="index.html">
+        View Marketplace
+      </a>
+
+      <button
+        type="button"
+        id="providerLogoutButton"
+        class="provider-account-logout"
+      >
+        Log out
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+    </div>
+  </header>
+
+  <main class="provider-main">
+
+    <section class="provider-hero">
+
+      <div>
+        <span class="provider-label">
+          Local Services
+        </span>
+
+        <h1>
+          Provider Dashboard
+        </h1>
+
+        <p>
+          Manage your profile, services,
+          availability, bookings and reviews.
+        </p>
+      </div>
+
+      <div class="provider-status-card">
+        <span>
+          Verification status
+        </span>
+
+        <strong
+          id="providerVerificationStatus"
+          class="status-badge status-pending"
+        >
+          Pending
+        </strong>
+      </div>
+
+    </section>
+
+    <div
+      id="providerDashboardMessage"
+      class="dashboard-message"
+      role="status"
+      aria-live="polite"
+    ></div>
+
+    <section class="provider-grid">
+
+      <article class="provider-panel">
+
+        <div class="panel-heading">
+          <div>
+            <span class="provider-label">
+              Profile setup
+            </span>
+
+            <h2>
+              Your provider profile
+            </h2>
+          </div>
+
+          <span
+            id="providerProfileState"
+            class="profile-state"
+          >
+            Loading...
+          </span>
+        </div>
+
+        <form id="providerProfileForm">
+
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label for="providerServiceArea">
+                Service area
+              </label>
+
+              <input
+                type="text"
+                id="providerServiceArea"
+                placeholder="Example: Nyali, Mombasa"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="providerExperienceYears">
+                Years of experience
+              </label>
+
+              <input
+                type="number"
+                id="providerExperienceYears"
+                min="0"
+                max="60"
+                value="0"
+                required
+              >
+            </div>
+
+            <div class="form-group form-group-full">
+              <label for="providerBio">
+                Professional bio
+              </label>
+
+              <textarea
+                id="providerBio"
+                rows="5"
+                maxlength="1500"
+                placeholder="Describe your experience, skills and the type of work you provide."
+              ></textarea>
+            </div>
+
+            <div class="form-group form-group-full">
+              <label for="providerProfilePhoto">
+                Profile photo URL
+              </label>
+
+              <input
+                type="url"
+                id="providerProfilePhoto"
+                placeholder="https://..."
+              >
+            </div>
+
+          </div>
+
+          <div
+            id="providerProfileMessage"
+            class="form-message"
+          ></div>
+
+          <button
+            type="submit"
+            id="saveProviderProfileButton"
+            class="primary-button"
+          >
+            Create Provider Profile
+          </button>
+
+        </form>
+
+      </article>
+
+      <aside class="provider-sidebar">
+
+        <article class="provider-summary-card">
+
+  <h3>
+    Availability
+  </h3>
+
+  <strong
+    id="providerAvailabilityStatus"
+    class="status-badge status-offline"
+  >
+    Offline
+  </strong>
+
+  <div class="form-group">
+
+    <label for="providerAvailabilitySelect">
+      Change status
+    </label>
+
+    <select
+      id="providerAvailabilitySelect"
+    >
+      <option value="OFFLINE">
+        Offline
+      </option>
+
+      <option value="AVAILABLE">
+        Available
+      </option>
+
+      <option value="BUSY">
+        Busy
+      </option>
+
+      <option value="AWAY">
+        Away
+      </option>
+
+    </select>
+
+  </div>
+
+  <button
+    type="button"
+    id="saveAvailabilityButton"
+    class="primary-button"
+  >
+    Update Status
+  </button>
+
+  <div
+    id="availabilityMessage"
+    class="form-message"
+  ></div>
+
+</article>
+
+        <article class="provider-summary-card">
+          <h3>
+            Rating
+          </h3>
+
+          <strong id="providerAverageRating">
+            0.0
+          </strong>
+
+          <p>
+            <span id="providerTotalReviews">
+              0
+            </span>
+            customer reviews
+          </p>
+        </article>
+
+        <article class="provider-summary-card">
+          <h3>
+            Next step
+          </h3>
+
+          <p>
+            After creating your profile,
+            you will add the services you offer,
+            pricing and availability.
+          </p>
+        </article>
+
+      </aside>
+
+    </section>
+
+    <section class="provider-services-section">
+
+  <div class="services-section-heading">
+    <div>
+      <span class="provider-label">
+        Service management
+      </span>
+
+      <h2>
+        My Services
+      </h2>
+
+      <p>
+        Add the services you offer, set pricing,
+        and control whether customers can book them.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      id="showServiceFormButton"
+      class="primary-button"
+    >
+      Add Service
+    </button>
+  </div>
+
+  <div
+    id="providerServicesMessage"
+    class="dashboard-message"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <article
+    id="providerServiceFormPanel"
+    class="provider-panel service-form-panel"
+    hidden
+  >
+
+    <div class="panel-heading">
+      <div>
+        <span class="provider-label">
+          Service details
+        </span>
+
+        <h3 id="providerServiceFormTitle">
+          Add a new service
+        </h3>
+      </div>
+
+      <button
+        type="button"
+        id="cancelServiceFormButton"
+        class="secondary-button"
+      >
+        Cancel
+      </button>
+    </div>
+
+    <form id="providerServiceForm">
+
+      <input
+        type="hidden"
+        id="providerServiceId"
+      >
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="providerServiceCategory">
+            Service category
+          </label>
+
+          <select
+            id="providerServiceCategory"
+            required
+          >
+            <option value="">
+              Select category
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="providerServiceTitle">
+            Service title
+          </label>
+
+          <input
+            type="text"
+            id="providerServiceTitle"
+            maxlength="150"
+            placeholder="Example: Professional House Cleaning"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="providerServicePricingType">
+            Pricing type
+          </label>
+
+          <select
+            id="providerServicePricingType"
+            required
+          >
+            <option value="FIXED">
+              Fixed price
+            </option>
+
+            <option value="HOURLY">
+              Per hour
+            </option>
+
+            <option value="DAILY">
+              Per day
+            </option>
+
+            <option value="PER_VISIT">
+              Per visit
+            </option>
+
+            <option value="PER_TRIP">
+              Per trip
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="providerServicePrice">
+            Price in KSh
+          </label>
+
+          <input
+            type="number"
+            id="providerServicePrice"
+            min="1"
+            step="0.01"
+            placeholder="2500"
+            required
+          >
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="providerServiceDescription">
+            Description
+          </label>
+
+          <textarea
+            id="providerServiceDescription"
+            rows="4"
+            maxlength="2000"
+            placeholder="Describe what is included in this service."
+          ></textarea>
+        </div>
+
+        <div
+          id="providerServiceActiveGroup"
+          class="form-group form-group-full"
+          hidden
+        >
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              id="providerServiceIsActive"
+              checked
+            >
+
+            Make this service available to customers
+          </label>
+        </div>
+
+      </div>
+
+      <div
+        id="providerServiceFormMessage"
+        class="form-message"
+      ></div>
+
+      <button
+        type="submit"
+        id="saveProviderServiceButton"
+        class="primary-button"
+      >
+        Save Service
+      </button>
+
+    </form>
+
+  </article>
+
+  <div
+    id="providerServicesList"
+    class="provider-services-list"
+  >
+    <p class="services-empty-state">
+      Loading services...
+    </p>
+  </div>
+
+</section>
+
+<section
+  id="providerBookingsSection"
+  hidden
+>
+
+<div class="section-header">
+
+<h2>
+Customer Bookings
+</h2>
+
+<p>
+Manage booking requests from customers.
+</p>
+
+</div>
+
+<div
+class="booking-summary">
+
+<div class="summary-card">
+<h3>Pending</h3>
+<strong
+id="providerPendingBookings">
+0
+</strong>
+</div>
+
+<div class="summary-card">
+<h3>Confirmed</h3>
+<strong
+id="providerConfirmedBookings">
+0
+</strong>
+</div>
+
+<div class="summary-card">
+<h3>In Progress</h3>
+<strong
+id="providerProgressBookings">
+0
+</strong>
+</div>
+
+<div class="summary-card">
+<h3>Completed</h3>
+<strong
+id="providerCompletedBookings">
+0
+</strong>
+</div>
+
+</div>
+
+<div
+id="providerBookingsMessage"
+class="dashboard-message">
+</div>
+
+<div
+id="providerBookingsGrid"
+class="provider-bookings-grid">
+
+<p>
+Loading bookings...
+</p>
+
+</div>
+
+</section>
+
+  </main>
+   <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+  <script src="js/provider-dashboard.js"></script>
+</body>
+</html>

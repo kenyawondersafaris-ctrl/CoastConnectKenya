@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Restaurant Staff Dashboard | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/restaurant-staff-dashboard.css"
+  />
+</head>
+
+<body>
+  <main class="staff-dashboard-page">
+    <section class="staff-dashboard-card">
+      <div class="staff-dashboard-header">
+        <div>
+          <span class="eyebrow">
+            Restaurant staff portal
+          </span>
+
+          <h1 id="staffWelcomeTitle">
+            Welcome
+          </h1>
+
+          <p id="staffDashboardDescription">
+            Loading your restaurant staff account.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          id="staffLogoutButton"
+          class="logout-button"
+        >
+          Log out
+        </button>
+      </div>
+
+      <div
+        id="staffDashboardMessage"
+        class="dashboard-message"
+        role="alert"
+        aria-live="polite"
+      ></div>
+
+      <div class="staff-account-grid">
+        <article class="staff-info-card">
+          <span>Restaurant</span>
+
+          <strong id="staffRestaurantName">
+            Loading...
+          </strong>
+        </article>
+
+        <article class="staff-info-card">
+          <span>Staff role</span>
+
+          <strong id="staffRoleName">
+            Loading...
+          </strong>
+        </article>
+
+        <article class="staff-info-card">
+          <span>Account status</span>
+
+          <strong id="staffAccountStatus">
+            Loading...
+          </strong>
+        </article>
+      </div>
+
+      <section
+  id="staffOrdersSection"
+  class="staff-orders-section"
+  hidden
+>
+  <div class="staff-orders-heading">
+    <div>
+      <span class="eyebrow">
+        Kitchen operations
+      </span>
+
+      <h2>Restaurant orders</h2>
+
+      <p id="staffOrdersSummary">
+        Loading restaurant orders.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      id="refreshStaffOrdersButton"
+      class="secondary-button"
+    >
+      Refresh Orders
+    </button>
+  </div>
+
+  <div class="staff-order-stats">
+    <article class="staff-order-stat-card">
+      <span>Pending</span>
+      <strong id="staffPendingOrdersCount">0</strong>
+    </article>
+
+    <article class="staff-order-stat-card">
+      <span>Accepted</span>
+      <strong id="staffAcceptedOrdersCount">0</strong>
+    </article>
+
+    <article class="staff-order-stat-card">
+      <span>Preparing</span>
+      <strong id="staffPreparingOrdersCount">0</strong>
+    </article>
+
+    <article class="staff-order-stat-card">
+      <span>Ready</span>
+      <strong id="staffReadyOrdersCount">0</strong>
+    </article>
+  </div>
+
+  <div
+    id="staffOrdersMessage"
+    class="dashboard-message"
+    role="alert"
+    aria-live="polite"
+  ></div>
+
+  <div
+    id="staffOrdersContainer"
+    class="staff-orders-container"
+  >
+    <div class="empty-permissions">
+      Loading restaurant orders...
+    </div>
+  </div>
+
+  <div
+    id="staffOrdersPagination"
+    class="staff-orders-pagination"
+    hidden
+  >
+    <button
+      type="button"
+      id="previousStaffOrdersButton"
+      class="secondary-button"
+    >
+      Previous
+    </button>
+
+    <span id="staffOrdersPageInfo">
+      Page 1
+    </span>
+
+    <button
+      type="button"
+      id="nextStaffOrdersButton"
+      class="secondary-button"
+    >
+      Next
+    </button>
+  </div>
+</section>
+
+      <article class="staff-access-card">
+        <h2>Your available tools</h2>
+
+        <p>
+          Your dashboard access will be shown here based on
+          the permissions assigned by the restaurant owner.
+        </p>
+
+        <div
+          id="staffPermissionsContainer"
+          class="staff-permissions-container"
+        >
+          Loading permissions...
+        </div>
+      </article>
+    </section>
+  </main>
+  <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+  <script src="js/restaurant-staff-dashboard.js"></script>
+</body>
+</html>

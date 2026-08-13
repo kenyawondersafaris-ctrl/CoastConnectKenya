@@ -1,0 +1,370 @@
+:root {
+  --primary: #0f766e;
+  --primary-dark: #115e59;
+  --primary-light: #ccfbf1;
+  --secondary: #f59e0b;
+  --secondary-dark: #d97706;
+
+  --text: #102a2e;
+  --text-soft: #5d6f72;
+  --white: #ffffff;
+  --background: #f7faf9;
+  --surface: #ffffff;
+  --border: #dce7e5;
+
+  --shadow-sm:
+    0 8px 24px rgba(15, 118, 110, 0.08);
+
+  --shadow-md:
+    0 18px 50px rgba(16, 42, 46, 0.12);
+
+  --radius-md: 20px;
+  --radius-lg: 30px;
+  --transition: 0.25s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(245, 158, 11, 0.16),
+      transparent 26%
+    ),
+    linear-gradient(
+      135deg,
+      #effcf8,
+      #ffffff 55%,
+      #fff8e7
+    );
+  color: var(--text);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.join-page {
+  width: min(calc(100% - 40px), 1240px);
+  margin-inline: auto;
+  padding: 34px 0 70px;
+}
+
+.join-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 52px;
+}
+
+.join-brand-icon {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.join-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.join-brand-text strong {
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.join-brand-text small {
+  margin-top: 5px;
+  color: var(--primary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.join-heading {
+  max-width: 760px;
+  margin: 0 auto 44px;
+  text-align: center;
+}
+
+.join-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.join-label::before,
+.join-label::after {
+  width: 26px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--secondary);
+  content: "";
+}
+
+.join-heading h1 {
+  margin-bottom: 18px;
+  font-size: clamp(2.3rem, 5vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+
+.join-heading p {
+  color: var(--text-soft);
+  font-size: 1.04rem;
+}
+
+.join-grid {
+  display: grid;
+  align-items: stretch;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.join-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.join-card:hover {
+  border-color: rgba(15, 118, 110, 0.42);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-6px);
+}
+
+.join-card.featured {
+  border-color: rgba(15, 118, 110, 0.45);
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(245, 158, 11, 0.15),
+      transparent 35%
+    ),
+    var(--white);
+}
+
+.featured-label {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: var(--secondary);
+  color: #2e2104;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.join-card-icon {
+  display: inline-flex;
+  width: 64px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  border-radius: 20px;
+  background: var(--primary-light);
+  font-size: 1.9rem;
+}
+
+.join-card-type {
+  margin-bottom: 10px;
+  color: var(--primary);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.join-card h2 {
+  margin-bottom: 14px;
+  font-size: 1.45rem;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.join-card > p {
+  margin-bottom: 22px;
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+.join-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 30px;
+  padding: 0;
+  list-style: none;
+}
+
+.join-card li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.join-card li::before {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  content: "✓";
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.join-button {
+  display: inline-flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0 20px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  transition:
+    transform var(--transition),
+    background var(--transition),
+    border-color var(--transition);
+}
+
+.join-button.primary {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.join-button.primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.join-button.secondary {
+  border-color: var(--primary);
+  background: transparent;
+  color: var(--primary);
+}
+
+.join-button.secondary:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+}
+
+.join-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 34px;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+  color: var(--text-soft);
+}
+
+.join-footer a {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.join-footer a:hover {
+  color: var(--primary-dark);
+}
+
+.back-home {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 980px) {
+  .join-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .join-card {
+    max-width: 720px;
+    width: 100%;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .join-page {
+    width: min(calc(100% - 28px), 1240px);
+    padding-top: 22px;
+  }
+
+  .join-brand {
+    margin-bottom: 36px;
+  }
+
+  .join-heading {
+    text-align: left;
+  }
+
+  .join-label::after {
+    display: none;
+  }
+
+  .join-card {
+    border-radius: 22px;
+    padding: 26px 22px;
+  }
+
+  .join-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

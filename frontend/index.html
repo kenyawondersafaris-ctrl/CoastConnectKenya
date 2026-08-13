@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Discover trusted restaurants, professional cleaners, househelps, drivers, chefs, tours and local services across Coastal Kenya."
+  >
+
+  <meta
+    name="keywords"
+    content="Coast Connect Kenya, Mombasa restaurants, Diani services, cleaners Kenya, househelps Mombasa, Coastal Kenya tours"
+  >
+
+  <meta name="author" content="Coast Connect Kenya">
+
+  <title>Coast Connect Kenya | Restaurants and Trusted Local Services</title>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-container">
+
+      <a href="index.html" class="brand" aria-label="Coast Connect Kenya homepage">
+        <span class="brand-icon">CC</span>
+
+        <span class="brand-text">
+          <strong>Coast Connect</strong>
+          <small>Kenya</small>
+        </span>
+      </a>
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+        id="mobileMenuButton"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="mainNavigation"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="main-navigation" id="mainNavigation" aria-label="Main navigation">
+        <a href="index.html" class="active">Home</a>
+        <a href="restaurants.html">Restaurants</a>
+       <a href="providers.html">Services</a>
+        <a href="destinations.html">Destinations</a>
+        <a href="about.html">About</a>
+      </nav>
+<div class="header-actions">
+
+  <a
+    href="login.html"
+    class="login-link"
+    id="loginLink"
+  >
+    Log in
+  </a>
+
+  <a
+    href="join.html"
+    class="primary-button"
+    id="joinLink"
+  >
+    Join Coast Connect
+  </a>
+
+  <a
+    href="#"
+    class="primary-button"
+    id="dashboardLink"
+    hidden
+  >
+    Dashboard
+  </a>
+
+  <div
+    class="account-menu"
+    id="accountMenu"
+    hidden
+  >
+
+    <button
+      type="button"
+      class="account-menu-button"
+      id="accountMenuButton"
+      aria-expanded="false"
+    >
+      <span
+        class="account-avatar"
+        id="accountAvatar"
+      >
+        U
+      </span>
+
+      <span
+        class="account-name"
+        id="accountName"
+      >
+        Account
+      </span>
+
+      <span class="account-chevron">
+        ▾
+      </span>
+    </button>
+
+    <div
+      class="account-dropdown"
+      id="accountDropdown"
+      hidden
+    >
+
+      <div class="account-dropdown-user">
+
+        <strong id="accountDropdownName">
+          User
+        </strong>
+
+        <span id="accountDropdownEmail">
+          user@example.com
+        </span>
+
+      </div>
+
+      <a
+        href="#"
+        id="accountDashboardLink"
+      >
+        Dashboard
+      </a>
+
+      <button
+        type="button"
+        id="logoutButton"
+        class="account-logout-button"
+      >
+        Log out
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+    </div>
+  </header>
+
+  <main>
+
+    <section class="hero-section">
+      <div class="container hero-container">
+
+        <div class="hero-content">
+          <span class="section-label">Explore Coastal Kenya</span>
+
+          <h1>
+            Find trusted restaurants and local services near you
+          </h1>
+
+          <p>
+            Discover verified restaurants, professional cleaners, househelps,
+            drivers, chefs, tour providers and other trusted services across
+            Kenya's coast.
+          </p>
+
+          <form class="hero-search" id="heroSearchForm">
+
+            <div class="search-field">
+              <label for="searchType">What are you looking for?</label>
+
+              <select id="searchType" name="type">
+                <option value="restaurants">Restaurants</option>
+                <option value="cleaning">Cleaning services</option>
+                <option value="househelp">Househelps</option>
+                <option value="drivers">Drivers</option>
+                <option value="chefs">Private chefs</option>
+                <option value="tours">Tours and experiences</option>
+              </select>
+            </div>
+
+            <div class="search-field">
+              <label for="searchLocation">Location</label>
+
+              <select id="searchLocation" name="location">
+                <option value="">Choose a location</option>
+                <option value="mombasa">Mombasa</option>
+                <option value="nyali">Nyali</option>
+                <option value="bamburi">Bamburi</option>
+                <option value="diani">Diani</option>
+                <option value="kilifi">Kilifi</option>
+                <option value="malindi">Malindi</option>
+                <option value="watamu">Watamu</option>
+                <option value="lamu">Lamu</option>
+              </select>
+            </div>
+
+            <button type="submit" class="search-button">
+              Search
+            </button>
+
+          </form>
+
+          <div
+  class="home-stats"
+  id="homeStats"
+  aria-label="Coast Connect Kenya platform statistics"
+>
+
+  <article class="home-stat">
+    <div class="home-stat-icon">🍽️</div>
+
+    <strong id="homeRestaurantsCount">0</strong>
+
+    <span>Restaurants</span>
+  </article>
+
+  <article class="home-stat">
+    <div class="home-stat-icon">👨‍🔧</div>
+
+    <strong id="homeProvidersCount">0</strong>
+
+    <span>Professionals</span>
+  </article>
+
+  <article class="home-stat">
+    <div class="home-stat-icon">⭐</div>
+
+    <strong id="homeReviewsCount">0</strong>
+
+    <span>Customer Reviews</span>
+  </article>
+
+  <article class="home-stat">
+    <div class="home-stat-icon">📦</div>
+
+    <strong id="homeOrdersCount">0</strong>
+
+    <span>Completed Orders</span>
+  </article>
+
+</div>
+
+</div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-card hero-card-main">
+            <span class="card-category">Featured destination</span>
+            <h2>Experience the best of Coastal Kenya</h2>
+            <p>Food, trusted services and unforgettable experiences.</p>
+          </div>
+
+          <div class="hero-card hero-card-small">
+            <strong>Trusted locally</strong>
+            <span>Verified businesses and service providers</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="category-section">
+      <div class="container">
+
+        <div class="section-heading">
+          <div>
+            <span class="section-label">Popular categories</span>
+            <h2>Everything you need in one place</h2>
+          </div>
+
+          <a href="providers.html" class="text-link">View all services</a>
+        </div>
+
+        <div class="category-grid">
+
+          <a href="restaurants.html" class="category-card">
+            <span class="category-icon">🍽️</span>
+            <h3>Restaurants</h3>
+            <p>Explore menus, prices, locations and customer reviews.</p>
+          </a>
+
+          <a href="providers.html?category=cleaning" class="category-card">
+            <span class="category-icon">🧹</span>
+            <h3>Cleaning</h3>
+            <p>Book trusted home, office and holiday rental cleaners.</p>
+          </a>
+
+          <a href="providers.html?category=househelp" class="category-card">
+            <span class="category-icon">🏠</span>
+            <h3>Househelps</h3>
+            <p>Find verified and experienced domestic support professionals.</p>
+          </a>
+
+          <a href="providers.html?category=drivers" class="category-card">
+            <span class="category-icon">🚗</span>
+            <h3>Drivers</h3>
+            <p>Hire professional local drivers for business or personal travel.</p>
+          </a>
+
+          <a href="providers.html?category=chefs" class="category-card">
+            <span class="category-icon">👨‍🍳</span>
+            <h3>Private chefs</h3>
+            <p>Book chefs for homes, villas, events and private dining.</p>
+          </a>
+
+          <a href="providers.html?category=tours" class="category-card">
+            <span class="category-icon">🏝️</span>
+            <h3>Tours</h3>
+            <p>Discover trusted guides and memorable coastal experiences.</p>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="destinations-section">
+      <div class="container">
+
+        <div class="section-heading">
+          <div>
+            <span class="section-label">Explore the coast</span>
+            <h2>Popular destinations</h2>
+          </div>
+
+          <a href="destinations.html" class="text-link">Explore all locations</a>
+        </div>
+
+        <div class="destination-grid">
+
+          <a href="restaurants.html?location=mombasa" class="destination-card">
+            <div class="destination-overlay">
+              <span>Explore</span>
+              <h3>Mombasa</h3>
+            </div>
+          </a>
+
+          <a href="restaurants.html?location=diani" class="destination-card">
+            <div class="destination-overlay">
+              <span>Explore</span>
+              <h3>Diani</h3>
+            </div>
+          </a>
+
+          <a href="restaurants.html?location=watamu" class="destination-card">
+            <div class="destination-overlay">
+              <span>Explore</span>
+              <h3>Watamu</h3>
+            </div>
+          </a>
+
+          <a href="restaurants.html?location=malindi" class="destination-card">
+            <div class="destination-overlay">
+              <span>Explore</span>
+              <h3>Malindi</h3>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-section">
+      <div class="container trust-container">
+
+        <div class="trust-content">
+          <span class="section-label">Built on trust</span>
+
+          <h2>Book local services with confidence</h2>
+
+          <p>
+            Coast Connect Kenya helps customers make informed decisions through
+            verified profiles, transparent pricing, genuine reviews and secure
+            booking records.
+          </p>
+
+          <a href="register.html" class="primary-button">
+            Create your account
+          </a>
+        </div>
+
+        <div class="trust-list">
+
+          <article class="trust-item">
+            <span>01</span>
+            <div>
+              <h3>Verified providers</h3>
+              <p>Provider identities and business information are reviewed.</p>
+            </div>
+          </article>
+
+          <article class="trust-item">
+            <span>02</span>
+            <div>
+              <h3>Transparent information</h3>
+              <p>View services, menus, prices and availability before booking.</p>
+            </div>
+          </article>
+
+          <article class="trust-item">
+            <span>03</span>
+            <div>
+              <h3>Real customer reviews</h3>
+              <p>Reviews are linked to completed bookings and genuine experiences.</p>
+            </div>
+          </article>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="provider-section">
+      <div class="container provider-container">
+
+        <div>
+          <span class="section-label">Grow your business</span>
+
+          <h2>Offer your services through Coast Connect Kenya</h2>
+
+          <p>
+            Join a professional marketplace connecting trusted providers and
+            restaurants with customers across Coastal Kenya.
+          </p>
+        </div>
+
+        <div class="provider-actions">
+          <a href="register.html?role=provider" class="secondary-button">
+            Become a provider
+          </a>
+
+          <a href="register.html?role=restaurant-owner" class="primary-button">
+            List your restaurant
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+
+      <div class="footer-brand">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">CC</span>
+
+          <span class="brand-text">
+            <strong>Coast Connect</strong>
+            <small>Kenya</small>
+          </span>
+        </a>
+
+        <p>
+          Connecting customers with trusted restaurants and local services
+          across Coastal Kenya.
+        </p>
+      </div>
+
+      <div class="footer-column">
+        <h3>Explore</h3>
+        <a href="restaurants.html">Restaurants</a>
+        <a href="providers.html">Local services</a>
+        <a href="destinations.html">Destinations</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>Business</h3>
+        <a href="register.html?role=provider">Become a provider</a>
+        <a href="register.html?role=restaurant-owner">List a restaurant</a>
+        <a href="login.html">Business login</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>Company</h3>
+        <a href="about.html">About us</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="terms.html">Terms of service</a>
+      </div>
+
+    </div>
+
+    <div class="container footer-bottom">
+      <p>
+        &copy; <span id="currentYear"></span> Coast Connect Kenya.
+        All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

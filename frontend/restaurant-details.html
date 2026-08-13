@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="View restaurant details, menu prices, opening hours, contact information and reviews on Coast Connect Kenya."
+  >
+
+  <meta name="author" content="Coast Connect Kenya">
+
+  <title>Restaurant Details | Coast Connect Kenya</title>
+
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/restaurant-details.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-container">
+
+      <a
+        href="index.html"
+        class="brand"
+        aria-label="Coast Connect Kenya homepage"
+      >
+        <span class="brand-icon">CC</span>
+
+        <span class="brand-text">
+          <strong>Coast Connect</strong>
+          <small>Kenya</small>
+        </span>
+      </a>
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+        id="mobileMenuButton"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="mainNavigation"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav
+        class="main-navigation"
+        id="mainNavigation"
+        aria-label="Main navigation"
+      >
+        <a href="index.html">Home</a>
+        <a href="restaurants.html" class="active">Restaurants</a>
+        <a href="services.html">Services</a>
+        <a href="destinations.html">Destinations</a>
+        <a href="about.html">About</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="login.html" class="login-link">Log in</a>
+        <a href="register.html" class="primary-button">Get Started</a>
+      </div>
+
+    </div>
+  </header>
+
+  <main>
+
+    <section class="restaurant-details-hero">
+      <div class="container">
+
+        <a
+          href="restaurants.html"
+          class="back-link"
+        >
+          ← Back to restaurants
+        </a>
+
+        <div
+          class="restaurant-details-status"
+          id="restaurantDetailsStatus"
+          role="status"
+          aria-live="polite"
+        >
+          Loading restaurant details...
+        </div>
+
+        <div
+          class="restaurant-details-content"
+          id="restaurantDetailsContent"
+          hidden
+        >
+
+          <div class="restaurant-details-image">
+            <img
+              id="restaurantCoverImage"
+              alt=""
+              hidden
+            >
+            <div class="restaurant-details-badges">
+              <span
+                class="restaurant-detail-badge verified"
+                id="restaurantVerifiedBadge"
+                hidden
+              >
+                Verified
+              </span>
+
+              <span
+                class="restaurant-detail-badge"
+                id="restaurantOpenBadge"
+              >
+                Closed
+              </span>
+            </div>
+          </div>
+
+          <div class="restaurant-details-summary">
+
+            <span
+              class="section-label"
+              id="restaurantLocationLabel"
+            >
+              Coastal Kenya
+            </span>
+
+            <h1 id="restaurantName">Restaurant</h1>
+
+            <div class="restaurant-summary-meta">
+              <span id="restaurantRating">★ 0.0</span>
+              <span id="restaurantReviewCount">0 reviews</span>
+              <span id="restaurantPriceRange">Pricing available</span>
+            </div>
+
+            <p
+              class="restaurant-summary-description"
+              id="restaurantDescription"
+            ></p>
+
+            <div
+              class="restaurant-cuisine-list"
+              id="restaurantCuisineList"
+            ></div>
+
+            <div class="restaurant-summary-actions">
+              <a
+                href="#menu"
+                class="primary-button"
+              >
+                View menu
+              </a>
+
+              <a
+                href="#contact"
+                class="secondary-button"
+              >
+                Contact restaurant
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section
+      class="restaurant-information-section"
+      id="restaurantInformationSection"
+      hidden
+    >
+      <div class="container restaurant-information-layout">
+
+  <!-- =====================================================
+       MENU
+  ====================================================== -->
+
+  <div class="restaurant-main-column">
+
+    <section
+      class="restaurant-content-card"
+      id="menu"
+    >
+      <div class="content-card-header">
+
+        <div>
+          <span class="section-label">
+            Food and prices
+          </span>
+
+          <h2>Menu</h2>
+        </div>
+
+        <span
+          class="menu-item-count"
+          id="menuItemCount"
+        >
+          0 items
+        </span>
+
+      </div>
+
+      <div
+        class="menu-status"
+        id="menuStatus"
+        role="status"
+        aria-live="polite"
+      >
+        Loading menu...
+      </div>
+
+      <div
+        class="menu-categories"
+        id="menuCategories"
+      ></div>
+
+      <div
+        class="menu-empty-state"
+        id="menuEmptyState"
+        hidden
+      >
+        <h3>
+          Menu not available yet
+        </h3>
+
+        <p>
+          This restaurant has not published its menu on
+          Coast Connect Kenya yet.
+        </p>
+      </div>
+
+    </section>
+
+  </div>
+
+
+  <!-- =====================================================
+       YOUR ORDER
+  ====================================================== -->
+
+  <aside class="restaurant-sidebar">
+
+    <section class="restaurant-cart-card">
+
+      <div class="restaurant-cart-header">
+
+        <h2>Your Order</h2>
+
+        <span
+          class="restaurant-cart-count"
+          id="cartItemCount"
+        >
+          0
+        </span>
+
+      </div>
+
+      <div
+        class="restaurant-cart-empty"
+        id="cartEmptyState"
+      >
+        Your cart is empty.
+      </div>
+
+      <div
+        class="restaurant-cart-items"
+        id="cartItems"
+        hidden
+      ></div>
+
+      <div
+        class="restaurant-cart-summary"
+        id="cartSummary"
+        hidden
+      >
+
+        <div class="restaurant-cart-total-row">
+
+          <span>Total</span>
+
+          <strong id="cartTotal">
+            KES 0
+          </strong>
+
+        </div>
+
+        <button
+          type="button"
+          class="primary-button restaurant-cart-checkout-button"
+          id="checkoutButton"
+          disabled
+        >
+          Proceed to Checkout
+        </button>
+
+      </div>
+
+
+      <!-- =================================================
+           CHECKOUT
+      ================================================== -->
+
+      <div
+        class="restaurant-checkout-panel"
+        id="checkoutPanel"
+        hidden
+      >
+
+        <div class="restaurant-checkout-header">
+
+          <div>
+
+            <span class="section-label">
+              Checkout
+            </span>
+
+            <h3>
+              Complete your order
+            </h3>
+
+          </div>
+
+          <button
+            type="button"
+            class="cart-remove-button"
+            id="closeCheckoutButton"
+          >
+            Close
+          </button>
+
+        </div>
+
+
+        <form
+          id="checkoutForm"
+          class="restaurant-checkout-form"
+          novalidate
+        >
+
+          <!-- Customer name -->
+
+          <div class="checkout-form-group">
+
+            <label for="checkoutCustomerName">
+              Customer name
+              <span>*</span>
+            </label>
+
+            <input
+              type="text"
+              id="checkoutCustomerName"
+              maxlength="150"
+              required
+            >
+
+          </div>
+
+
+          <!-- Phone -->
+
+          <div class="checkout-form-group">
+
+            <label for="checkoutCustomerPhone">
+              Phone number
+              <span>*</span>
+            </label>
+
+            <input
+              type="tel"
+              id="checkoutCustomerPhone"
+              maxlength="30"
+              required
+            >
+
+          </div>
+
+
+          <!-- Order type -->
+
+          <div class="checkout-form-group">
+
+            <label for="checkoutOrderType">
+              Order type
+              <span>*</span>
+            </label>
+
+            <select
+              id="checkoutOrderType"
+              required
+            >
+
+              <option value="">
+                Select order type
+              </option>
+
+              <option value="DINE_IN">
+                Dine in
+              </option>
+
+              <option value="PICKUP">
+                Pickup
+              </option>
+
+              <option value="DELIVERY">
+                Delivery
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <!-- Table number -->
+
+          <div
+            class="checkout-form-group"
+            id="checkoutTableNumberGroup"
+            hidden
+          >
+
+            <label for="checkoutTableNumber">
+              Table number
+            </label>
+
+            <input
+              type="text"
+              id="checkoutTableNumber"
+              maxlength="30"
+            >
+
+          </div>
+
+
+          <!-- Guest count -->
+
+          <div
+            class="checkout-form-group"
+            id="checkoutGuestCountGroup"
+            hidden
+          >
+
+            <label for="checkoutGuestCount">
+              Number of guests
+            </label>
+
+            <input
+              type="number"
+              id="checkoutGuestCount"
+              min="1"
+              max="100"
+              step="1"
+            >
+
+          </div>
+
+
+          <!-- Delivery address -->
+
+          <div
+            class="checkout-form-group"
+            id="checkoutDeliveryAddressGroup"
+            hidden
+          >
+
+            <label for="checkoutDeliveryAddress">
+              Delivery address
+            </label>
+
+            <textarea
+              id="checkoutDeliveryAddress"
+              rows="3"
+              maxlength="500"
+            ></textarea>
+
+          </div>
+
+
+          <!-- Notes -->
+
+          <div class="checkout-form-group">
+
+            <label for="checkoutCustomerNotes">
+              Order notes
+            </label>
+
+            <textarea
+              id="checkoutCustomerNotes"
+              rows="3"
+              maxlength="500"
+              placeholder="Example: No chilli, serve drinks first"
+            ></textarea>
+
+          </div>
+
+
+          <!-- =================================================
+               PROMOTION
+          ================================================== -->
+
+          <div class="checkout-form-group">
+
+            <label for="checkoutPromoCode">
+              Promo code
+            </label>
+
+            <div class="checkout-promo-row">
+
+              <input
+                type="text"
+                id="checkoutPromoCode"
+                maxlength="60"
+                placeholder="Enter promo code"
+                autocomplete="off"
+              >
+
+              <button
+                type="button"
+                id="applyPromoCodeButton"
+                class="secondary-button"
+              >
+                Apply
+              </button>
+
+            </div>
+
+            <p
+              id="checkoutPromoMessage"
+              class="form-message"
+              aria-live="polite"
+            ></p>
+
+          </div>
+
+
+          <!-- Promotion summary -->
+
+          <div
+            id="checkoutPromotionSummary"
+            class="checkout-promotion-summary"
+            hidden
+          >
+
+            <div class="restaurant-cart-total-row">
+
+              <span>Subtotal</span>
+
+              <strong id="promotionSubtotal">
+                KES 0
+              </strong>
+
+            </div>
+
+            <div class="restaurant-cart-total-row">
+
+              <span>Discount</span>
+
+              <strong id="promotionDiscount">
+                - KES 0
+              </strong>
+
+            </div>
+
+            <div class="restaurant-cart-total-row">
+
+              <span>Amount to Pay</span>
+
+              <strong id="promotionTotal">
+                KES 0
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- =================================================
+               DELIVERY SUMMARY
+          ================================================== -->
+
+          <div
+            id="checkoutDeliverySummary"
+            class="checkout-promotion-summary"
+            hidden
+          >
+
+            <div class="restaurant-cart-total-row">
+
+              <span>Delivery Zone</span>
+
+              <strong id="checkoutDeliveryZoneName">
+                -
+              </strong>
+
+            </div>
+
+            <div class="restaurant-cart-total-row">
+
+              <span>Delivery Fee</span>
+
+              <strong id="checkoutDeliveryFee">
+                KES 0
+              </strong>
+
+            </div>
+
+            <div class="restaurant-cart-total-row">
+
+              <span>Estimated Delivery</span>
+
+              <strong id="checkoutDeliveryTime">
+                -
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- =================================================
+               FINAL TOTAL
+          ================================================== -->
+
+          <div
+            id="checkoutFinalSummary"
+            class="checkout-promotion-summary"
+          >
+
+            <div class="restaurant-cart-total-row">
+
+              <span>Subtotal</span>
+
+              <strong id="checkoutFinalSubtotal">
+                KES 0
+              </strong>
+
+            </div>
+
+            <div
+              class="restaurant-cart-total-row"
+              id="checkoutFinalDiscountRow"
+              hidden
+            >
+
+              <span>Discount</span>
+
+              <strong id="checkoutFinalDiscount">
+                - KES 0
+              </strong>
+
+            </div>
+
+            <div
+              class="restaurant-cart-total-row"
+              id="checkoutFinalDeliveryRow"
+              hidden
+            >
+
+              <span>Delivery Fee</span>
+
+              <strong id="checkoutFinalDeliveryFee">
+                KES 0
+              </strong>
+
+            </div>
+
+            <div class="restaurant-cart-total-row">
+
+              <span>Amount to Pay</span>
+
+              <strong id="checkoutFinalTotal">
+                KES 0
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="checkoutMessage"
+            class="form-message"
+            role="alert"
+            aria-live="polite"
+          ></div>
+
+
+          <button
+            type="submit"
+            id="placeOrderButton"
+            class="primary-button restaurant-cart-checkout-button"
+          >
+            Place Order
+          </button>
+
+        </form>
+
+      </div>
+
+    </section>
+
+  </aside>
+
+
+  <!-- =====================================================
+       REVIEWS
+  ====================================================== -->
+
+  <section
+    class="restaurant-content-card restaurant-reviews-section"
+  >
+
+    <div class="content-card-header">
+
+      <div>
+
+        <span class="section-label">
+          Customer feedback
+        </span>
+
+        <h2>Reviews</h2>
+
+      </div>
+
+    </div>
+
+    <div
+      class="reviews-status"
+      id="reviewsStatus"
+      role="status"
+      aria-live="polite"
+    >
+      Loading reviews...
+    </div>
+
+    <div
+      class="reviews-list"
+      id="reviewsList"
+    ></div>
+
+    <div
+      class="reviews-empty-state"
+      id="reviewsEmptyState"
+      hidden
+    >
+
+      <h3>
+        No reviews yet
+      </h3>
+
+      <p>
+        Be the first customer to review this restaurant.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       RESTAURANT INFORMATION
+  ====================================================== -->
+
+  <section
+    class="restaurant-content-card restaurant-info-section"
+    id="contact"
+  >
+
+    <h2>
+      Restaurant information
+    </h2>
+
+    <dl class="restaurant-info-list">
+
+      <div>
+
+        <dt>Address</dt>
+
+        <dd id="restaurantAddress">
+          Not provided
+        </dd>
+
+      </div>
+
+      <div>
+
+        <dt>Opening hours</dt>
+
+        <dd id="restaurantHours">
+          Not provided
+        </dd>
+
+      </div>
+
+      <div>
+
+        <dt>Phone</dt>
+
+        <dd>
+
+          <a
+            id="restaurantPhone"
+            href="#"
+            hidden
+          ></a>
+
+          <span id="restaurantPhoneUnavailable">
+            Not provided
+          </span>
+
+        </dd>
+
+      </div>
+
+      <div>
+
+        <dt>WhatsApp</dt>
+
+        <dd>
+
+          <a
+            id="restaurantWhatsapp"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            hidden
+          >
+            Message on WhatsApp
+          </a>
+
+          <span id="restaurantWhatsappUnavailable">
+            Not provided
+          </span>
+
+        </dd>
+
+      </div>
+
+      <div>
+
+        <dt>Email</dt>
+
+        <dd>
+
+          <a
+            id="restaurantEmail"
+            href="#"
+            hidden
+          ></a>
+
+          <span id="restaurantEmailUnavailable">
+            Not provided
+          </span>
+
+        </dd>
+
+      </div>
+
+    </dl>
+
+  </section>
+
+
+  <!-- =====================================================
+       SERVICES
+  ====================================================== -->
+
+  <section
+    class="restaurant-content-card restaurant-services-section"
+  >
+
+    <h2>
+      Available services
+    </h2>
+
+    <div class="restaurant-service-list">
+
+      <div class="restaurant-service-item">
+
+        <span>
+          Halal food
+        </span>
+
+        <strong id="restaurantHalal">
+          No
+        </strong>
+
+      </div>
+
+      <div class="restaurant-service-item">
+
+        <span>
+          Delivery
+        </span>
+
+        <strong id="restaurantDelivery">
+          No
+        </strong>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       LOCATION
+  ====================================================== -->
+
+  <section
+    class="restaurant-content-card restaurant-location-section"
+    id="restaurantLocationCard"
+    hidden
+  >
+
+    <h2>
+      Location
+    </h2>
+
+    <p id="restaurantCoordinates"></p>
+
+    <a
+      id="restaurantMapLink"
+      href="#"
+      class="secondary-button location-map-link"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Open in Google Maps
+    </a>
+
+  </section>
+
+</div>
+    </section>
+
+    <section
+      class="restaurant-details-error"
+      id="restaurantDetailsError"
+      hidden
+    >
+      <div class="container">
+
+        <div class="restaurant-error-card">
+          <h1>Restaurant not found</h1>
+
+          <p id="restaurantErrorMessage">
+            The restaurant could not be loaded.
+          </p>
+
+          <a
+            href="restaurants.html"
+            class="primary-button"
+          >
+            Browse restaurants
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+
+      <div class="footer-brand">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">CC</span>
+
+          <span class="brand-text">
+            <strong>Coast Connect</strong>
+            <small>Kenya</small>
+          </span>
+        </a>
+
+        <p>
+          Connecting customers with trusted restaurants and local services
+          across Coastal Kenya.
+        </p>
+      </div>
+
+      <div class="footer-column">
+        <h3>Explore</h3>
+        <a href="restaurants.html">Restaurants</a>
+        <a href="services.html">Local services</a>
+        <a href="destinations.html">Destinations</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>Business</h3>
+        <a href="register.html?role=provider">Become a provider</a>
+        <a href="register.html?role=restaurant-owner">
+          List a restaurant
+        </a>
+        <a href="login.html">Business login</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>Company</h3>
+        <a href="about.html">About us</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="terms.html">Terms of service</a>
+      </div>
+
+    </div>
+
+    <div class="container footer-bottom">
+      <p>
+        &copy; <span id="currentYear"></span> Coast Connect Kenya.
+        All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+  <script src="js/restaurant-details.js"></script>
+</body>
+</html>

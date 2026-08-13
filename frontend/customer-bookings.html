@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+My Bookings | Coast Connect Kenya
+</title>
+
+<link
+rel="stylesheet"
+href="css/customer-bookings.css"
+>
+
+</head>
+
+<body>
+
+<header class="page-header">
+
+<div class="container">
+
+<div>
+
+<h1>
+My Bookings
+</h1>
+
+<p>
+Track your service bookings, payments and provider progress.
+</p>
+
+</div>
+
+<a
+href="index.html"
+class="back-button"
+>
+← Back Home
+</a>
+
+</div>
+
+</header>
+
+<main class="container">
+
+<div
+id="bookingsMessage"
+class="page-message"
+></div>
+
+<div
+  id="customerBookingNotification"
+  class="customer-booking-notification"
+  hidden
+  aria-live="polite"
+>
+  <div class="customer-booking-notification-icon">
+    🔔
+  </div>
+
+  <div>
+    <strong id="customerBookingNotificationTitle">
+      Booking update
+    </strong>
+
+    <p id="customerBookingNotificationMessage">
+      Your provider booking has been updated.
+    </p>
+  </div>
+</div>
+
+<section class="booking-summary">
+
+<div class="summary-card">
+<h3>Pending</h3>
+<strong id="pendingCount">0</strong>
+</div>
+
+<div class="summary-card">
+<h3>Confirmed</h3>
+<strong id="confirmedCount">0</strong>
+</div>
+
+<div class="summary-card">
+<h3>In Progress</h3>
+<strong id="progressCount">0</strong>
+</div>
+
+<div class="summary-card">
+<h3>Completed</h3>
+<strong id="completedCount">0</strong>
+</div>
+
+</section>
+
+<section>
+
+<div class="section-heading">
+
+<h2>
+Booking History
+</h2>
+
+</div>
+
+<div
+id="customerBookingsGrid"
+class="bookings-grid"
+>
+
+<p>
+Loading bookings...
+</p>
+
+</div>
+
+</section>
+
+</main>
+
+<!-- M-Pesa Payment Modal -->
+
+<div
+  id="mpesaPaymentModal"
+  class="payment-modal"
+  hidden
+>
+
+  <div class="payment-modal-card">
+
+    <button
+      type="button"
+      id="closePaymentModal"
+      class="payment-modal-close"
+    >
+      ×
+    </button>
+
+    <h2>
+      Pay with M-Pesa
+    </h2>
+
+    <p class="payment-modal-provider">
+
+      <strong id="paymentProviderName">
+        Provider
+      </strong>
+
+    </p>
+
+    <div class="payment-modal-amount">
+
+      <span>
+        Amount
+      </span>
+
+      <strong id="paymentAmount">
+        KES 0
+      </strong>
+
+    </div>
+
+    <label
+      for="paymentPhoneNumber"
+      class="payment-label"
+    >
+      M-Pesa Phone Number
+    </label>
+
+    <input
+      id="paymentPhoneNumber"
+      type="tel"
+      placeholder="+2547XXXXXXXX"
+      autocomplete="tel"
+    >
+
+    <div class="payment-modal-actions">
+
+      <button
+        type="button"
+        id="cancelPaymentButton"
+        class="payment-cancel-button"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        id="confirmPaymentButton"
+        class="payment-confirm-button"
+      >
+        Pay Now
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+<script src="http://localhost:5000/socket.io/socket.io.js"></script>
+<script src="js/customer-bookings.js"></script>
+
+</body>
+</html>

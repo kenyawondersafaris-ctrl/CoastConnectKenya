@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Accept Staff Invitation | Coast Connect Kenya</title>
+
+  <link
+    rel="stylesheet"
+    href="css/staff-invitation.css"
+  />
+</head>
+
+<body>
+  <main class="invitation-page">
+    <section class="invitation-card">
+      <a
+        href="index.html"
+        class="invitation-brand"
+      >
+        <span class="brand-mark">CC</span>
+
+        <span>
+          Coast Connect Kenya
+          <small>Restaurant Staff Portal</small>
+        </span>
+      </a>
+
+      <div
+        id="invitationLoading"
+        class="invitation-state"
+      >
+        <div class="loading-spinner"></div>
+
+        <h1>Checking your invitation</h1>
+
+        <p>
+          Please wait while we verify your staff invitation.
+        </p>
+      </div>
+
+      <div
+        id="invitationError"
+        class="invitation-state"
+        hidden
+      >
+        <div class="state-icon error-icon">!</div>
+
+        <h1>Invitation unavailable</h1>
+
+        <p id="invitationErrorMessage">
+          This invitation could not be loaded.
+        </p>
+
+        <a
+          href="login.html"
+          class="secondary-link"
+        >
+          Go to login
+        </a>
+      </div>
+
+      <div
+        id="invitationContent"
+        hidden
+      >
+        <div class="invitation-heading">
+          <span class="eyebrow">
+            Restaurant staff invitation
+          </span>
+
+          <h1>
+            Join
+            <span id="invitationRestaurantName">
+              the restaurant team
+            </span>
+          </h1>
+
+          <p>
+            Create your password to activate your Coast Connect
+            Kenya staff account.
+          </p>
+        </div>
+
+        <div class="invitation-summary">
+          <div class="summary-avatar">
+            <span id="invitationInitials">ST</span>
+          </div>
+
+          <div class="summary-details">
+            <strong id="invitationFullName">
+              Staff Member
+            </strong>
+
+            <span id="invitationRole">
+              Restaurant Staff
+            </span>
+
+            <small id="invitationContact">
+              staff@example.com
+            </small>
+          </div>
+        </div>
+
+        <form
+          id="invitationForm"
+          class="invitation-form"
+          novalidate
+        >
+          <div class="form-group">
+            <label for="staffPassword">
+              Create password
+            </label>
+
+            <input
+              type="password"
+              id="staffPassword"
+              minlength="8"
+              autocomplete="new-password"
+              placeholder="At least 8 characters"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="staffConfirmPassword">
+              Confirm password
+            </label>
+
+            <input
+              type="password"
+              id="staffConfirmPassword"
+              minlength="8"
+              autocomplete="new-password"
+              placeholder="Enter the password again"
+              required
+            />
+          </div>
+
+          <p class="password-note">
+            Use at least 8 characters. Do not reuse a password
+            from another account.
+          </p>
+
+          <div
+            id="invitationFormMessage"
+            class="form-message"
+            role="alert"
+            aria-live="polite"
+          ></div>
+
+          <button
+            type="submit"
+            id="activateStaffButton"
+            class="primary-button"
+          >
+            Activate Staff Account
+          </button>
+        </form>
+      </div>
+
+      <div
+        id="invitationSuccess"
+        class="invitation-state"
+        hidden
+      >
+        <div class="state-icon success-icon">✓</div>
+
+        <h1>Account activated</h1>
+
+        <p>
+          Your restaurant staff account is ready. You can now
+          sign in using your email and password.
+        </p>
+
+        <a
+          href="login.html"
+          class="primary-link"
+        >
+          Continue to login
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/staff-invitation.js"></script>
+</body>
+</html>

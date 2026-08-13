@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Verify Email | Coast Connect Kenya
+</title>
+
+<link
+  rel="stylesheet"
+  href="css/styles.css"
+>
+<link
+  rel="stylesheet"
+  href="css/verify-email.css"
+>
+</head>
+
+<body>
+
+<div class="auth-page">
+
+<div class="auth-card verify-email-card">
+
+<h1>
+Verify your email
+</h1>
+
+<p class="auth-subtitle">
+  We've sent a 6-digit verification code to
+  <strong id="verificationEmail">
+    your email address
+  </strong>.
+  Enter it below to activate your account.
+</p>
+
+<div
+  class="verification-code-inputs"
+  id="verificationCodeInputs"
+>
+
+<input
+type="text"
+maxlength="1"
+inputmode="numeric"
+class="verification-digit"
+>
+
+<input
+type="text"
+maxlength="1"
+inputmode="numeric"
+class="verification-digit"
+>
+
+<input
+type="text"
+maxlength="1"
+inputmode="numeric"
+class="verification-digit"
+>
+
+<input
+type="text"
+maxlength="1"
+inputmode="numeric"
+class="verification-digit"
+>
+
+<input
+type="text"
+maxlength="1"
+inputmode="numeric"
+class="verification-digit"
+>
+
+<input
+type="text"
+maxlength="1"
+inputmode="numeric"
+class="verification-digit"
+>
+
+</div>
+<div class="verification-actions">
+<button
+id="verifyEmailButton"
+class="primary-button"
+type="button"
+>
+Verify Email
+</button>
+
+<button
+id="resendCodeButton"
+class="secondary-button"
+type="button"
+>
+Resend Code
+</button>
+</div>
+<p
+  id="verificationMessage"
+  class="auth-message verification-message"
+>
+</p>
+
+</div>
+
+</div>
+
+<script src="js/verify-email.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+"use strict";
+
+const express = require("express");
+
+const {
+  createCustomerOrder,
+  createCustomerOrderReview,
+  getCustomerOrderByTrackingToken,
+  getOwnerOrders,
+  getStaffOrders,
+  updateOwnerOrderStatus,
+  updateStaffOrderStatus,
+} = require("../controllers/orderController");
+
+const authenticate = require("../middleware/authMiddleware");
+const requireRole = require("../middleware/requireRole");
+
+const router = express.Router();
+
+
+router.post(
+  "/",
+  createCustomerOrder
+);
+
+router.post(
+  "/track/:trackingToken/review",
+  createCustomerOrderReview
+);
+
+router.get(
+  "/track/:trackingToken",
+  getCustomerOrderByTrackingToken
+);
+
+router.get(
+  "/staff",
+  authenticate,
+  requireRole("RESTAURANT_STAFF"),
+  getStaffOrders
+);
+
+router.patch(
+  "/staff/:orderId/status",
+  authenticate,
+  requireRole("RESTAURANT_STAFF"),
+  updateStaffOrderStatus
+);
+
+router.get(
+  "/owner",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  getOwnerOrders
+);
+
+router.patch(
+  "/owner/:orderId/status",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  updateOwnerOrderStatus
+);
+
+module.exports = router;

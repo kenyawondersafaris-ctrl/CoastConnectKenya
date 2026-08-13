@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Book Service | Coast Connect Kenya
+</title>
+
+<link
+rel="stylesheet"
+href="css/booking.css"
+>
+
+</head>
+
+<body>
+
+<header class="booking-header">
+
+<div class="booking-header-inner">
+
+<a
+href="providers.html"
+class="booking-brand"
+>
+
+<span class="brand-icon">
+CC
+</span>
+
+<span>
+
+<strong>
+Coast Connect
+</strong>
+
+<small>
+Book Service
+</small>
+
+</span>
+
+</a>
+
+<a
+href="javascript:history.back()"
+class="back-link"
+>
+
+← Back
+
+</a>
+
+</div>
+
+</header>
+
+<main class="booking-main">
+
+<div
+id="bookingMessage"
+class="booking-message"
+role="status"
+aria-live="polite"
+></div>
+
+<section
+id="bookingContent"
+class="booking-layout"
+hidden
+>
+
+<article class="booking-card">
+
+<span class="section-label">
+Selected Provider
+</span>
+
+<h1 id="bookingProviderName">
+Loading...
+</h1>
+
+<p
+id="bookingServiceArea"
+class="service-area"
+></p>
+
+<div class="booking-service-card">
+
+<h2
+id="bookingServiceTitle"
+>
+Service
+</h2>
+
+<p
+id="bookingServiceDescription"
+>
+</p>
+
+<div class="booking-price-row">
+
+<strong
+id="bookingPrice"
+>
+KES 0
+</strong>
+
+<span
+id="bookingPricingType"
+>
+</span>
+
+</div>
+
+</div>
+
+</article>
+
+<article class="booking-card">
+
+<span class="section-label">
+Booking Details
+</span>
+
+<form
+id="bookingForm"
+>
+
+<div class="form-group">
+
+<label for="bookingDate">
+
+Preferred Date
+
+</label>
+
+<input
+type="date"
+id="bookingDate"
+required
+>
+
+</div>
+
+<div class="form-group">
+
+<label for="bookingTime">
+
+Preferred Time
+
+</label>
+
+<input
+type="time"
+id="bookingTime"
+required
+>
+
+</div>
+
+<div class="form-group">
+
+<label for="bookingAddress">
+
+Service Address
+
+</label>
+
+<textarea
+id="bookingAddress"
+rows="4"
+placeholder="Enter the exact location where the service will be provided."
+required
+></textarea>
+
+</div>
+
+<div class="form-group">
+
+<label for="bookingInstructions">
+
+Special Instructions
+
+</label>
+
+<textarea
+id="bookingInstructions"
+rows="5"
+placeholder="Optional instructions for the provider."
+></textarea>
+
+</div>
+
+<button
+type="submit"
+id="confirmBookingButton"
+class="primary-button"
+>
+
+Confirm Booking
+
+</button>
+
+</form>
+
+</article>
+
+</section>
+
+</main>
+
+<script src="js/booking.js"></script>
+
+</body>
+</html>
