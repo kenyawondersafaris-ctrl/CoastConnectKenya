@@ -618,6 +618,68 @@
   opacity: 0.7;
 }
 
+/* =========================================================
+   RESTAURANT FAVORITE BUTTON
+========================================================= */
+
+#restaurantFavoriteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-width: 110px;
+  padding: 10px 18px;
+
+  border: 1px solid #d7dee5;
+  border-radius: 999px;
+
+  background: #ffffff;
+  color: #334155;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#restaurantFavoriteButton:hover {
+  border-color: #0f766e;
+  color: #0f766e;
+  background: #f0fdfa;
+  transform: translateY(-1px);
+}
+
+#restaurantFavoriteButton.saved {
+  background: #ecfdf5;
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+#restaurantFavoriteButton.saved:hover {
+  background: #d1fae5;
+  border-color: #0d665f;
+  color: #0d665f;
+}
+
+#restaurantFavoriteButton:focus-visible {
+  outline: 3px solid rgba(15, 118, 110, 0.2);
+  outline-offset: 2px;
+}
+
+#restaurantFavoriteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 
 /* =========================================================
    RESPONSIVE PAYMENT METHODS
