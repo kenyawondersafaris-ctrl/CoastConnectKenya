@@ -177,56 +177,44 @@ if (storedUser) {
   }
 
   if (dashboardLink) {
-    dashboardLink.hidden =
-      false;
+  dashboardLink.hidden = false;
 
-    if (isAdmin) {
-  dashboardLink.href =
-    "admin-dashboard.html";
+  if (isAdmin) {
+    dashboardLink.href =
+      "admin-dashboard.html";
 
-  dashboardLink.textContent =
-    "Admin Dashboard";
-} else if (isProvider) {
-  dashboardLink.href =
-    "provider-dashboard.html";
+    dashboardLink.textContent =
+      "Admin Dashboard";
 
-  dashboardLink.textContent =
-    "Provider Dashboard";
-    } else if (
-  isRestaurantStaff
-) {
-  dashboardLink.href =
-    "restaurant-staff-dashboard.html";
+  } else if (isProvider) {
+    dashboardLink.href =
+      "provider-dashboard.html";
 
-  dashboardLink.textContent =
-    "Staff Dashboard";
-} else if (
-  isRestaurantOwner
-) {
-  dashboardLink.href =
-    "restaurant-owner-dashboard.html";
+    dashboardLink.textContent =
+      "Provider Dashboard";
 
-  dashboardLink.textContent =
-    "Restaurant Dashboard";
+  } else if (isRestaurantStaff) {
+    dashboardLink.href =
+      "restaurant-staff-dashboard.html";
 
-    } else if (
-  isRestaurantStaff
-) {
-  accountDashboardLink.href =
-    "restaurant-staff-dashboard.html";
+    dashboardLink.textContent =
+      "Staff Dashboard";
 
-  accountDashboardLink.textContent =
-    "Staff Dashboard";
-} else if (
-  isCustomer
-) {
-  dashboardLink.href =
-    "customer-bookings.html";
+  } else if (isRestaurantOwner) {
+    dashboardLink.href =
+      "restaurant-owner-dashboard.html";
 
-  dashboardLink.textContent =
-    "My Bookings";
-}
+    dashboardLink.textContent =
+      "Restaurant Dashboard";
+
+  } else if (isCustomer) {
+    dashboardLink.href =
+      "customer-bookings.html";
+
+    dashboardLink.textContent =
+      "My Bookings";
   }
+}
 
   if (accountMenu) {
     accountMenu.hidden =
