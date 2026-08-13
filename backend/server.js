@@ -11,6 +11,7 @@ const { Server } = require("socket.io");
 const pool = require("./src/config/db");
 const authRoutes = require("./src/routes/authRoutes");
 const userRoutes = require("./src/routes/userRoutes");
+const favoriteRoutes =require("./src/routes/favoriteRoutes");
 const restaurantRoutes = require("./src/routes/restaurantRoutes");
 const restaurantStaffRoutes = require("./src/routes/restaurantStaffRoutes");
 const menuRoutes = require("./src/routes/menuRoutes");
@@ -227,6 +228,11 @@ app.use(
 app.use(
   "/api/users",
   userRoutes
+);
+
+app.use(
+  "/api/favorites",
+  favoriteRoutes
 );
 
 

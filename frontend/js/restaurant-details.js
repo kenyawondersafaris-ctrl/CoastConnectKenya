@@ -17,6 +17,13 @@ const socket = io(
 let cart = [];
 
 let currentRestaurant = null;
+let currentRestaurantFavoriteId =
+  null;
+
+const restaurantFavoriteButton =
+  document.getElementById(
+    "restaurantFavoriteButton"
+  );
 let appliedPromotion = null;
 let currentDiscountAmount = 0;
 
@@ -406,14 +413,133 @@ async function loadRestaurantDetails() {
       throw new Error("Restaurant information was not found.");
     }
 
-    displayRestaurantDetails(restaurant);
-    displayMenu(result.menuItems || restaurant.menuItems || []);
-    displayReviews(result.reviews || restaurant.reviews || []);
+    displayRestaurantDetails(
+  restaurant
+);
+
+displayMenu(
+  result.menuItems ||
+  restaurant.menuItems ||
+  []
+);
+
+displayReviews(
+  result.reviews ||
+  restaurant.reviews ||
+  []
+);
+
+await loadRestaurantFavoriteStatus();
   } catch (error) {
     console.error("Restaurant details error:", error);
 
     showRestaurantError(
       error.message || "Restaurant details could not be loaded."
+    );
+  }
+}
+
+async function loadRestaurantFavoriteStatus() {
+  currentRestaurantFavoriteId = null;
+
+  if (!restaurantFavoriteButton) {
+    return;
+  }
+
+  restaurantFavoriteButton.textContent =
+    "♡ Save";
+
+  restaurantFavoriteButton.classList.remove(
+    "saved"
+  );
+
+  if (
+    !token ||
+    !currentRestaurant?.id
+  ) {
+    return;
+  }
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/favorites`,
+        {
+          method: "GET",
+
+          headers: {
+            Accept:
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+    const result =
+      await response.json();
+
+      console.log(
+  "RESTAURANT FAVORITES RESULT:",
+  result
+);
+
+console.log(
+  "CURRENT RESTAURANT ID:",
+  currentRestaurant?.id
+);
+
+    if (
+      !response.ok ||
+      !result.success
+    ) {
+      throw new Error(
+        result.message ||
+        "Unable to load favorites."
+      );
+    }
+
+    const favorites =
+      Array.isArray(result.favorites)
+        ? result.favorites
+        : [];
+
+    const existingFavorite =
+      favorites.find(
+        (favorite) => {
+          const restaurantId =
+            favorite.restaurantId ||
+            favorite.restaurant_id ||
+            favorite.restaurant?.id;
+
+          return (
+            String(restaurantId) ===
+            String(currentRestaurant.id)
+          );
+        }
+      );
+
+    if (!existingFavorite) {
+      return;
+    }
+
+    currentRestaurantFavoriteId =
+      existingFavorite.id ||
+      existingFavorite.favoriteId ||
+      existingFavorite.favorite_id ||
+      null;
+
+    restaurantFavoriteButton.textContent =
+      "♥ Saved";
+
+    restaurantFavoriteButton.classList.add(
+      "saved"
+    );
+  } catch (error) {
+    console.error(
+      "Load restaurant favorite status:",
+      error
     );
   }
 }
