@@ -10,6 +10,7 @@ const {
   getStaffOrders,
   updateOwnerOrderStatus,
   updateStaffOrderStatus,
+  getCustomerOrders,
 } = require("../controllers/orderController");
 
 const authenticate = require("../middleware/authMiddleware");
@@ -31,6 +32,13 @@ router.post(
 router.get(
   "/track/:trackingToken",
   getCustomerOrderByTrackingToken
+);
+
+router.get(
+  "/customer",
+  authenticate,
+  requireRole("CUSTOMER"),
+  getCustomerOrders
 );
 
 router.get(

@@ -2134,6 +2134,185 @@ async function createCustomerOrderReview(
   }
 }
 
+async function getCustomerOrders(
+  req,
+  res
+) {
+  try {
+    const customerId =
+      req.user?.id ||
+      req.user?.userId ||
+      req.user?.sub;
+
+    if (!customerId) {
+      return res.status(401).json({
+        success: false,
+        message:
+          "Customer authentication is required.",
+      });
+    }
+
+    const result =
+      await pool.query(
+        `
+          SELECT
+            ro.id,
+            ro.restaurant_id,
+            ro.customer_id,
+            ro.order_number,
+            ro.customer_name,
+            ro.customer_phone,
+            ro.order_type,
+            ro.delivery_address,
+            ro.customer_notes,
+            ro.subtotal,
+            ro.delivery_fee,
+            ro.discount_amount,
+            ro.total_amount,
+            ro.status,
+            ro.payment_status,
+            ro.payment_method,
+            ro.placed_at,
+            ro.accepted_at,
+            ro.completed_at,
+            ro.cancelled_at,
+            ro.created_at,
+            ro.updated_at,
+            ro.tracking_token,
+            ro.estimated_preparation_minutes,
+
+            r.name
+              AS restaurant_name
+
+          FROM restaurant_orders ro
+
+          INNER JOIN restaurants r
+            ON r.id =
+              ro.restaurant_id
+
+          WHERE ro.customer_id =
+            $1::uuid
+
+          ORDER BY
+            ro.created_at DESC
+        `,
+        [
+          customerId,
+        ]
+      );
+
+    return res.status(200).json({
+      success: true,
+
+      count:
+        result.rows.length,
+
+      orders:
+        result.rows.map(
+          (order) => ({
+            id:
+              order.id,
+
+            restaurantId:
+              order.restaurant_id,
+
+            restaurantName:
+              order.restaurant_name,
+
+            customerId:
+              order.customer_id,
+
+            orderNumber:
+              order.order_number,
+
+            customerName:
+              order.customer_name,
+
+            customerPhone:
+              order.customer_phone,
+
+            orderType:
+              order.order_type,
+
+            deliveryAddress:
+              order.delivery_address,
+
+            customerNotes:
+              order.customer_notes,
+
+            subtotal:
+              Number(
+                order.subtotal || 0
+              ),
+
+            deliveryFee:
+              Number(
+                order.delivery_fee || 0
+              ),
+
+            discountAmount:
+              Number(
+                order.discount_amount || 0
+              ),
+
+            totalAmount:
+              Number(
+                order.total_amount || 0
+              ),
+
+            status:
+              order.status,
+
+            paymentStatus:
+              order.payment_status,
+
+            paymentMethod:
+              order.payment_method,
+
+            trackingToken:
+              order.tracking_token,
+
+            estimatedPreparationMinutes:
+              Number(
+                order
+                  .estimated_preparation_minutes ||
+                20
+              ),
+
+            placedAt:
+              order.placed_at,
+
+            acceptedAt:
+              order.accepted_at,
+
+            completedAt:
+              order.completed_at,
+
+            cancelledAt:
+              order.cancelled_at,
+
+            createdAt:
+              order.created_at,
+
+            updatedAt:
+              order.updated_at,
+          })
+        ),
+    });
+  } catch (error) {
+    console.error(
+      "Get customer orders error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load your orders.",
+    });
+  }
+}
+
 module.exports = {
   createCustomerOrder,
   createCustomerOrderReview,
@@ -2142,4 +2321,5 @@ module.exports = {
   updateOwnerOrderStatus,
   getStaffOrders,
   updateStaffOrderStatus,
+  getCustomerOrders,
 };
