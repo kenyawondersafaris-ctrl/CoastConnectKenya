@@ -1,4 +1,5 @@
 const {
+  getAuthenticatedUser,
   updateAuthenticatedUser,
   changeAuthenticatedUserPassword,
 } = require(
@@ -13,13 +14,11 @@ const allowRoles = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
-router.get("/profile", authenticate, (req, res) => {
-  res.json({
-    success: true,
-    message: "Protected route accessed successfully",
-    user: req.user,
-  });
-});
+router.get(
+  "/profile",
+  authenticate,
+  getAuthenticatedUser
+);
 
 router.get(
   "/customer-area",

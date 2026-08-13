@@ -36,6 +36,117 @@ async function addRoleToUser(userId, role) {
   );
 }
 
+async function getAuthenticatedUser(
+  req,
+  res
+) {
+  try {
+    const userId =
+      req.user?.id ||
+      req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message:
+          "Authentication required.",
+      });
+    }
+
+    const result =
+      await pool.query(
+        `
+          SELECT
+            id,
+            full_name,
+            email,
+            phone,
+            role,
+            account_status,
+            is_verified,
+            created_at,
+            updated_at
+
+          FROM users
+
+          WHERE id =
+            $1::uuid
+
+          LIMIT 1
+        `,
+        [
+          userId,
+        ]
+      );
+
+    if (
+      result.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "User account was not found.",
+      });
+    }
+
+    const user =
+      result.rows[0];
+
+    const roles =
+      await getUserRoles(
+        user.id
+      );
+
+    return res.status(200).json({
+      success: true,
+
+      user: {
+        id:
+          user.id,
+
+        fullName:
+          user.full_name,
+
+        email:
+          user.email,
+
+        phone:
+          user.phone,
+
+        role:
+          user.role,
+
+        roles,
+
+        accountStatus:
+          user.account_status,
+
+        isVerified:
+          Boolean(
+            user.is_verified
+          ),
+
+        createdAt:
+          user.created_at,
+
+        updatedAt:
+          user.updated_at,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Get authenticated user error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load the account.",
+    });
+  }
+}
+
 async function updateAuthenticatedUser(
   req,
   res
@@ -386,6 +497,7 @@ async function becomeRestaurantOwner(
 }
 
 module.exports = {
+  getAuthenticatedUser,
   updateAuthenticatedUser,
   changeAuthenticatedUserPassword,
   becomeProvider,
