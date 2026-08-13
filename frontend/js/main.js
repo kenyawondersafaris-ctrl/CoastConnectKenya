@@ -372,7 +372,7 @@ document.addEventListener(
   async function loadHomeStats() {
   try {
     const response = await fetch(
-      "http://localhost:5000/api/home/stats",
+      "https://coastconnectkenya.onrender.com/api/home/stats",
       {
         headers: {
           Accept:
@@ -456,14 +456,64 @@ if (
       document.body.classList.toggle("menu-open", isOpen);
     });
 
-    mainNavigation.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
-        mainNavigation.classList.remove("open");
-        mobileMenuButton.setAttribute("aria-expanded", "false");
-        document.body.classList.remove("menu-open");
-      });
-    });
+    document.addEventListener("click", (event) => {
+  const isMenuOpen =
+    mainNavigation.classList.contains("open");
 
+  if (!isMenuOpen) {
+    return;
+  }
+
+  const clickedInsideMenu =
+    mainNavigation.contains(event.target);
+
+  const clickedMenuButton =
+    mobileMenuButton.contains(event.target);
+
+  if (
+    clickedInsideMenu ||
+    clickedMenuButton
+  ) {
+    return;
+  }
+
+  mainNavigation.classList.remove("open");
+
+  mobileMenuButton.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+
+  document.body.classList.remove(
+    "menu-open"
+  );
+});
+
+    mainNavigation.querySelectorAll("a").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    const destination =
+      link.getAttribute("href");
+
+    mainNavigation.classList.remove("open");
+
+    mobileMenuButton.setAttribute(
+      "aria-expanded",
+      "false"
+    );
+
+    document.body.classList.remove(
+      "menu-open"
+    );
+
+    if (
+      destination &&
+      destination !== "#"
+    ) {
+      window.location.href =
+        destination;
+    }
+  });
+});
     window.addEventListener("resize", () => {
       if (window.innerWidth > 860) {
         mainNavigation.classList.remove("open");

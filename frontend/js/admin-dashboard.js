@@ -1,7 +1,7 @@
 "use strict";
 
 const API_BASE =
-  "http://localhost:5000/api";
+  "https://coastconnectkenya.onrender.com/api";
 
 const token =
   localStorage.getItem(

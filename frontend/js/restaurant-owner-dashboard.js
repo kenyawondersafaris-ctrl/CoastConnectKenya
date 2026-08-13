@@ -1,7 +1,7 @@
 "use strict";
 
-const API_BASE_URL = "http://localhost:5000/api";
-const socket =io("http://localhost:5000");
+const API_BASE_URL = "https://coastconnectkenya.onrender.com/api";
+const socket =io("https://coastconnectkenya.onrender.com");
 
 const token = localStorage.getItem("coastConnectToken");
 

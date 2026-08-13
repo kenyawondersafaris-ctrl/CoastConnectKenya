@@ -1,10 +1,10 @@
 "use strict";
 
 const API_BASE_URL =
-  "http://localhost:5000/api";
+  "https://coastconnectkenya.onrender.com/api";
 
   const SOCKET_URL =
-  "http://localhost:5000";
+  "https://coastconnectkenya.onrender.com";
 
 let socket = null;
 

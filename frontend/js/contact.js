@@ -121,7 +121,7 @@ document.addEventListener(
 
          const response =
   await fetch(
-    "http://localhost:5000/api/contact",
+    "https://coastconnectkenya.onrender.com/api/contact",
     {
       method: "POST",
 
