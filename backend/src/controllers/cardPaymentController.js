@@ -1229,26 +1229,32 @@ async function processSuccessfulCardTransaction({
         ]
       );
 
-      await client.query(
-        "COMMIT"
-      );
-
       const existingOrder =
   await loadExistingCardOrder(
     client,
     payment.converted_order_id
   );
 
+if (!existingOrder) {
+  throw new Error(
+    "The paid order could not be loaded."
+  );
+}
+
+await client.query(
+  "COMMIT"
+);
+
 return {
-    processed: true,
-    duplicate: true,
+  processed: true,
+  duplicate: true,
 
-    orderId:
-        payment.converted_order_id,
+  orderId:
+    payment.converted_order_id,
 
-    order:
-        existingOrder,
-    };
+  order:
+    existingOrder,
+};
     }
 
 
