@@ -1188,9 +1188,7 @@ select {
     margin-left: auto;
   }
 
-  .header-actions .login-link {
-    display: none;
-  }
+
 
   .header-actions .primary-button {
     min-height: 42px;
@@ -1251,9 +1249,6 @@ select {
     top: 70px;
   }
 
-  .header-actions .primary-button {
-    display: none;
-  }
 
   .hero-section {
     padding: 68px 0;
