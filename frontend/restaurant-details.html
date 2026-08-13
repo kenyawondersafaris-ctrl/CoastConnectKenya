@@ -383,6 +383,25 @@
 
           </div>
 
+          <div
+  class="checkout-form-group"
+  id="checkoutEmailGroup"
+  hidden
+>
+  <label for="checkoutCustomerEmail">
+    Email address
+    <span>*</span>
+  </label>
+
+  <input
+    type="email"
+    id="checkoutCustomerEmail"
+    maxlength="254"
+    autocomplete="email"
+    placeholder="you@example.com"
+  >
+</div>
+
 
           <!-- Order type -->
 
@@ -685,21 +704,70 @@
           </div>
 
 
-          <div
-            id="checkoutMessage"
-            class="form-message"
-            role="alert"
-            aria-live="polite"
-          ></div>
+          <!-- =================================================
+     PAYMENT METHOD
+================================================== -->
+
+<div class="checkout-form-group">
+
+  <label>
+    Payment method
+    <span>*</span>
+  </label>
+
+  <div class="checkout-payment-methods">
+
+    <label class="checkout-payment-option">
+
+      <input
+        type="radio"
+        name="checkoutPaymentMethod"
+        value="MPESA"
+        checked
+      >
+
+      <span>
+        <strong>M-Pesa</strong>
+        <small>Pay securely from your phone</small>
+      </span>
+
+    </label>
+
+    <label class="checkout-payment-option">
+
+      <input
+        type="radio"
+        name="checkoutPaymentMethod"
+        value="CARD"
+      >
+
+      <span>
+        <strong>Card</strong>
+        <small>Pay securely by debit or credit card</small>
+      </span>
+
+    </label>
+
+  </div>
+
+</div>
 
 
-          <button
-            type="submit"
-            id="placeOrderButton"
-            class="primary-button restaurant-cart-checkout-button"
-          >
-            Place Order
-          </button>
+<div
+  id="checkoutMessage"
+  class="form-message"
+  role="alert"
+  aria-live="polite"
+></div>
+
+
+<button
+  type="submit"
+  id="placeOrderButton"
+  class="primary-button restaurant-cart-checkout-button"
+>
+  Pay with M-Pesa
+</button>
 
         </form>
 

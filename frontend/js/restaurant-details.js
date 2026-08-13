@@ -314,6 +314,62 @@ const checkoutFinalTotal =
     "checkoutFinalTotal"
   );
 
+  const checkoutPaymentMethods =
+  document.querySelectorAll(
+    'input[name="checkoutPaymentMethod"]'
+  );
+
+const placeOrderButton =
+  document.getElementById(
+    "placeOrderButton"
+  );
+
+  const checkoutEmailGroup =
+  document.getElementById(
+    "checkoutEmailGroup"
+  );
+
+const checkoutCustomerEmail =
+  document.getElementById(
+    "checkoutCustomerEmail"
+  );
+
+function updatePaymentMethodButton() {
+  const selectedMethod =
+    document.querySelector(
+      'input[name="checkoutPaymentMethod"]:checked'
+    )?.value || "MPESA";
+
+  const cardSelected =
+    selectedMethod === "CARD";
+
+  checkoutEmailGroup.hidden =
+    !cardSelected;
+
+  checkoutCustomerEmail.required =
+    cardSelected;
+
+  if (cardSelected) {
+    placeOrderButton.textContent =
+      "Pay with Card";
+  } else {
+    checkoutCustomerEmail.value = "";
+
+    placeOrderButton.textContent =
+      "Pay with M-Pesa";
+  }
+}
+checkoutPaymentMethods.forEach(
+  (paymentMethodInput) => {
+    paymentMethodInput.addEventListener(
+      "change",
+      updatePaymentMethodButton
+    );
+  }
+);
+
+updatePaymentMethodButton();
+
 async function loadRestaurantDetails() {
   const restaurantIdentifier = getRestaurantIdentifier();
 
@@ -1575,10 +1631,11 @@ async function startCheckoutPayment(
   placeOrderButton
 ) {
   try {
-
     /*
-      STEP 1
-      Create checkout session
+    |--------------------------------------------------------------------------
+    | STEP 1
+    | Create checkout session
+    |--------------------------------------------------------------------------
     */
 
     const checkoutResponse =
@@ -1625,97 +1682,254 @@ async function startCheckoutPayment(
       checkoutData.checkoutSession
         .sessionToken;
 
-        window.currentCheckoutSessionToken =
-  sessionToken;
+    window.currentCheckoutSessionToken =
+      sessionToken;
 
-  socket.emit(
-  "join-checkout-room",
-  sessionToken
-);
+    socket.emit(
+      "join-checkout-room",
+      sessionToken
+    );
+
 
     /*
-      STEP 2
-      Create payment attempt
+    |--------------------------------------------------------------------------
+    | STEP 2
+    | Read selected payment method
+    |--------------------------------------------------------------------------
     */
 
-    const paymentResponse =
-      await fetch(
-        `${API_BASE_URL}/payments/mpesa/payment-attempt`,
-        {
-          method: "POST",
+    const selectedPaymentMethod =
+      document.querySelector(
+        'input[name="checkoutPaymentMethod"]:checked'
+      )?.value || "MPESA";
 
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Accept:
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            sessionToken,
-
-            phoneNumber:
-              orderPayload.customerPhone,
-          }),
-        }
-      );
-
-    const paymentData =
-      await paymentResponse.json();
-
-    if (
-      !paymentResponse.ok ||
-      !paymentData.success
-    ) {
-      throw new Error(
-        paymentData.message ||
-        "Unable to initiate payment."
-      );
-    }
 
     /*
-      Development mode
+    |--------------------------------------------------------------------------
+    | M-PESA
+    |--------------------------------------------------------------------------
     */
 
     if (
-      paymentData.stkPushReady ===
-      false
+      selectedPaymentMethod ===
+      "MPESA"
     ) {
+      const paymentResponse =
+        await fetch(
+          `${API_BASE_URL}/payments/mpesa/payment-attempt`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              sessionToken,
+
+              phoneNumber:
+                orderPayload.customerPhone,
+            }),
+          }
+        );
+
+      const paymentData =
+        await paymentResponse.json();
+
+      if (
+        !paymentResponse.ok ||
+        !paymentData.success
+      ) {
+        throw new Error(
+          paymentData.message ||
+          "Unable to initiate M-Pesa payment."
+        );
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Development mode
+      |--------------------------------------------------------------------------
+      */
+
+      if (
+        paymentData.stkPushReady ===
+        false
+      ) {
+        checkoutMessage.textContent =
+          "Payment session created successfully. Real M-Pesa payment will activate after deployment.";
+
+        checkoutMessage.className =
+          "form-message success";
+
+        placeOrderButton.disabled =
+          false;
+
+        placeOrderButton.textContent =
+          "Awaiting Deployment";
+
+        return;
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Production M-Pesa
+      |--------------------------------------------------------------------------
+      */
+
       checkoutMessage.textContent =
-        "Payment session created successfully. Real M-Pesa payment will activate after deployment.";
+        paymentData.message ||
+        "Check your phone and enter your M-Pesa PIN.";
 
       checkoutMessage.className =
         "form-message success";
 
       placeOrderButton.disabled =
-        false;
+        true;
 
       placeOrderButton.textContent =
-        "Awaiting Deployment";
+        "Waiting for Payment...";
 
       return;
     }
 
+
     /*
-      Production
+    |--------------------------------------------------------------------------
+    | CARD
+    |--------------------------------------------------------------------------
     */
 
-    checkoutMessage.textContent =
-      paymentData.message ||
-      "Check your phone and enter your M-Pesa PIN.";
+    if (
+      selectedPaymentMethod ===
+      "CARD"
+    ) {
+      const email =
+        checkoutCustomerEmail.value
+          .trim()
+          .toLowerCase();
 
-    checkoutMessage.className =
-      "form-message success";
+      if (!email) {
+        throw new Error(
+          "Email address is required for card payment."
+        );
+      }
 
-    placeOrderButton.disabled =
-      true;
+      checkoutMessage.textContent =
+        "Preparing secure card checkout...";
 
-    placeOrderButton.textContent =
-      "Waiting for Payment...";
+      checkoutMessage.className =
+        "form-message";
+
+      placeOrderButton.disabled =
+        true;
+
+      placeOrderButton.textContent =
+        "Opening Secure Checkout...";
+
+      const cardResponse =
+        await fetch(
+          `${API_BASE_URL}/payments/card/payment-attempt`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              sessionToken,
+              email,
+            }),
+          }
+        );
+
+      const cardData =
+        await cardResponse.json();
+
+      if (
+        !cardResponse.ok ||
+        !cardData.success
+      ) {
+        throw new Error(
+          cardData.message ||
+          "Unable to initialize card payment."
+        );
+      }
+
+      const authorizationUrl =
+        cardData.checkout
+          ?.authorizationUrl;
+
+      const paymentReference =
+        cardData.checkout
+          ?.reference ||
+        cardData.payment
+          ?.paymentReference ||
+        "";
+
+      if (
+        !authorizationUrl
+      ) {
+        throw new Error(
+          "Card checkout URL was not returned."
+        );
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Save card payment state
+      |--------------------------------------------------------------------------
+      */
+
+      sessionStorage.setItem(
+        "coastConnectCardPaymentReference",
+        paymentReference
+      );
+
+      sessionStorage.setItem(
+        "coastConnectCardCheckoutSessionToken",
+        sessionToken
+      );
+
+      checkoutMessage.textContent =
+        "Redirecting to secure card payment...";
+
+      checkoutMessage.className =
+        "form-message success";
+
+      /*
+      |--------------------------------------------------------------------------
+      | Redirect customer to Paystack
+      |--------------------------------------------------------------------------
+      */
+
+      window.location.href =
+        authorizationUrl;
+
+      return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Unknown payment method
+    |--------------------------------------------------------------------------
+    */
+
+    throw new Error(
+      "Please select a valid payment method."
+    );
 
   } catch (error) {
-
     console.error(
       "Checkout payment error:",
       error
@@ -1730,11 +1944,9 @@ async function startCheckoutPayment(
     placeOrderButton.disabled =
       false;
 
-    placeOrderButton.textContent =
-      "Pay with M-Pesa";
+    updatePaymentMethodButton();
   }
 }
-
 async function handleCheckoutSubmit(event) {
   event.preventDefault();
 
@@ -1864,11 +2076,6 @@ const orderPayload = {
     quantity: item.quantity,
   })),
 };
-
-const placeOrderButton =
-  document.getElementById(
-    "placeOrderButton"
-  );
 
 const checkoutMessage =
   document.getElementById(

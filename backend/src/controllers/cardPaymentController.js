@@ -872,6 +872,166 @@ async function createCardPaymentAttempt(
 |--------------------------------------------------------------------------
 */
 
+async function loadExistingCardOrder(
+  client,
+  orderId
+) {
+  const result =
+    await client.query(
+      `
+        SELECT
+          id,
+          restaurant_id,
+          customer_id,
+          order_number,
+          customer_name,
+          customer_phone,
+          order_type,
+          delivery_address,
+          customer_notes,
+          subtotal,
+          delivery_fee,
+          delivery_zone_id,
+          estimated_delivery_minutes,
+          discount_amount,
+          total_amount,
+          promotion_id,
+          promo_code,
+          status,
+          payment_status,
+          payment_method,
+          placed_at,
+          accepted_at,
+          completed_at,
+          cancelled_at,
+          created_at,
+          updated_at,
+          tracking_token,
+          estimated_preparation_minutes
+
+        FROM restaurant_orders
+
+        WHERE id =
+          $1::uuid
+
+        LIMIT 1
+      `,
+      [
+        orderId,
+      ]
+    );
+
+  if (
+    result.rows.length === 0
+  ) {
+    return null;
+  }
+
+  const order =
+    result.rows[0];
+
+  return {
+    id:
+      order.id,
+
+    restaurantId:
+      order.restaurant_id,
+
+    customerId:
+      order.customer_id,
+
+    orderNumber:
+      order.order_number,
+
+    customerName:
+      order.customer_name,
+
+    customerPhone:
+      order.customer_phone,
+
+    orderType:
+      order.order_type,
+
+    deliveryAddress:
+      order.delivery_address,
+
+    customerNotes:
+      order.customer_notes,
+
+    subtotal:
+      Number(
+        order.subtotal || 0
+      ),
+
+    deliveryFee:
+      Number(
+        order.delivery_fee || 0
+      ),
+
+    deliveryZoneId:
+      order.delivery_zone_id,
+
+    estimatedDeliveryMinutes:
+      Number(
+        order.estimated_delivery_minutes ||
+        order.estimated_preparation_minutes ||
+        20
+      ),
+
+    discountAmount:
+      Number(
+        order.discount_amount || 0
+      ),
+
+    totalAmount:
+      Number(
+        order.total_amount || 0
+      ),
+
+    promotionId:
+      order.promotion_id,
+
+    promoCode:
+      order.promo_code,
+
+    status:
+      order.status,
+
+    paymentStatus:
+      order.payment_status,
+
+    paymentMethod:
+      order.payment_method,
+
+    placedAt:
+      order.placed_at,
+
+    acceptedAt:
+      order.accepted_at,
+
+    completedAt:
+      order.completed_at,
+
+    cancelledAt:
+      order.cancelled_at,
+
+    createdAt:
+      order.created_at,
+
+    updatedAt:
+      order.updated_at,
+
+    trackingToken:
+      order.tracking_token,
+
+    estimatedPreparationMinutes:
+      Number(
+        order.estimated_preparation_minutes ||
+        20
+      ),
+  };
+}
+
 async function processSuccessfulCardTransaction({
   reference,
   transaction,
@@ -915,21 +1075,31 @@ async function processSuccessfulCardTransaction({
     */
 
     if (
-      payment.payment_status ===
-        "PAID" &&
-      payment.order_id
-    ) {
-      await client.query(
-        "COMMIT"
-      );
+        payment.payment_status ===
+            "PAID" &&
+        payment.order_id
+        ) {
+        const existingOrder =
+            await loadExistingCardOrder(
+            client,
+            payment.order_id
+            );
 
-      return {
-        processed: true,
-        duplicate: true,
-        orderId:
-          payment.order_id,
-      };
-    }
+        await client.query(
+            "COMMIT"
+        );
+
+        return {
+            processed: true,
+            duplicate: true,
+
+            orderId:
+            payment.order_id,
+
+            order:
+            existingOrder,
+        };
+        }
 
 
     /*
@@ -1063,13 +1233,22 @@ async function processSuccessfulCardTransaction({
         "COMMIT"
       );
 
-      return {
-        processed: true,
-        duplicate: true,
-        orderId:
-          payment
-            .converted_order_id,
-      };
+      const existingOrder =
+  await loadExistingCardOrder(
+    client,
+    payment.converted_order_id
+  );
+
+return {
+    processed: true,
+    duplicate: true,
+
+    orderId:
+        payment.converted_order_id,
+
+    order:
+        existingOrder,
+    };
     }
 
 
