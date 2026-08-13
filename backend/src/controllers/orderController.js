@@ -31,16 +31,17 @@ const ALLOWED_STATUS_TRANSITIONS = {
     "CANCELLED",
   ],
 
-READY: [
-  "OUT_FOR_DELIVERY",
-  "COMPLETED",
-  "CANCELLED",
-],
+  READY: [
+    "OUT_FOR_DELIVERY",
+    "COMPLETED",
+    "CANCELLED",
+  ],
 
-OUT_FOR_DELIVERY: [
-  "COMPLETED",
-  "CANCELLED",
-],
+  OUT_FOR_DELIVERY: [
+    "COMPLETED",
+    "CANCELLED",
+  ],
+
   COMPLETED: [],
 
   CANCELLED: [],

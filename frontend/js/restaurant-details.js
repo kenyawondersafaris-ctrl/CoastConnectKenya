@@ -1,11 +1,12 @@
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL =
+  "https://coastconnectkenya.onrender.com/api";
 const token =
   localStorage.getItem(
     "coastConnectToken"
   );
 
 const socket = io(
-  "http://localhost:5000",
+  "https://coastconnectkenya.onrender.com",
   {
     auth: {
       token,
