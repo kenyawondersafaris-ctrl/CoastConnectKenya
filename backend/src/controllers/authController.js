@@ -10,7 +10,16 @@ const {
 } =
 require("../services/emailVerificationService");
 
+const crypto =
+  require("crypto");
 
+const {
+  sendPasswordResetCode,
+  canSendPasswordResetCode,
+  verifyPasswordResetCode,
+  hashPasswordResetCode,
+} =
+  require("../services/passwordResetService");
 
 const allowedRoles = [
   "CUSTOMER",
@@ -180,16 +189,33 @@ async function register(req, res) {
     await client.query("COMMIT");
 
     try {
-  await sendVerificationCode({
-    id:
-      user.id,
+  await Promise.race([
+    sendVerificationCode({
+      id:
+        user.id,
 
-    email:
-      user.email,
+      email:
+        user.email,
 
-    fullName:
-      user.full_name,
-  });
+      fullName:
+        user.full_name,
+    }),
+
+    new Promise(
+      (_, reject) => {
+        setTimeout(
+          () => {
+            reject(
+              new Error(
+                "Verification email timed out."
+              )
+            );
+          },
+          15000
+        );
+      }
+    ),
+  ]);
 } catch (emailError) {
   console.error(
     "Verification email send error:",
@@ -482,6 +508,408 @@ async function resendVerificationCode(
     });
   }
 }
+
+async function forgotPassword(
+  req,
+  res
+) {
+  const genericMessage =
+    "If an account exists for that email, a password reset code has been sent.";
+
+  try {
+    const {
+      email,
+    } =
+      req.validated.body;
+
+    const normalizedEmail =
+      cleanText(
+        email
+      ).toLowerCase();
+
+    const userResult =
+      await pool.query(
+        `
+          SELECT
+            id,
+            full_name,
+            email,
+            account_status
+
+          FROM users
+
+          WHERE email =
+            $1::varchar
+
+          LIMIT 1
+        `,
+        [
+          normalizedEmail,
+        ]
+      );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Do not reveal whether an email exists
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      userResult.rows.length === 0
+    ) {
+      return res.status(200).json({
+        success: true,
+
+        message:
+          genericMessage,
+
+        /*
+        | Return a valid-looking request ID so
+        | account existence is not exposed.
+        */
+        userId:
+          crypto.randomUUID(),
+      });
+    }
+
+    const user =
+      userResult.rows[0];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Inactive accounts do not receive reset email
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      user.account_status !==
+      "ACTIVE"
+    ) {
+      return res.status(200).json({
+        success: true,
+
+        message:
+          genericMessage,
+
+        userId:
+          crypto.randomUUID(),
+      });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Per-account email sending limits
+    |--------------------------------------------------------------------------
+    */
+
+    const sendPermission =
+      await canSendPasswordResetCode(
+        user.id
+      );
+
+    if (
+      sendPermission.allowed
+    ) {
+      try {
+        await Promise.race([
+          sendPasswordResetCode({
+            id:
+              user.id,
+
+            email:
+              user.email,
+
+            fullName:
+              user.full_name,
+          }),
+
+          new Promise(
+            (_, reject) => {
+              setTimeout(
+                () => {
+                  reject(
+                    new Error(
+                      "Password reset email timed out."
+                    )
+                  );
+                },
+                15000
+              );
+            }
+          ),
+        ]);
+      } catch (
+        emailError
+      ) {
+        console.error(
+          "Password reset email send error:",
+          emailError
+        );
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+
+      message:
+        genericMessage,
+
+      userId:
+        user.id,
+    });
+  } catch (error) {
+    console.error(
+      "Forgot password error:",
+      error
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Still avoid exposing account existence
+    |--------------------------------------------------------------------------
+    */
+
+    return res.status(200).json({
+      success: true,
+
+      message:
+        genericMessage,
+
+      userId:
+        crypto.randomUUID(),
+    });
+  }
+}
+
+
+async function verifyResetCode(
+  req,
+  res
+) {
+  try {
+    const {
+      userId,
+      code,
+    } =
+      req.validated.body;
+
+    const result =
+      await verifyPasswordResetCode(
+        userId,
+        code
+      );
+
+    if (
+      !result.success
+    ) {
+      return res.status(400).json({
+        success: false,
+
+        message:
+          result.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+
+      message:
+        "Password reset code verified successfully.",
+    });
+  } catch (error) {
+    console.error(
+      "Password reset code verification error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+
+      message:
+        "Unable to verify password reset code.",
+    });
+  }
+}
+
+
+async function resetPassword(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const {
+      userId,
+      code,
+      password,
+    } =
+      req.validated.body;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | First verify expiry, attempts and submitted code
+    |--------------------------------------------------------------------------
+    */
+
+    const verificationResult =
+      await verifyPasswordResetCode(
+        userId,
+        code
+      );
+
+    if (
+      !verificationResult.success
+    ) {
+      return res.status(400).json({
+        success: false,
+
+        message:
+          verificationResult.message,
+      });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Hash new password
+    |--------------------------------------------------------------------------
+    */
+
+    const passwordHash =
+      await bcrypt.hash(
+        password,
+        12
+      );
+
+    const codeHash =
+      hashPasswordResetCode(
+        code
+      );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Atomically consume reset code + update password
+    |--------------------------------------------------------------------------
+    */
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const consumedCodeResult =
+      await client.query(
+        `
+          DELETE FROM
+            password_reset_codes
+
+          WHERE user_id =
+            $1::uuid
+
+            AND code_hash =
+              $2::text
+
+            AND expires_at >
+              CURRENT_TIMESTAMP
+
+          RETURNING
+            user_id
+        `,
+        [
+          userId,
+          codeHash,
+        ]
+      );
+
+    if (
+      consumedCodeResult
+        .rows.length === 0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(400).json({
+        success: false,
+
+        message:
+          "Password reset code is invalid or has expired.",
+      });
+    }
+
+    const updatedUserResult =
+      await client.query(
+        `
+          UPDATE users
+
+          SET
+            password_hash =
+              $1::text
+
+          WHERE id =
+            $2::uuid
+
+          RETURNING
+            id
+        `,
+        [
+          passwordHash,
+          userId,
+        ]
+      );
+
+    if (
+      updatedUserResult
+        .rows.length === 0
+    ) {
+      throw new Error(
+        "User account could not be updated."
+      );
+    }
+
+    await client.query(
+      "COMMIT"
+    );
+
+    return res.status(200).json({
+      success: true,
+
+      message:
+        "Password reset successfully. You can now sign in with your new password.",
+    });
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (
+      rollbackError
+    ) {
+      console.error(
+        "Password reset rollback error:",
+        rollbackError
+      );
+    }
+
+    console.error(
+      "Reset password error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+
+      message:
+        "Unable to reset password.",
+    });
+  } finally {
+    client.release();
+  }
+}
 async function login(req, res) {
   try {
    const {
@@ -710,5 +1138,8 @@ module.exports = {
   register,
   verifyEmail,
   resendVerificationCode,
+  forgotPassword,
+  verifyResetCode,
+  resetPassword,
   login,
 };

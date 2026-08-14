@@ -7,6 +7,9 @@ const {
   register,
   verifyEmail,
   resendVerificationCode,
+  forgotPassword,
+  verifyResetCode,
+  resetPassword,
   login,
 } =
   require("../controllers/authController");
@@ -19,13 +22,17 @@ const {
   loginSchema,
   verifyEmailSchema,
   resendVerificationSchema,
+  forgotPasswordSchema,
+  verifyPasswordResetCodeSchema,
+  resetPasswordSchema,
 } =
   require("../validation/authValidation");
 
-  const {
+ const {
   loginLimiter,
   registrationLimiter,
   verificationLimiter,
+  passwordResetLimiter,
 } =
   require(
     "../middleware/authRateLimiters"
@@ -59,6 +66,35 @@ router.post(
     resendVerificationSchema
   ),
   resendVerificationCode
+);
+
+router.post(
+  "/forgot-password",
+  passwordResetLimiter,
+  validateRequest(
+    forgotPasswordSchema
+  ),
+  forgotPassword
+);
+
+
+router.post(
+  "/verify-password-reset-code",
+  passwordResetLimiter,
+  validateRequest(
+    verifyPasswordResetCodeSchema
+  ),
+  verifyResetCode
+);
+
+
+router.post(
+  "/reset-password",
+  passwordResetLimiter,
+  validateRequest(
+    resetPasswordSchema
+  ),
+  resetPassword
 );
 
 router.post(

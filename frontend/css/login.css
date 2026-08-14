@@ -221,6 +221,142 @@ a {
   text-decoration: underline;
 }
 
+.forgot-password-link {
+  margin: -4px 0 16px;
+  text-align: right;
+}
+
+.forgot-password-link a {
+  color: #0b6b5f;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================================
+   PASSWORD RECOVERY
+========================================================= */
+
+#forgotPasswordForm,
+#resetPasswordForm {
+  width: 100%;
+}
+
+
+/* Reset code input */
+
+#code {
+  width: 100%;
+  min-height: 52px;
+
+  padding: 13px 16px;
+
+  border: 1px solid #d8e0e8;
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  color: #17212b;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  letter-spacing: 8px;
+  text-align: center;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+#code::placeholder {
+  color: #aab4bf;
+  letter-spacing: 5px;
+}
+
+
+#code:focus {
+  border-color: #0b6b5f;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(11, 107, 95, 0.12);
+}
+
+
+/* Forgot password link on login */
+
+.forgot-password-link {
+  margin:
+    -4px 0
+    16px;
+
+  text-align: right;
+}
+
+
+.forgot-password-link a {
+  color: #0b6b5f;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
+
+
+/* Disabled/loading buttons */
+
+#forgotPasswordButton:disabled,
+#resetPasswordButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+
+/* Recovery page links */
+
+#forgotPasswordForm + .login-footer,
+#resetPasswordForm + .login-footer {
+  margin-top: 22px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  #code {
+    min-height: 50px;
+
+    font-size: 18px;
+
+    letter-spacing: 6px;
+
+    padding:
+      12px 10px;
+  }
+
+
+  .forgot-password-link {
+    margin-top: -2px;
+  }
+}
+
 @media (max-width: 560px) {
   .login-page {
     padding: 18px 12px;

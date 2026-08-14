@@ -66,8 +66,30 @@ const verificationLimiter =
     },
   });
 
+  const passwordResetLimiter =
+  rateLimit({
+    windowMs:
+      15 * 60 * 1000,
+
+    limit:
+      8,
+
+    standardHeaders:
+      "draft-7",
+
+    legacyHeaders:
+      false,
+
+    message: {
+      success: false,
+      message:
+        "Too many password reset attempts. Please try again later.",
+    },
+  });
+
 module.exports = {
   loginLimiter,
   registrationLimiter,
   verificationLimiter,
+  passwordResetLimiter,
 };

@@ -187,9 +187,114 @@ const resendVerificationSchema =
       z.object({}),
   });
 
+  const forgotPasswordSchema =
+  z.object({
+    body:
+      z.object({
+        email:
+          emailSchema,
+      }),
+
+    params:
+      z.object({}),
+
+    query:
+      z.object({}),
+  });
+
+
+const verifyPasswordResetCodeSchema =
+  z.object({
+    body:
+      z.object({
+        userId:
+          z
+            .string({
+              required_error:
+                "User ID is required",
+            })
+            .trim()
+            .uuid(
+              "Invalid password reset request"
+            ),
+
+        code:
+          z
+            .string({
+              required_error:
+                "Password reset code is required",
+            })
+            .trim()
+            .regex(
+              /^\d{6}$/,
+              "Password reset code must contain exactly 6 digits"
+            ),
+      }),
+
+    params:
+      z.object({}),
+
+    query:
+      z.object({}),
+  });
+
+
+const resetPasswordSchema =
+  z.object({
+    body:
+      z.object({
+        userId:
+          z
+            .string({
+              required_error:
+                "User ID is required",
+            })
+            .trim()
+            .uuid(
+              "Invalid password reset request"
+            ),
+
+        code:
+          z
+            .string({
+              required_error:
+                "Password reset code is required",
+            })
+            .trim()
+            .regex(
+              /^\d{6}$/,
+              "Password reset code must contain exactly 6 digits"
+            ),
+
+        password:
+          z
+            .string({
+              required_error:
+                "New password is required",
+            })
+            .min(
+              8,
+              "Password must contain at least 8 characters"
+            )
+            .max(
+              128,
+              "Password is too long"
+            ),
+      }),
+
+    params:
+      z.object({}),
+
+    query:
+      z.object({}),
+  });
+
 module.exports = {
   registrationSchema,
   loginSchema,
   verifyEmailSchema,
   resendVerificationSchema,
+  forgotPasswordSchema,
+  verifyPasswordResetCodeSchema,
+  resetPasswordSchema,
 };
