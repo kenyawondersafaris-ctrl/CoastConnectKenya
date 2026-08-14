@@ -39,6 +39,10 @@ const {verifyEmailTransport,} = require("./src/services/emailService");
 validateEnvironment();
 
 const app = express();
+app.set(
+  "trust proxy",
+  1
+);
 const server = http.createServer(app);
 
 const isProduction =
