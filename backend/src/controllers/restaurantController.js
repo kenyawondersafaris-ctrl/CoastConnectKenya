@@ -380,17 +380,21 @@ async function getRestaurants(req, res) {
           AND (
             (
               r.opening_time <= r.closing_time
-              AND CURRENT_TIME BETWEEN
-                r.opening_time AND r.closing_time
+                AND
+                  (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::time
+                  BETWEEN r.opening_time AND r.closing_time
             )
 
             OR
 
             (
-              r.opening_time > r.closing_time
-              AND (
-                CURRENT_TIME >= r.opening_time
-                OR CURRENT_TIME <= r.closing_time
+              (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::time
+  >= r.opening_time
+
+OR
+
+(CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::time
+  <= r.closing_time
               )
             )
           )
@@ -466,19 +470,23 @@ async function getRestaurants(req, res) {
         l.area,
 
         CASE
-          WHEN
-            r.opening_time IS NULL
-            OR r.closing_time IS NULL
-          THEN FALSE
+  WHEN
+    r.opening_time IS NULL
+    OR r.closing_time IS NULL
+  THEN FALSE
 
-          WHEN r.opening_time <= r.closing_time
-          THEN CURRENT_TIME BETWEEN
-            r.opening_time AND r.closing_time
+  WHEN r.opening_time <= r.closing_time
+  THEN
+    (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::time
+    BETWEEN r.opening_time AND r.closing_time
 
-          ELSE
-            CURRENT_TIME >= r.opening_time
-            OR CURRENT_TIME <= r.closing_time
-        END AS is_open
+  ELSE
+    (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::time
+      >= r.opening_time
+    OR
+    (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::time
+      <= r.closing_time
+END AS is_open
 
       FROM restaurants r
 
@@ -582,19 +590,23 @@ async function getRestaurantByIdentifier(
         l.area,
 
         CASE
-          WHEN
-            r.opening_time IS NULL
-            OR r.closing_time IS NULL
-          THEN FALSE
+  WHEN
+    r.opening_time IS NULL
+    OR r.closing_time IS NULL
+  THEN FALSE
 
-          WHEN r.opening_time <= r.closing_time
-          THEN CURRENT_TIME BETWEEN
-            r.opening_time AND r.closing_time
+  WHEN r.opening_time <= r.closing_time
+  THEN
+    (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::time
+    BETWEEN r.opening_time AND r.closing_time
 
-          ELSE
-            CURRENT_TIME >= r.opening_time
-            OR CURRENT_TIME <= r.closing_time
-        END AS is_open
+  ELSE
+    (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::time
+      >= r.opening_time
+    OR
+    (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::time
+      <= r.closing_time
+END AS is_open
 
       FROM restaurants r
 

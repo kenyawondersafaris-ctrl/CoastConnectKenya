@@ -1864,18 +1864,23 @@ function formatOpeningHours(openingHours) {
   }
 
   if (typeof openingHours === "string") {
-    return openingHours;
+    return `${openingHours} EAT`;
   }
 
   if (typeof openingHours === "object") {
-    return Object.entries(openingHours)
-      .map(([day, hours]) => `${capitalize(day)}: ${hours}`)
-      .join(" | ");
+    return (
+      Object.entries(openingHours)
+        .map(
+          ([day, hours]) =>
+            `${capitalize(day)}: ${hours}`
+        )
+        .join(" | ") +
+      " (EAT)"
+    );
   }
 
   return "Not provided";
 }
-
 function formatCurrency(amount) {
   const numericAmount = Number(amount);
 
