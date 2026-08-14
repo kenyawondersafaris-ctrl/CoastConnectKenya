@@ -381,7 +381,25 @@ logoutButton?.addEventListener(
 
 mobileLogoutButton?.addEventListener(
   "click",
-  () => {
+  async () => {
+    const confirmed =
+      await showConfirm({
+        title:
+          "Log out?",
+        message:
+          "You will be signed out of your Coast Connect account.",
+        confirmText:
+          "Log out",
+        cancelText:
+          "Stay signed in",
+        danger:
+          false,
+      });
+
+    if (!confirmed) {
+      return;
+    }
+
     localStorage.removeItem(
       "coastConnectToken"
     );
