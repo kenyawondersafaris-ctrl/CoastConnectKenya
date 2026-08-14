@@ -1863,3 +1863,61 @@ select {
     font-size: 0.8rem;
   }
 }
+
+/* ==========================================
+   MOBILE CUSTOMER ACCOUNT ACTIONS
+========================================== */
+
+.mobile-account-actions {
+  display: none;
+}
+
+@media (max-width: 860px) {
+
+  .mobile-account-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top:
+      1px solid rgba(220, 231, 229, 0.9);
+  }
+
+  .mobile-account-actions[hidden] {
+    display: none;
+  }
+
+  .mobile-account-link,
+  .mobile-logout-button {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 14px;
+    padding: 0 16px;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+
+  .mobile-account-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border:
+      1px solid rgba(15, 118, 110, 0.18);
+    background:
+      var(--primary-light);
+    color:
+      var(--primary);
+    text-decoration: none;
+  }
+
+  .mobile-logout-button {
+    border:
+      1px solid rgba(185, 28, 28, 0.16);
+    background:
+      #fff7f7;
+    color:
+      #b91c1c;
+    cursor: pointer;
+  }
+}

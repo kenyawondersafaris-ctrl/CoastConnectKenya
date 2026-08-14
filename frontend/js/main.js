@@ -121,6 +121,26 @@ const dashboardLink =
     "logoutButton"
   );
 
+  const mobileAccountActions =
+  document.getElementById(
+    "mobileAccountActions"
+  );
+
+const mobileLogoutButton =
+  document.getElementById(
+    "mobileLogoutButton"
+  );
+
+const mobileLoginLink =
+  document.getElementById(
+    "mobileLoginLink"
+  );
+
+const mobileJoinLink =
+  document.getElementById(
+    "mobileJoinLink"
+  );
+
   const accountMenu =
   document.getElementById(
     "accountMenu"
@@ -165,6 +185,21 @@ if (storedUser) {
   console.log(
     "Logged in user detected"
   );
+
+  if (mobileLoginLink) {
+  mobileLoginLink.hidden =
+    true;
+}
+
+if (mobileJoinLink) {
+  mobileJoinLink.hidden =
+    true;
+}
+
+if (mobileAccountActions) {
+  mobileAccountActions.hidden =
+    false;
+}
 
   if (loginLink) {
     loginLink.hidden =
@@ -288,6 +323,20 @@ if (storedUser) {
   }
 }
 } else {
+  if (mobileLoginLink) {
+  mobileLoginLink.hidden =
+    false;
+}
+
+if (mobileJoinLink) {
+  mobileJoinLink.hidden =
+    false;
+}
+
+if (mobileAccountActions) {
+  mobileAccountActions.hidden =
+    true;
+}
   if (loginLink) {
     loginLink.hidden =
       false;
@@ -310,6 +359,27 @@ if (storedUser) {
 }
 
 logoutButton?.addEventListener(
+  "click",
+  () => {
+    localStorage.removeItem(
+      "coastConnectToken"
+    );
+
+    localStorage.removeItem(
+      "coastConnectUser"
+    );
+
+    sessionStorage.removeItem(
+      "coastConnectReturnUrl"
+    );
+
+    window.location.replace(
+      "index.html"
+    );
+  }
+);
+
+mobileLogoutButton?.addEventListener(
   "click",
   () => {
     localStorage.removeItem(
