@@ -679,12 +679,21 @@ passwordForm.addEventListener(
 
 logoutButton.addEventListener(
   "click",
-  () => {
+  async () => {
 
     const confirmed =
-      window.confirm(
-        "Log out of your Coast Connect account?"
-      );
+      await showConfirm({
+        title:
+          "Log out?",
+        message:
+          "You will be signed out of your Coast Connect account.",
+        confirmText:
+          "Log out",
+        cancelText:
+          "Stay signed in",
+        danger:
+          false,
+      });
 
 
     if (!confirmed) {
@@ -695,7 +704,6 @@ logoutButton.addEventListener(
     logout();
   }
 );
-
 
 function logout() {
 

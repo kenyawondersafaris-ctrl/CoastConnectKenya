@@ -1135,9 +1135,18 @@ adminProvidersContainer?.addEventListener(
       )
     ) {
       const confirmed =
-        window.confirm(
-          "Approve this provider?"
-        );
+  await showConfirm({
+    title:
+      "Approve provider?",
+    message:
+      "This provider will be approved and allowed to operate on Coast Connect.",
+    confirmText:
+      "Approve provider",
+    cancelText:
+      "Cancel",
+    danger:
+      false,
+  });
 
       if (!confirmed) {
         return;
@@ -1233,9 +1242,18 @@ adminProvidersContainer?.addEventListener(
       )
     ) {
       const confirmed =
-        window.confirm(
-          "Reject this provider?"
-        );
+  await showConfirm({
+    title:
+      "Reject provider?",
+    message:
+      "This provider application will be rejected.",
+    confirmText:
+      "Reject provider",
+    cancelText:
+      "Cancel",
+    danger:
+      true,
+  });
 
       if (!confirmed) {
         return;
@@ -1345,10 +1363,19 @@ adminRestaurantsContainer?.addEventListener(
         "admin-approve-restaurant-button"
       )
     ) {
-      const confirmed =
-        window.confirm(
-          "Approve this restaurant?"
-        );
+     const confirmed =
+  await showConfirm({
+    title:
+      "Approve restaurant?",
+    message:
+      "This restaurant will be approved and made available on Coast Connect.",
+    confirmText:
+      "Approve restaurant",
+    cancelText:
+      "Cancel",
+    danger:
+      false,
+  });
 
       if (!confirmed) {
         return;
@@ -1443,11 +1470,19 @@ adminRestaurantsContainer?.addEventListener(
         "admin-reject-restaurant-button"
       )
     ) {
-      const confirmed =
-        window.confirm(
-          "Reject this restaurant?"
-        );
-
+     const confirmed =
+  await showConfirm({
+    title:
+      "Reject restaurant?",
+    message:
+      "This restaurant application will be rejected.",
+    confirmText:
+      "Reject restaurant",
+    cancelText:
+      "Cancel",
+    danger:
+      true,
+  });
       if (!confirmed) {
         return;
       }
@@ -1560,11 +1595,24 @@ adminUsersContainer?.addEventListener(
         : "ACTIVE";
 
     const confirmed =
-      window.confirm(
-        suspend
-          ? "Suspend this user?"
-          : "Reactivate this user?"
-      );
+  await showConfirm({
+    title:
+      suspend
+        ? "Suspend user?"
+        : "Reactivate user?",
+    message:
+      suspend
+        ? "This user will lose access to their Coast Connect account until reactivated."
+        : "This user's account access will be restored.",
+    confirmText:
+      suspend
+        ? "Suspend user"
+        : "Reactivate user",
+    cancelText:
+      "Cancel",
+    danger:
+      suspend,
+  });
 
     if (!confirmed) {
       return;
@@ -1802,9 +1850,18 @@ adminSupportMessagesContainer?.addEventListener(
         button.dataset.messageId;
 
       const confirmed =
-        window.confirm(
-          "Mark this support message as resolved?"
-        );
+  await showConfirm({
+    title:
+      "Resolve support message?",
+    message:
+      "This support message will be marked as resolved.",
+    confirmText:
+      "Mark resolved",
+    cancelText:
+      "Cancel",
+    danger:
+      false,
+  });
 
       if (!confirmed) {
         return;

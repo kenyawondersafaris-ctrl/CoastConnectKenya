@@ -682,10 +682,18 @@ async function updateStaffOrderStatus(
   }
 
   const confirmed =
-    window.confirm(
-      confirmationMessage
-    );
-
+  await showConfirm({
+    title:
+      "Confirm order update",
+    message:
+      confirmationMessage,
+    confirmText:
+      "Confirm",
+    cancelText:
+      "Cancel",
+    danger:
+      false,
+  });
   if (!confirmed) {
     return;
   }

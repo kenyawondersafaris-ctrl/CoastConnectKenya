@@ -2748,9 +2748,19 @@ async function deleteGalleryImage(galleryImageId) {
     return;
   }
 
-  const confirmed = window.confirm(
-    "Delete this gallery image?"
-  );
+const confirmed =
+  await showConfirm({
+    title:
+      "Delete gallery image?",
+    message:
+      "This image will be permanently removed from your restaurant gallery.",
+    confirmText:
+      "Delete image",
+    cancelText:
+      "Keep image",
+    danger:
+      true,
+  });
 
   if (!confirmed) {
     return;
@@ -3931,20 +3941,31 @@ async function deleteDeliveryZone(
     return;
   }
 
-  if (deleteButton) {
-  deleteButton.disabled = true;
+  const confirmed =
+  await showConfirm({
+    title:
+      "Delete delivery zone?",
+    message:
+      `"${deliveryZone.name}" will be permanently removed from your restaurant delivery areas.`,
+    confirmText:
+      "Delete zone",
+    cancelText:
+      "Keep zone",
+    danger:
+      true,
+  });
+
+if (!confirmed) {
+  return;
+}
+
+if (deleteButton) {
+  deleteButton.disabled =
+    true;
+
   deleteButton.textContent =
     "Deleting...";
 }
-
-  const confirmed =
-    window.confirm(
-      `Delete "${deliveryZone.name}" delivery zone?`
-    );
-
-  if (!confirmed) {
-    return;
-  }
 
   try {
     const response =
@@ -4250,9 +4271,19 @@ async function deleteMenuItem(menuItemId) {
     return;
   }
 
-  const confirmed = window.confirm(
-    `Delete "${menuItem.name}" from the menu?`
-  );
+ const confirmed =
+  await showConfirm({
+    title:
+      "Delete menu item?",
+    message:
+      `"${menuItem.name}" will be permanently removed from the restaurant menu.`,
+    confirmText:
+      "Delete item",
+    cancelText:
+      "Keep item",
+    danger:
+      true,
+  });
 
   if (!confirmed) {
     return;
@@ -5742,8 +5773,19 @@ async function updateOwnerOrderStatus(
     return;
   }
 
-  const confirmed =
-    window.confirm(confirmationMessage);
+const confirmed =
+  await showConfirm({
+    title:
+      "Confirm order update",
+    message:
+      confirmationMessage,
+    confirmText:
+      "Confirm",
+    cancelText:
+      "Cancel",
+    danger:
+      false,
+  });
 
   if (!confirmed) {
     return;
@@ -6348,9 +6390,18 @@ async function deleteOwnerPromotion(
   promotion
 ) {
   const confirmed =
-    window.confirm(
-      `Delete "${promotion.name}"?`
-    );
+  await showConfirm({
+    title:
+      "Delete promotion?",
+    message:
+      `"${promotion.name}" will be permanently removed from your restaurant promotions.`,
+    confirmText:
+      "Delete promotion",
+    cancelText:
+      "Keep promotion",
+    danger:
+      true,
+  });
 
   if (!confirmed) {
     return;

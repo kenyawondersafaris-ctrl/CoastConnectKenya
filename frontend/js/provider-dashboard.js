@@ -2244,9 +2244,18 @@ async function deleteProviderService(
   }
 
   const confirmed =
-    window.confirm(
-      `Delete "${service.title}"? This action cannot be undone.`
-    );
+  await showConfirm({
+    title:
+      "Delete service?",
+    message:
+      `"${service.title}" will be permanently removed. This action cannot be undone.`,
+    confirmText:
+      "Delete service",
+    cancelText:
+      "Keep service",
+    danger:
+      true,
+  });
 
   if (!confirmed) {
     return;
@@ -2506,10 +2515,19 @@ providerBookingsGrid?.addEventListener(
         "reject-booking-button"
       )
     ) {
-      const confirmed =
-        window.confirm(
-          "Reject this booking request?"
-        );
+     const confirmed =
+  await showConfirm({
+    title:
+      "Reject booking?",
+    message:
+      "This booking request will be marked as rejected.",
+    confirmText:
+      "Reject booking",
+    cancelText:
+      "Keep booking",
+    danger:
+      true,
+  });
 
       if (!confirmed) {
         return;
@@ -2529,10 +2547,19 @@ providerBookingsGrid?.addEventListener(
         "complete-booking-button"
       )
     ) {
-      const confirmed =
-        window.confirm(
-          "Mark this job as completed?"
-        );
+     const confirmed =
+  await showConfirm({
+    title:
+      "Complete job?",
+    message:
+      "Confirm that this job has been completed successfully.",
+    confirmText:
+      "Mark completed",
+    cancelText:
+      "Not yet",
+    danger:
+      false,
+  });
 
       if (!confirmed) {
         return;

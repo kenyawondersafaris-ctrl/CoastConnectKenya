@@ -679,10 +679,13 @@ async function toggleRestaurantFavorite() {
       error
     );
 
-    alert(
-      error.message ||
-      "Unable to update saved restaurant."
-    );
+   showToast({
+  type: "error",
+  title: "Unable to update saved restaurant",
+  message:
+    error.message ||
+    "Please try again in a moment.",
+});
   } finally {
     restaurantFavoriteButton.disabled =
       false;
@@ -2460,51 +2463,103 @@ async function handleCheckoutSubmit(event) {
       .trim();
 
   if (!customerName) {
-    alert("Please enter your name.");
-    return;
-  }
+  showToast({
+    type: "warning",
+    title: "Name required",
+    message:
+      "Please enter your name before continuing.",
+  });
 
-  if (!customerPhone) {
-    alert("Please enter your phone number.");
-    return;
-  }
+  return;
+}
 
-  if (!orderType) {
-    alert("Please choose an order type.");
-    return;
-  }
+if (!customerPhone) {
+  showToast({
+    type: "warning",
+    title: "Phone number required",
+    message:
+      "Please enter your phone number before continuing.",
+  });
 
-  if (
-    orderType === "DINE_IN" &&
-    !tableNumber
-  ) {
-    alert("Please enter your table number.");
-    return;
-  }
+  return;
+}
 
-  if (
-    orderType === "DINE_IN" &&
-    !guestCount
-  ) {
-    alert("Please enter the number of guests.");
-    return;
-  }
+if (!orderType) {
+  showToast({
+    type: "warning",
+    title: "Choose order type",
+    message:
+      "Select how you would like to receive your order.",
+  });
 
-  if (
-    orderType === "DELIVERY" &&
-    !deliveryAddress
-  ) {
-    alert("Please enter your delivery address.");
-    return;
-  }
+  return;
+}
 
-  if (
+if (
+  orderType === "DINE_IN" &&
+  !tableNumber
+) {
+  showToast({
+    type: "warning",
+    title: "Table number required",
+    message:
+      "Please enter your table number for this dine-in order.",
+  });
+
+  return;
+}
+
+if (
+  orderType === "DINE_IN" &&
+  !guestCount
+) {
+  showToast({
+    type: "warning",
+    title: "Guest count required",
+    message:
+      "Please enter the number of guests.",
+  });
+
+  return;
+}
+
+if (
+  orderType === "DELIVERY" &&
+  !deliveryAddress
+) {
+  showToast({
+    type: "warning",
+    title: "Delivery address required",
+    message:
+      "Please enter where you would like the order delivered.",
+  });
+
+  return;
+}
+
+if (
   orderType === "DELIVERY" &&
   !selectedDeliveryZone
 ) {
-  alert(
-    "Sorry, we don't currently deliver to this location."
-  );
+  showToast({
+    type: "warning",
+    title: "Delivery unavailable",
+    message:
+      "Sorry, this restaurant does not currently deliver to that location.",
+  });
+
+  return;
+}
+ if (
+  orderType === "DELIVERY" &&
+  !selectedDeliveryZone
+) {
+  showToast({
+    type: "warning",
+    title: "Delivery unavailable",
+    message:
+      "Sorry, this restaurant does not currently deliver to that location.",
+  });
 
   return;
 }
