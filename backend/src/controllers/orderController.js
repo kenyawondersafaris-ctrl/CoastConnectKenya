@@ -1355,22 +1355,124 @@ async function createCustomerOrder(
 const restaurantResult =
   await client.query(
     `
+      WITH kenya_now AS (
+        SELECT
+          (
+            CURRENT_TIMESTAMP
+            AT TIME ZONE 'Africa/Nairobi'
+          )::time AS current_time,
+
+          EXTRACT(
+            DOW FROM
+            CURRENT_TIMESTAMP
+            AT TIME ZONE 'Africa/Nairobi'
+          )::integer AS current_day
+      )
+
       SELECT
-        id,
-        owner_id,
-        name,
-        offers_delivery,
-        approval_status
+        r.id,
+        r.owner_id,
+        r.name,
+        r.offers_delivery,
+        r.approval_status,
+        r.is_accepting_orders,
+        r.temporary_closed_reason,
 
-      FROM restaurants
+        CASE
 
-      WHERE id = $1::uuid
+          /*
+          |--------------------------------------------------------------
+          | Today's normal opening period
+          | Example: 08:00 - 22:00
+          |--------------------------------------------------------------
+          */
+
+          WHEN (
+            today_hours.is_open = TRUE
+            AND today_hours.opening_time IS NOT NULL
+            AND today_hours.closing_time IS NOT NULL
+            AND today_hours.opening_time <
+                today_hours.closing_time
+            AND kenya_now.current_time >=
+                today_hours.opening_time
+            AND kenya_now.current_time <=
+                today_hours.closing_time
+          )
+          THEN TRUE
+
+
+          /*
+          |--------------------------------------------------------------
+          | Today's overnight opening period
+          | Example: 18:00 - 02:00
+          |
+          | This covers 18:00 -> midnight.
+          |--------------------------------------------------------------
+          */
+
+          WHEN (
+            today_hours.is_open = TRUE
+            AND today_hours.opening_time IS NOT NULL
+            AND today_hours.closing_time IS NOT NULL
+            AND today_hours.opening_time >
+                today_hours.closing_time
+            AND kenya_now.current_time >=
+                today_hours.opening_time
+          )
+          THEN TRUE
+
+
+          /*
+          |--------------------------------------------------------------
+          | Previous day's overnight period
+          |
+          | Example:
+          | Monday 18:00 - 02:00
+          | Tuesday at 01:00 must still be OPEN.
+          |--------------------------------------------------------------
+          */
+
+          WHEN (
+            previous_hours.is_open = TRUE
+            AND previous_hours.opening_time IS NOT NULL
+            AND previous_hours.closing_time IS NOT NULL
+            AND previous_hours.opening_time >
+                previous_hours.closing_time
+            AND kenya_now.current_time <=
+                previous_hours.closing_time
+          )
+          THEN TRUE
+
+          ELSE FALSE
+
+        END AS is_open_by_schedule
+
+      FROM restaurants r
+
+      CROSS JOIN kenya_now
+
+      LEFT JOIN restaurant_opening_hours
+        AS today_hours
+        ON today_hours.restaurant_id = r.id
+        AND today_hours.day_of_week =
+          kenya_now.current_day
+
+      LEFT JOIN restaurant_opening_hours
+        AS previous_hours
+        ON previous_hours.restaurant_id = r.id
+        AND previous_hours.day_of_week =
+          (
+            kenya_now.current_day + 6
+          ) % 7
+
+      WHERE r.id = $1::uuid
 
       LIMIT 1
     `,
-    [restaurantId]
+    [
+      restaurantId,
+    ]
   );
-
 if (
   restaurantResult.rows.length === 0
 ) {
@@ -1385,6 +1487,59 @@ if (
 
 const restaurant =
   restaurantResult.rows[0];
+
+  /*
+|--------------------------------------------------------------------------
+| Restaurant manual order availability
+|--------------------------------------------------------------------------
+*/
+
+if (
+  restaurant.is_accepting_orders ===
+  false
+) {
+  await client.query(
+    "ROLLBACK"
+  );
+
+  return res.status(400).json({
+    success: false,
+
+    code:
+      "RESTAURANT_NOT_ACCEPTING_ORDERS",
+
+    message:
+      restaurant
+        .temporary_closed_reason ||
+      "This restaurant is temporarily not accepting orders.",
+  });
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Restaurant scheduled opening hours
+|--------------------------------------------------------------------------
+*/
+
+if (
+  restaurant.is_open_by_schedule !==
+  true
+) {
+  await client.query(
+    "ROLLBACK"
+  );
+
+  return res.status(400).json({
+    success: false,
+
+    code:
+      "RESTAURANT_CLOSED",
+
+    message:
+      "This restaurant is currently closed. Orders can only be placed during opening hours.",
+  });
+}
 
   let subtotal = 0;
 

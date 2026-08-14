@@ -926,6 +926,27 @@ function groupMenuItemsByCategory(menuItems) {
   }, {});
 }
 
+function isRestaurantOpenForOrders() {
+  if (!currentRestaurant) {
+    return false;
+  }
+
+  const isOpenByTime =
+    currentRestaurant.isOpenNow ??
+    currentRestaurant.is_open_now ??
+    false;
+
+  const isAcceptingOrders =
+    currentRestaurant.isAcceptingOrders ??
+    currentRestaurant.is_accepting_orders ??
+    true;
+
+  return (
+    Boolean(isOpenByTime) &&
+    Boolean(isAcceptingOrders)
+  );
+}
+
 function createMenuItemCard(item) {
   const menuItemCard =
     document.createElement("article");
@@ -1051,10 +1072,31 @@ function createMenuItemCard(item) {
 addButton.dataset.itemId =
   String(menuItemId || "");
 
-  addButton.textContent =
-    "Add to Cart";
+const restaurantOpen =
+  isRestaurantOpenForOrders();
 
-  addButton.addEventListener("click", () => {
+addButton.textContent =
+  restaurantOpen
+    ? "Add to Cart"
+    : "Closed";
+
+addButton.disabled =
+  !restaurantOpen;
+
+if (!restaurantOpen) {
+  addButton.classList.add(
+    "restaurant-closed"
+  );
+}
+
+addButton.addEventListener(
+  "click",
+  () => {
+    if (
+      !isRestaurantOpenForOrders()
+    ) {
+      return;
+    }
   addItemToCart(item);
 
   const itemId =
@@ -1190,7 +1232,16 @@ if (cart.length === 0) {
   cartEmptyState.hidden = true;
   cartItems.hidden = false;
   cartSummary.hidden = false;
-  checkoutButton.disabled = false;
+  const restaurantOpen =
+  isRestaurantOpenForOrders();
+
+checkoutButton.disabled =
+  !restaurantOpen;
+
+checkoutButton.textContent =
+  restaurantOpen
+    ? "Proceed to Checkout"
+    : "Restaurant Closed";
 
   cartItems.innerHTML = "";
 
@@ -1278,6 +1329,9 @@ controls.appendChild(removeButton);
 }
 
 function updateMenuAddButtons() {
+  const restaurantOpen =
+    isRestaurantOpenForOrders();
+
   document
     .querySelectorAll(
       ".menu-item-add-button"
@@ -1285,6 +1339,43 @@ function updateMenuAddButtons() {
     .forEach((button) => {
       const itemId =
         button.dataset.itemId;
+
+      /*
+      |--------------------------------------------------------------------------
+      | Restaurant closed
+      |--------------------------------------------------------------------------
+      */
+
+      if (!restaurantOpen) {
+        button.textContent =
+          "Closed";
+
+        button.disabled =
+          true;
+
+        button.classList.remove(
+          "added"
+        );
+
+        button.classList.add(
+          "restaurant-closed"
+        );
+
+        return;
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Restaurant open
+      |--------------------------------------------------------------------------
+      */
+
+      button.disabled =
+        false;
+
+      button.classList.remove(
+        "restaurant-closed"
+      );
 
       const cartItem =
         cart.find((item) => {
@@ -1311,7 +1402,6 @@ function updateMenuAddButtons() {
       }
     });
 }
-
 async function applyPromotionCode() {
 
   if (!currentRestaurant) {
@@ -1455,12 +1545,28 @@ checkoutPromoMessage.className =
 
 
 function openCheckoutPanel() {
-  checkoutPanel.hidden = false;
+  if (
+    !isRestaurantOpenForOrders()
+  ) {
+    checkoutButton.disabled =
+      true;
 
-  checkoutButton.hidden = true;
+    checkoutButton.textContent =
+      "Restaurant Closed";
+
+    return;
+  }
+
+  checkoutPanel.hidden =
+    false;
+
+  checkoutButton.hidden =
+    true;
 
   document
-    .getElementById("checkoutCustomerName")
+    .getElementById(
+      "checkoutCustomerName"
+    )
     .focus();
 }
 
@@ -2136,6 +2242,26 @@ async function startCheckoutPayment(
 }
 async function handleCheckoutSubmit(event) {
   event.preventDefault();
+
+    if (
+    !isRestaurantOpenForOrders()
+  ) {
+    const checkoutMessage =
+      document.getElementById(
+        "checkoutMessage"
+      );
+
+    checkoutMessage.textContent =
+      "This restaurant is currently closed. Orders can only be placed during opening hours.";
+
+    checkoutMessage.className =
+      "form-message error";
+
+    placeOrderButton.disabled =
+      true;
+
+    return;
+  }
 
   const customerName =
     document
