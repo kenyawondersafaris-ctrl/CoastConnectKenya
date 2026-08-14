@@ -494,21 +494,30 @@ document
       );
 
       if (
-        currentIndex >= 0 &&
-        stepIndex < currentIndex
-      ) {
-        step.classList.add(
-          "completed"
-        );
-      }
+  currentIndex >= 0 &&
+  (
+    stepIndex < currentIndex ||
+    (
+      normalizedStatus ===
+        "COMPLETED" &&
+      stepIndex === currentIndex
+    )
+  )
+) {
+  step.classList.add(
+    "completed"
+  );
+}
 
-      if (
-        stepIndex === currentIndex
-      ) {
-        step.classList.add(
-          "active"
-        );
-      }
+if (
+  stepIndex === currentIndex &&
+  normalizedStatus !==
+    "COMPLETED"
+) {
+  step.classList.add(
+    "active"
+  );
+}
     });
 }
 
