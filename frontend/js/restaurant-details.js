@@ -544,6 +544,158 @@ console.log(
   }
 }
 
+async function toggleRestaurantFavorite() {
+  if (
+    !restaurantFavoriteButton ||
+    !currentRestaurant?.id
+  ) {
+    return;
+  }
+
+  if (!token) {
+    window.location.href =
+      "login.html";
+
+    return;
+  }
+
+  restaurantFavoriteButton.disabled =
+    true;
+
+  try {
+    /*
+    |--------------------------------------------------------------------------
+    | Remove favorite
+    |--------------------------------------------------------------------------
+    */
+
+    if (currentRestaurantFavoriteId) {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/favorites/${encodeURIComponent(
+            currentRestaurantFavoriteId
+          )}`,
+          {
+            method: "DELETE",
+
+            headers: {
+              Accept:
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
+        throw new Error(
+          result.message ||
+          "Unable to remove restaurant from saved places."
+        );
+      }
+
+      currentRestaurantFavoriteId =
+        null;
+
+      restaurantFavoriteButton.textContent =
+        "♡ Save";
+
+      restaurantFavoriteButton.classList.remove(
+        "saved"
+      );
+
+      return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save restaurant
+    |--------------------------------------------------------------------------
+    */
+
+    const response =
+      await fetch(
+        `${API_BASE_URL}/favorites`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
+          },
+
+          body:
+            JSON.stringify({
+              favoriteType:
+                "RESTAURANT",
+
+              targetId:
+                currentRestaurant.id,
+            }),
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !result.success
+    ) {
+      throw new Error(
+        result.message ||
+        "Unable to save restaurant."
+      );
+    }
+
+    currentRestaurantFavoriteId =
+      result.favorite?.id ||
+      result.favorite?.favoriteId ||
+      result.favorite?.favorite_id ||
+      null;
+
+    restaurantFavoriteButton.textContent =
+      "♥ Saved";
+
+    restaurantFavoriteButton.classList.add(
+      "saved"
+    );
+  } catch (error) {
+    console.error(
+      "Restaurant favorite error:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to update saved restaurant."
+    );
+  } finally {
+    restaurantFavoriteButton.disabled =
+      false;
+  }
+}
+
+if (restaurantFavoriteButton) {
+  restaurantFavoriteButton.addEventListener(
+    "click",
+    toggleRestaurantFavorite
+  );
+}
+
 async function loadRestaurantDeliveryZones(
   restaurantId
 ) {
