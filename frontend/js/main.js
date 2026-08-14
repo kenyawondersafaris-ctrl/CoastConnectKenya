@@ -181,6 +181,11 @@ const accountDashboardLink =
     "accountDashboardLink"
   );
 
+  const accountOrdersLink =
+  document.getElementById(
+    "accountOrdersLink"
+  );
+
 if (storedUser) {
   console.log(
     "Logged in user detected"
@@ -312,15 +317,20 @@ if (mobileAccountActions) {
 
     accountDashboardLink.textContent =
       "Restaurant Dashboard";
-  } else if (
-    isCustomer
-  ) {
-    accountDashboardLink.href =
-      "customer-bookings.html";
+ } else if (
+  isCustomer
+) {
+  accountDashboardLink.href =
+    "customer-bookings.html";
 
-    accountDashboardLink.textContent =
-      "My Bookings";
+  accountDashboardLink.textContent =
+    "My Bookings";
+
+  if (accountOrdersLink) {
+    accountOrdersLink.hidden =
+      false;
   }
+}
 }
 } else {
   if (mobileLoginLink) {
@@ -335,6 +345,11 @@ if (mobileJoinLink) {
 
 if (mobileAccountActions) {
   mobileAccountActions.hidden =
+    true;
+}
+
+if (accountOrdersLink) {
+  accountOrdersLink.hidden =
     true;
 }
   if (loginLink) {
