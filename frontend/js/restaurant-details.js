@@ -1043,17 +1043,40 @@ function createMenuItemCard(item) {
   addButton.className =
     "menu-item-add-button";
 
+    const menuItemId =
+  item.id ||
+  item.menuItemId ||
+  item.menu_item_id;
+
+addButton.dataset.itemId =
+  String(menuItemId || "");
+
   addButton.textContent =
     "Add to Cart";
 
-  addButton.addEventListener(
-    "click",
-    () => {
-      addItemToCart(
-        item
-      );
-    }
-  );
+  addButton.addEventListener("click", () => {
+  addItemToCart(item);
+
+  const itemId =
+    item.id ||
+    item.menuItemId ||
+    item.menu_item_id;
+
+  const cartItem =
+    cart.find((cartItem) => {
+      return String(cartItem.id) ===
+        String(itemId);
+    });
+
+  if (cartItem) {
+    addButton.textContent =
+      `✓ Added (${cartItem.quantity})`;
+
+    addButton.classList.add(
+      "added"
+    );
+  }
+});
 
   orderActions.appendChild(
     addButton
@@ -1139,6 +1162,8 @@ function removeItemFromCart(itemId) {
 }
 
 function renderCart() {
+
+  updateMenuAddButtons();
   const totalQuantity = cart.reduce((total, item) => {
     return total + item.quantity;
   }, 0);
@@ -1250,6 +1275,41 @@ controls.appendChild(removeButton);
   cartTotal.textContent = formatCurrency(totalAmount);
 
   updateCheckoutFinalSummary();
+}
+
+function updateMenuAddButtons() {
+  document
+    .querySelectorAll(
+      ".menu-item-add-button"
+    )
+    .forEach((button) => {
+      const itemId =
+        button.dataset.itemId;
+
+      const cartItem =
+        cart.find((item) => {
+          return (
+            String(item.id) ===
+            String(itemId)
+          );
+        });
+
+      if (cartItem) {
+        button.textContent =
+          `✓ Added (${cartItem.quantity})`;
+
+        button.classList.add(
+          "added"
+        );
+      } else {
+        button.textContent =
+          "Add to Cart";
+
+        button.classList.remove(
+          "added"
+        );
+      }
+    });
 }
 
 async function applyPromotionCode() {

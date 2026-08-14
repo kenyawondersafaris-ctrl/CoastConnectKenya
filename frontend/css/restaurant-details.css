@@ -680,6 +680,17 @@
   transform: none;
 }
 
+.menu-item-add-button.added {
+  background: #0f766e;
+  color: #ffffff;
+  border-color: #0f766e;
+}
+
+.menu-item-add-button.added:hover {
+  background: #0d665f;
+  border-color: #0d665f;
+}
+
 
 /* =========================================================
    RESPONSIVE PAYMENT METHODS
