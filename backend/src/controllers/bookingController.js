@@ -417,6 +417,34 @@ async function verifyBookingStartPin(
         ]
       );
 
+      await client.query(
+  `
+    UPDATE provider_payments
+
+    SET
+      settlement_status =
+        'ELIGIBLE',
+
+      updated_at =
+        CURRENT_TIMESTAMP
+
+    WHERE booking_id =
+      $1::uuid
+
+      AND payment_stage =
+        'DEPOSIT'
+
+      AND status =
+        'PAID'
+
+      AND settlement_status =
+        'PENDING'
+  `,
+  [
+    bookingId,
+  ]
+);
+
     await client.query(
       "COMMIT"
     );
