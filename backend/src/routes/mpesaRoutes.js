@@ -9,6 +9,11 @@ const {
   createMpesaPaymentAttempt,
 } = require("../controllers/mpesaController");
 
+const {
+  handleProviderB2CResult,
+  handleProviderB2CTimeout,
+} = require("../controllers/providerPaymentController");
+
 const authenticate =
   require("../middleware/authMiddleware");
 
@@ -38,6 +43,16 @@ router.get(
   authenticate,
   requireRole("RESTAURANT_OWNER"),
   testMpesaConnection
+);
+
+router.post(
+  "/b2c/result",
+  handleProviderB2CResult
+);
+
+router.post(
+  "/b2c/timeout",
+  handleProviderB2CTimeout
 );
 
 

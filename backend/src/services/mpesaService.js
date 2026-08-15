@@ -264,8 +264,144 @@ async function initiateMpesaStkPush({
   };
 }
 
+async function initiateMpesaB2CPayout({
+  phoneNumber,
+  amount,
+  remarks,
+  occasion,
+}) {
+  const shortcode =
+    String(
+      process.env.MPESA_B2C_SHORTCODE || ""
+    ).trim();
+
+  const initiatorName =
+    String(
+      process.env.MPESA_B2C_INITIATOR_NAME || ""
+    ).trim();
+
+  const securityCredential =
+    String(
+      process.env.MPESA_B2C_SECURITY_CREDENTIAL || ""
+    ).trim();
+
+  const resultUrl =
+    String(
+      process.env.MPESA_B2C_RESULT_URL || ""
+    ).trim();
+
+  const timeoutUrl =
+    String(
+      process.env.MPESA_B2C_TIMEOUT_URL || ""
+    ).trim();
+
+  if (
+    !shortcode ||
+    !initiatorName ||
+    !securityCredential ||
+    !resultUrl ||
+    !timeoutUrl
+  ) {
+    throw new Error(
+      "M-Pesa B2C configuration is incomplete."
+    );
+  }
+
+  const normalizedPhone =
+    formatMpesaPhoneNumber(
+      phoneNumber
+    );
+
+  const normalizedAmount =
+    Math.round(
+      Number(amount)
+    );
+
+  if (
+    !Number.isFinite(
+      normalizedAmount
+    ) ||
+    normalizedAmount < 1
+  ) {
+    throw new Error(
+      "M-Pesa B2C amount must be at least KES 1."
+    );
+  }
+
+  const accessToken =
+    await getMpesaAccessToken();
+
+  const response =
+    await axios.post(
+      `${getMpesaBaseUrl()}/mpesa/b2c/v1/paymentrequest`,
+      {
+        InitiatorName:
+          initiatorName,
+
+        SecurityCredential:
+          securityCredential,
+
+        CommandID:
+          "BusinessPayment",
+
+        Amount:
+          normalizedAmount,
+
+        PartyA:
+          shortcode,
+
+        PartyB:
+          normalizedPhone,
+
+        Remarks:
+          String(
+            remarks ||
+            "Coast Connect provider payout"
+          ).slice(0, 100),
+
+        QueueTimeOutURL:
+          timeoutUrl,
+
+        ResultURL:
+          resultUrl,
+
+        Occasion:
+          String(
+            occasion ||
+            "Provider settlement"
+          ).slice(0, 100),
+      },
+      {
+        headers: {
+          Authorization:
+            `Bearer ${accessToken}`,
+
+          "Content-Type":
+            "application/json",
+
+          Accept:
+            "application/json",
+        },
+
+        timeout:
+          30000,
+      }
+    );
+
+  return {
+    response:
+      response.data,
+
+    normalizedPhone,
+
+    amount:
+      normalizedAmount,
+  };
+}
+
 module.exports = {
   getMpesaAccessToken,
   formatMpesaPhoneNumber,
   initiateMpesaStkPush,
+  initiateMpesaB2CPayout,
 };

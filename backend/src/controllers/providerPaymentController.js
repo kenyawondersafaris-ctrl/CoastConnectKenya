@@ -5,6 +5,7 @@ const pool =
 
 const {
   initiateMpesaStkPush,
+  initiateMpesaB2CPayout,
 } = require("../services/mpesaService");
 
 function cleanText(value) {
@@ -777,6 +778,837 @@ WHERE id =
   }
 }
 
+
+
+async function createProviderPayout(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const paymentId =
+      cleanText(
+        req.body.paymentId
+      );
+
+    if (
+      !isValidUuid(
+        paymentId
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid payment ID.",
+      });
+    }
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const paymentResult =
+      await client.query(
+        `
+          SELECT
+            pay.id,
+            pay.booking_id,
+            pay.provider_id,
+            pay.payment_reference,
+            pay.payment_stage,
+            pay.status,
+            pay.settlement_status,
+            pay.provider_share_amount,
+            pay.currency,
+
+            pp.user_id
+              AS provider_user_id,
+
+            u.phone
+              AS provider_phone
+
+          FROM provider_payments pay
+
+          INNER JOIN provider_profiles pp
+            ON pp.id =
+              pay.provider_id
+
+          INNER JOIN users u
+            ON u.id =
+              pp.user_id
+
+          WHERE pay.id =
+            $1::uuid
+
+          LIMIT 1
+
+          FOR UPDATE OF pay
+        `,
+        [
+          paymentId,
+        ]
+      );
+
+    if (
+      paymentResult.rows.length ===
+      0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Provider payment not found.",
+      });
+    }
+
+    const payment =
+      paymentResult.rows[0];
+
+    if (
+      String(
+        payment.status || ""
+      ).toUpperCase() !==
+      "PAID"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Only paid provider payments can be settled.",
+      });
+    }
+
+    if (
+      String(
+        payment.settlement_status ||
+        ""
+      ).toUpperCase() !==
+      "ELIGIBLE"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "This provider payment is not eligible for payout.",
+      });
+    }
+
+    const providerPhone =
+      cleanText(
+        payment.provider_phone
+      );
+
+    if (!providerPhone) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "The provider does not have an M-Pesa phone number.",
+      });
+    }
+
+    const payoutAmount =
+      Number(
+        payment.provider_share_amount ||
+        0
+      );
+
+    if (
+      !Number.isFinite(
+        payoutAmount
+      ) ||
+      payoutAmount <= 0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "The provider payout amount is invalid.",
+      });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reserve payout before calling Safaricom
+    |--------------------------------------------------------------------------
+    */
+
+    await client.query(
+      `
+        UPDATE provider_payments
+
+        SET
+          settlement_status =
+            'PROCESSING',
+
+          payout_initiated_at =
+            CURRENT_TIMESTAMP,
+
+          payout_failure_reason =
+            NULL,
+
+          updated_at =
+            CURRENT_TIMESTAMP
+
+        WHERE id =
+          $1::uuid
+      `,
+      [
+        payment.id,
+      ]
+    );
+
+    await client.query(
+      "COMMIT"
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Initiate Daraja B2C
+    |--------------------------------------------------------------------------
+    */
+
+    try {
+      const payoutResult =
+        await initiateMpesaB2CPayout({
+          phoneNumber:
+            providerPhone,
+
+          amount:
+            payoutAmount,
+
+          remarks:
+            `Coast Connect ${payment.payment_stage} payout`,
+
+          occasion:
+            payment.payment_reference ||
+            "Provider settlement",
+        });
+
+      const providerResponse =
+        payoutResult.response || {};
+
+      await client.query(
+        "BEGIN"
+      );
+
+      await client.query(
+        `
+          UPDATE provider_payments
+
+          SET
+            payout_conversation_id =
+              $1::varchar,
+
+            payout_originator_conversation_id =
+              $2::varchar,
+
+            payout_response =
+              $3::jsonb,
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id =
+            $4::uuid
+        `,
+        [
+          providerResponse
+            .ConversationID ||
+            null,
+
+          providerResponse
+            .OriginatorConversationID ||
+            null,
+
+          JSON.stringify(
+            providerResponse
+          ),
+
+          payment.id,
+        ]
+      );
+
+      await client.query(
+        "COMMIT"
+      );
+
+      return res.status(202).json({
+        success: true,
+
+        message:
+          "Provider payout submitted to M-Pesa.",
+
+        payout: {
+          paymentId:
+            payment.id,
+
+          bookingId:
+            payment.booking_id,
+
+          paymentStage:
+            payment.payment_stage,
+
+          amount:
+            payoutResult.amount,
+
+          currency:
+            payment.currency,
+
+          providerPhone:
+            payoutResult.normalizedPhone,
+
+          settlementStatus:
+            "PROCESSING",
+
+          conversationId:
+            providerResponse
+              .ConversationID ||
+            null,
+
+          originatorConversationId:
+            providerResponse
+              .OriginatorConversationID ||
+            null,
+        },
+      });
+    } catch (payoutError) {
+      console.error(
+        "Provider B2C payout error:",
+        payoutError.response?.data ||
+        payoutError.message
+      );
+
+      try {
+        await client.query(
+          "BEGIN"
+        );
+
+        await client.query(
+          `
+            UPDATE provider_payments
+
+            SET
+              settlement_status =
+                'ELIGIBLE',
+
+              payout_failure_reason =
+                $1::text,
+
+              payout_response =
+                $2::jsonb,
+
+              updated_at =
+                CURRENT_TIMESTAMP
+
+            WHERE id =
+              $3::uuid
+          `,
+          [
+            payoutError.message ||
+            "Unable to initiate provider payout.",
+
+            JSON.stringify(
+              payoutError.response?.data ||
+              {
+                message:
+                  payoutError.message,
+              }
+            ),
+
+            payment.id,
+          ]
+        );
+
+        await client.query(
+          "COMMIT"
+        );
+      } catch (
+        savePayoutError
+      ) {
+        try {
+          await client.query(
+            "ROLLBACK"
+          );
+        } catch (
+          rollbackError
+        ) {
+          // Ignore rollback failure.
+        }
+
+        console.error(
+          "Save B2C payout failure error:",
+          savePayoutError
+        );
+      }
+
+      return res.status(502).json({
+        success: false,
+        message:
+          payoutError.response?.data
+            ?.errorMessage ||
+          payoutError.response?.data
+            ?.ResponseDescription ||
+          payoutError.message ||
+          "Unable to initiate provider payout.",
+      });
+    }
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (
+      rollbackError
+    ) {
+      // The transaction may already
+      // have been committed.
+    }
+
+    console.error(
+      "Create provider payout error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to process provider payout.",
+    });
+  } finally {
+    client.release();
+  }
+}
+
+async function handleProviderB2CResult(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const payload =
+      req.body || {};
+
+    const result =
+      payload.Result;
+
+    if (!result) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid M-Pesa B2C result payload.",
+      });
+    }
+
+    const conversationId =
+      cleanText(
+        result.ConversationID
+      );
+
+    const originatorConversationId =
+      cleanText(
+        result.OriginatorConversationID
+      );
+
+    const resultCode =
+      Number(
+        result.ResultCode
+      );
+
+    const resultDescription =
+      cleanText(
+        result.ResultDesc
+      );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Extract B2C result parameters
+    |--------------------------------------------------------------------------
+    */
+
+    const resultParameters =
+      Array.isArray(
+        result.ResultParameters
+          ?.ResultParameter
+      )
+        ? result.ResultParameters
+            .ResultParameter
+        : [];
+
+    const parameterMap = {};
+
+    for (
+      const parameter
+      of resultParameters
+    ) {
+      if (
+        parameter &&
+        parameter.Key
+      ) {
+        parameterMap[
+          parameter.Key
+        ] =
+          parameter.Value;
+      }
+    }
+
+    const transactionId =
+      cleanText(
+        parameterMap.TransactionID
+      ) || null;
+
+    await client.query(
+      "BEGIN"
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find the payout
+    |--------------------------------------------------------------------------
+    */
+
+    const paymentResult =
+      await client.query(
+        `
+          SELECT
+            id,
+            settlement_status
+
+          FROM provider_payments
+
+          WHERE
+            (
+              payout_conversation_id =
+                $1::varchar
+
+              OR
+
+              payout_originator_conversation_id =
+                $2::varchar
+            )
+
+          LIMIT 1
+
+          FOR UPDATE
+        `,
+        [
+          conversationId ||
+            null,
+
+          originatorConversationId ||
+            null,
+        ]
+      );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Safaricom may retry callbacks.
+    | Always acknowledge a valid callback even if we cannot match it.
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      paymentResult.rows.length ===
+      0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      console.warn(
+        "Unmatched provider B2C result:",
+        {
+          conversationId,
+          originatorConversationId,
+          resultCode,
+        }
+      );
+
+      return res.status(200).json({
+        ResultCode: 0,
+        ResultDesc:
+          "Accepted",
+      });
+    }
+
+    const payment =
+      paymentResult.rows[0];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Successful payout
+    |--------------------------------------------------------------------------
+    */
+
+    if (resultCode === 0) {
+      await client.query(
+        `
+          UPDATE provider_payments
+
+          SET
+            settlement_status =
+              'SETTLED',
+
+            payout_transaction_id =
+              $1::varchar,
+
+            payout_result_payload =
+              $2::jsonb,
+
+            payout_failure_reason =
+              NULL,
+
+            settled_at =
+              COALESCE(
+                settled_at,
+                CURRENT_TIMESTAMP
+              ),
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id =
+            $3::uuid
+        `,
+        [
+          transactionId,
+
+          JSON.stringify(
+            payload
+          ),
+
+          payment.id,
+        ]
+      );
+    } else {
+      /*
+      |--------------------------------------------------------------------------
+      | Safaricom rejected/failed the B2C transfer
+      |--------------------------------------------------------------------------
+      */
+
+      await client.query(
+        `
+          UPDATE provider_payments
+
+          SET
+            settlement_status =
+              'FAILED',
+
+            payout_result_payload =
+              $1::jsonb,
+
+            payout_failure_reason =
+              $2::text,
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id =
+            $3::uuid
+        `,
+        [
+          JSON.stringify(
+            payload
+          ),
+
+          resultDescription ||
+            `M-Pesa B2C failed with result code ${resultCode}.`,
+
+          payment.id,
+        ]
+      );
+    }
+
+    await client.query(
+      "COMMIT"
+    );
+
+    return res.status(200).json({
+      ResultCode: 0,
+      ResultDesc:
+        "Accepted",
+    });
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (
+      rollbackError
+    ) {
+      // Ignore rollback failure.
+    }
+
+    console.error(
+      "Provider B2C result callback error:",
+      error
+    );
+
+    return res.status(500).json({
+      ResultCode: 1,
+      ResultDesc:
+        "Unable to process B2C result.",
+    });
+  } finally {
+    client.release();
+  }
+}
+
+
+async function handleProviderB2CTimeout(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const payload =
+      req.body || {};
+
+    const result =
+      payload.Result || {};
+
+    const conversationId =
+      cleanText(
+        result.ConversationID ||
+        payload.ConversationID
+      );
+
+    const originatorConversationId =
+      cleanText(
+        result.OriginatorConversationID ||
+        payload.OriginatorConversationID
+      );
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const paymentResult =
+      await client.query(
+        `
+          SELECT
+            id
+
+          FROM provider_payments
+
+          WHERE
+            (
+              payout_conversation_id =
+                $1::varchar
+
+              OR
+
+              payout_originator_conversation_id =
+                $2::varchar
+            )
+
+          LIMIT 1
+
+          FOR UPDATE
+        `,
+        [
+          conversationId ||
+            null,
+
+          originatorConversationId ||
+            null,
+        ]
+      );
+
+    if (
+      paymentResult.rows.length >
+      0
+    ) {
+      await client.query(
+        `
+          UPDATE provider_payments
+
+          SET
+            settlement_status =
+              'FAILED',
+
+            payout_result_payload =
+              $1::jsonb,
+
+            payout_failure_reason =
+              'M-Pesa B2C request timed out.',
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id =
+            $2::uuid
+
+            AND settlement_status =
+              'PROCESSING'
+        `,
+        [
+          JSON.stringify(
+            payload
+          ),
+
+          paymentResult.rows[0].id,
+        ]
+      );
+    }
+
+    await client.query(
+      "COMMIT"
+    );
+
+    return res.status(200).json({
+      ResultCode: 0,
+      ResultDesc:
+        "Accepted",
+    });
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (
+      rollbackError
+    ) {
+      // Ignore rollback failure.
+    }
+
+    console.error(
+      "Provider B2C timeout callback error:",
+      error
+    );
+
+    return res.status(500).json({
+      ResultCode: 1,
+      ResultDesc:
+        "Unable to process B2C timeout.",
+    });
+  } finally {
+    client.release();
+  }
+}
+
 async function handleProviderMpesaCallback(
   callbackPayload,
   client,
@@ -1478,5 +2310,9 @@ providerShareAmount:
 
 module.exports = {
   createProviderPaymentAttempt,
+  createProviderPayout,
+  handleProviderB2CResult,
+  handleProviderB2CTimeout,
   handleProviderMpesaCallback,
+  // keep any other existing exports here
 };

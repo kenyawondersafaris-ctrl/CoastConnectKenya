@@ -5,6 +5,7 @@ const express =
 
 const {
   createProviderPaymentAttempt,
+  createProviderPayout,
 } = require("../controllers/providerPaymentController");
 
 const authenticate =
@@ -21,6 +22,14 @@ router.post(
   authenticate,
   requireRole("CUSTOMER"),
   createProviderPaymentAttempt
+);
+
+
+router.post(
+  "/payout",
+  authenticate,
+  requireRole("ADMIN"),
+  createProviderPayout
 );
 
 module.exports =
