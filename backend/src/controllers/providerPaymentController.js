@@ -125,52 +125,129 @@ async function createProviderPaymentAttempt(
       });
     }
 
-    if (
-      String(
-        booking.booking_status ||
-        ""
-      ).toUpperCase() !==
-      "CONFIRMED"
-    ) {
-      await client.query(
-        "ROLLBACK"
-      );
+    
 
-      return res.status(409).json({
-        success: false,
-        message:
-          "Only confirmed bookings can be paid.",
-      });
-    }
+   const currentPaymentStatus =
+  String(
+    booking.payment_status || ""
+  )
+    .trim()
+    .toUpperCase();
 
-    if (
-      String(
-        booking.payment_status ||
-        ""
-      ).toUpperCase() ===
-      "PAID"
-    ) {
-      await client.query(
-        "ROLLBACK"
-      );
+if (
+  currentPaymentStatus ===
+    "PAID"
+) {
+  await client.query(
+    "ROLLBACK"
+  );
 
-      return res.status(409).json({
-        success: false,
-        message:
-          "This booking has already been paid.",
-      });
-    }
+  return res.status(409).json({
+    success: false,
+    message:
+      "This booking has already been paid.",
+  });
+}
 
-    const amount =
-      Number(
-        booking.estimated_price ||
-        0
-      );
+if (
+  currentPaymentStatus ===
+    "DEPOSIT_PENDING" ||
+  currentPaymentStatus ===
+    "BALANCE_PENDING"
+) {
+  await client.query(
+    "ROLLBACK"
+  );
 
-    if (
-      !Number.isFinite(amount) ||
-      amount <= 0
-    ) {
+  return res.status(409).json({
+    success: false,
+    message:
+      "A payment for this booking is already being processed.",
+  });
+}
+    const fullServiceAmount =
+  Number(
+    booking.estimated_price ||
+    0
+  );
+
+
+const paymentStage =
+  currentPaymentStatus ===
+    "PARTIALLY_PAID"
+    ? "BALANCE"
+    : "DEPOSIT";
+
+    const currentBookingStatus =
+  String(
+    booking.booking_status || ""
+  )
+    .trim()
+    .toUpperCase();
+
+if (
+  paymentStage === "DEPOSIT" &&
+  currentBookingStatus !==
+    "CONFIRMED"
+) {
+  await client.query(
+    "ROLLBACK"
+  );
+
+  return res.status(409).json({
+    success: false,
+    message:
+      "The deposit can only be paid after the booking is confirmed.",
+  });
+}
+
+if (
+  paymentStage === "BALANCE" &&
+  currentBookingStatus !==
+    "COMPLETED"
+) {
+  await client.query(
+    "ROLLBACK"
+  );
+
+  return res.status(409).json({
+    success: false,
+    message:
+      "The remaining balance can only be paid after the service is completed.",
+  });
+}
+const amount =
+  Number(
+    (
+      fullServiceAmount *
+      0.5
+    ).toFixed(2)
+  );
+
+const platformFeeAmount =
+  Number(
+    (
+      amount *
+      0.10
+    ).toFixed(2)
+  );
+
+const providerShareAmount =
+  Number(
+    (
+      amount -
+      platformFeeAmount
+    ).toFixed(2)
+  );
+
+   if (
+  !Number.isFinite(
+    fullServiceAmount
+  ) ||
+  fullServiceAmount <= 0 ||
+  !Number.isFinite(amount) ||
+  amount <= 0
+) {
       await client.query(
         "ROLLBACK"
       );
@@ -183,27 +260,34 @@ async function createProviderPaymentAttempt(
     }
 
     const existingPaymentResult =
-      await client.query(
-        `
-          SELECT
-            id,
-            status
+  await client.query(
+    `
+      SELECT
+        id,
+        status,
+        payment_stage
 
-          FROM provider_payments
+      FROM provider_payments
 
-          WHERE booking_id =
-            $1::uuid
+      WHERE booking_id =
+        $1::uuid
 
-            AND status IN (
-              'PENDING',
-              'PROCESSING',
-              'PAID'
-            )
+        AND payment_stage =
+          $2::varchar
 
-          LIMIT 1
-        `,
-        [bookingId]
-      );
+        AND status IN (
+          'PENDING',
+          'PROCESSING',
+          'PAID'
+        )
+
+      LIMIT 1
+    `,
+    [
+      bookingId,
+      paymentStage,
+    ]
+  );
 
     if (
       existingPaymentResult.rows.length >
@@ -216,7 +300,7 @@ async function createProviderPaymentAttempt(
       return res.status(409).json({
         success: false,
         message:
-          "An active payment already exists for this booking.",
+  `An active ${paymentStage.toLowerCase()} payment already exists for this booking.`,
       });
     }
 
@@ -230,29 +314,35 @@ async function createProviderPaymentAttempt(
       await client.query(
         `
           INSERT INTO provider_payments (
-            booking_id,
-            provider_id,
-            customer_id,
-            payment_reference,
-            payment_method,
-            payment_provider,
-            phone_number,
-            amount,
-            currency,
-            status
-          )
-          VALUES (
-            $1::uuid,
-            $2::uuid,
-            $3::uuid,
-            $4::varchar,
-            'MPESA',
-            'SAFARICOM_DARAJA',
-            $5::varchar,
-            $6::numeric,
-            'KES',
-            'PENDING'
-          )
+  booking_id,
+  provider_id,
+  customer_id,
+  payment_reference,
+  payment_stage,
+  payment_method,
+  payment_provider,
+  phone_number,
+  amount,
+  platform_fee_amount,
+  provider_share_amount,
+  currency,
+  status
+)
+VALUES (
+  $1::uuid,
+  $2::uuid,
+  $3::uuid,
+  $4::varchar,
+  $5::varchar,
+  'MPESA',
+  'SAFARICOM_DARAJA',
+  $6::varchar,
+  $7::numeric,
+  $8::numeric,
+  $9::numeric,
+  'KES',
+  'PENDING'
+)
           RETURNING
             id,
             booking_id,
@@ -263,16 +353,22 @@ async function createProviderPaymentAttempt(
             amount,
             currency,
             status,
-            created_at
+            created_at,
+            payment_stage,
+            platform_fee_amount,
+            provider_share_amount,
         `,
-        [
-          booking.id,
-          booking.provider_id,
-          customerId,
-          paymentReference,
-          phoneNumber,
-          amount,
-        ]
+       [
+  booking.id,
+  booking.provider_id,
+  customerId,
+  paymentReference,
+  paymentStage,
+  phoneNumber,
+  amount,
+  platformFeeAmount,
+  providerShareAmount,
+]
       );
 
     const payment =
@@ -316,6 +412,21 @@ async function createProviderPaymentAttempt(
             Number(
               payment.amount
             ),
+
+            paymentStage:
+  payment.payment_stage,
+
+platformFeeAmount:
+  Number(
+    payment.platform_fee_amount ||
+    0
+  ),
+
+providerShareAmount:
+  Number(
+    payment.provider_share_amount ||
+    0
+  ),
 
           currency:
             payment.currency,
@@ -394,6 +505,9 @@ async function createProviderPaymentAttempt(
               merchant_request_id,
               phone_number,
               amount,
+              payment_stage,
+              platform_fee_amount,
+              provider_share_amount,
               currency,
               status,
               created_at,
@@ -427,7 +541,15 @@ async function createProviderPaymentAttempt(
 
           SET
             payment_status =
-              'PENDING',
+  CASE
+    WHEN $2::varchar =
+      'BALANCE'
+    THEN
+      'BALANCE_PENDING'
+
+    ELSE
+      'DEPOSIT_PENDING'
+  END,
 
             updated_at =
               CURRENT_TIMESTAMP
@@ -435,7 +557,10 @@ async function createProviderPaymentAttempt(
           WHERE id =
             $1::uuid
         `,
-        [booking.id]
+        [
+  booking.id,
+  paymentStage,
+]
       );
 
       await client.query(
@@ -482,6 +607,21 @@ async function createProviderPaymentAttempt(
             Number(
               updatedPayment.amount
             ),
+
+            paymentStage:
+  updatedPayment.payment_stage,
+
+platformFeeAmount:
+  Number(
+    updatedPayment.platform_fee_amount ||
+    0
+  ),
+
+providerShareAmount:
+  Number(
+    updatedPayment.provider_share_amount ||
+    0
+  ),
 
           currency:
             updatedPayment.currency,
@@ -542,17 +682,28 @@ async function createProviderPaymentAttempt(
           `
             UPDATE bookings
 
-            SET
-              payment_status =
-                'UNPAID',
+SET
+  payment_status =
+    CASE
+      WHEN $2::varchar =
+        'BALANCE'
+      THEN
+        'PARTIALLY_PAID'
 
-              updated_at =
-                CURRENT_TIMESTAMP
+      ELSE
+        'UNPAID'
+    END,
 
-            WHERE id =
-              $1::uuid
+  updated_at =
+    CURRENT_TIMESTAMP
+
+WHERE id =
+  $1::uuid
           `,
-          [booking.id]
+          [
+  booking.id,
+  paymentStage,
+]
         );
 
         await client.query(
@@ -686,6 +837,9 @@ async function handleProviderMpesaCallback(
           pp.amount,
           pp.currency,
           pp.status,
+          pp.payment_stage,
+          pp.platform_fee_amount,
+          pp.provider_share_amount,
 
           b.booking_status,
           b.payment_status
@@ -731,20 +885,16 @@ async function handleProviderMpesaCallback(
   |--------------------------------------------------------------------------
   */
 
-  if (
-    String(
-      payment.status || ""
-    ).toUpperCase() ===
-      "PAID" &&
-    String(
-      payment.payment_status || ""
-    ).toUpperCase() ===
-      "PAID"
-  ) {
-    return {
-      handled: true,
-    };
-  }
+ if (
+  String(
+    payment.status || ""
+  ).toUpperCase() ===
+    "PAID"
+) {
+  return {
+    handled: true,
+  };
+}
 
   /*
   |--------------------------------------------------------------------------
@@ -806,24 +956,33 @@ async function handleProviderMpesaCallback(
       ]
     );
 
-    await client.query(
-      `
-        UPDATE bookings
+   await client.query(
+  `
+    UPDATE bookings
 
-        SET
-          payment_status =
-            'UNPAID',
+    SET
+      payment_status =
+        CASE
+          WHEN $2::varchar =
+            'BALANCE'
+          THEN
+            'PARTIALLY_PAID'
 
-          updated_at =
-            CURRENT_TIMESTAMP
+          ELSE
+            'UNPAID'
+        END,
 
-        WHERE id =
-          $1::uuid
-      `,
-      [
-        payment.booking_id,
-      ]
-    );
+      updated_at =
+        CURRENT_TIMESTAMP
+
+    WHERE id =
+      $1::uuid
+  `,
+  [
+    payment.booking_id,
+    payment.payment_stage,
+  ]
+);
 
     if (io) {
       io.to(
@@ -852,7 +1011,10 @@ async function handleProviderMpesaCallback(
             payment.booking_id,
 
           paymentStatus:
-            "UNPAID",
+  payment.payment_stage ===
+    "BALANCE"
+    ? "PARTIALLY_PAID"
+    : "UNPAID",
         }
       );
     }
@@ -966,23 +1128,32 @@ async function handleProviderMpesaCallback(
     );
 
     await client.query(
-      `
-        UPDATE bookings
+  `
+    UPDATE bookings
 
-        SET
-          payment_status =
-            'UNPAID',
+    SET
+      payment_status =
+        CASE
+          WHEN $2::varchar =
+            'BALANCE'
+          THEN
+            'PARTIALLY_PAID'
 
-          updated_at =
-            CURRENT_TIMESTAMP
+          ELSE
+            'UNPAID'
+        END,
 
-        WHERE id =
-          $1::uuid
-      `,
-      [
-        payment.booking_id,
-      ]
-    );
+      updated_at =
+        CURRENT_TIMESTAMP
+
+    WHERE id =
+      $1::uuid
+  `,
+  [
+    payment.booking_id,
+    payment.payment_stage,
+  ]
+);
 
     return {
       handled: true,
@@ -1061,23 +1232,32 @@ async function handleProviderMpesaCallback(
     );
 
     await client.query(
-      `
-        UPDATE bookings
+  `
+    UPDATE bookings
 
-        SET
-          payment_status =
-            'UNPAID',
+    SET
+      payment_status =
+        CASE
+          WHEN $2::varchar =
+            'BALANCE'
+          THEN
+            'PARTIALLY_PAID'
 
-          updated_at =
-            CURRENT_TIMESTAMP
+          ELSE
+            'UNPAID'
+        END,
 
-        WHERE id =
-          $1::uuid
-      `,
-      [
-        payment.booking_id,
-      ]
-    );
+      updated_at =
+        CURRENT_TIMESTAMP
+
+    WHERE id =
+      $1::uuid
+  `,
+  [
+    payment.booking_id,
+    payment.payment_stage,
+  ]
+);
 
     return {
       handled: true,
@@ -1175,23 +1355,37 @@ async function handleProviderMpesaCallback(
   );
 
   await client.query(
-    `
-      UPDATE bookings
+  `
+    UPDATE bookings
 
-      SET
-        payment_status =
-          'PAID',
+    SET
+      payment_status =
+        CASE
+          WHEN $2::varchar =
+            'DEPOSIT'
+          THEN
+            'PARTIALLY_PAID'
 
-        updated_at =
-          CURRENT_TIMESTAMP
+          WHEN $2::varchar =
+            'BALANCE'
+          THEN
+            'PAID'
 
-      WHERE id =
-        $1::uuid
-    `,
-    [
-      payment.booking_id,
-    ]
-  );
+          ELSE
+            'PAID'
+        END,
+
+      updated_at =
+        CURRENT_TIMESTAMP
+
+    WHERE id =
+      $1::uuid
+  `,
+  [
+    payment.booking_id,
+    payment.payment_stage,
+  ]
+);
 
   /*
   |--------------------------------------------------------------------------
@@ -1212,7 +1406,10 @@ async function handleProviderMpesaCallback(
           payment.provider_id,
 
         paymentStatus:
-          "PAID",
+  payment.payment_stage ===
+    "DEPOSIT"
+    ? "PARTIALLY_PAID"
+    : "PAID",
 
         paymentReference:
           payment.payment_reference,
@@ -1222,6 +1419,20 @@ async function handleProviderMpesaCallback(
 
         amount:
           paidAmount,
+          paymentStage:
+  payment.payment_stage,
+
+platformFeeAmount:
+  Number(
+    payment.platform_fee_amount ||
+    0
+  ),
+
+providerShareAmount:
+  Number(
+    payment.provider_share_amount ||
+    0
+  ),
       }
     );
 
@@ -1234,10 +1445,28 @@ async function handleProviderMpesaCallback(
           payment.booking_id,
 
         paymentStatus:
-          "PAID",
+  payment.payment_stage ===
+    "DEPOSIT"
+    ? "PARTIALLY_PAID"
+    : "PAID",
 
         amount:
           paidAmount,
+
+          paymentStage:
+  payment.payment_stage,
+
+platformFeeAmount:
+  Number(
+    payment.platform_fee_amount ||
+    0
+  ),
+
+providerShareAmount:
+  Number(
+    payment.provider_share_amount ||
+    0
+  ),
       }
     );
   }

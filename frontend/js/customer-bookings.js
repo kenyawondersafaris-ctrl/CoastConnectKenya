@@ -714,9 +714,16 @@ function renderCustomerBookings() {
                     </span>
 
                     ${
-                    bookingStatus === "CONFIRMED" &&
-                    paymentStatus === "UNPAID"
+                      (
+                        bookingStatus === "CONFIRMED" &&
+                        paymentStatus === "UNPAID"
+                      ) ||
+                      (
+                        bookingStatus === "COMPLETED" &&
+                        paymentStatus === "PARTIALLY_PAID"
+                      )
                         ? `
+                        
                         <button
                             type="button"
                             class="pay-provider-booking-button"
@@ -727,7 +734,11 @@ function renderCustomerBookings() {
                             booking.provider_name || ""
                             )}"
                         >
-                            Pay with M-Pesa
+                            ${
+                          paymentStatus === "PARTIALLY_PAID"
+                            ? "Pay Remaining 50%"
+                            : "Pay 50% Deposit"
+                        }
                         </button>
                         `
                         : ""
@@ -846,13 +857,29 @@ customerBookingsGrid.addEventListener(
       selectedPaymentBooking.provider_name ||
       "Service provider";
 
-    paymentAmount.textContent =
-      formatMoney(
-        selectedPaymentBooking.estimated_price
-      );
+    const paymentStageAmount =
+  Number(
+    selectedPaymentBooking.estimated_price ||
+    0
+  ) * 0.5;
 
+paymentAmount.textContent =
+  formatMoney(
+    paymentStageAmount
+  );
     paymentPhoneNumber.value =
       storedUser?.phone || "";
+
+      const selectedPaymentStatus =
+  normalizeStatus(
+    selectedPaymentBooking.payment_status
+  );
+
+confirmPaymentButton.textContent =
+  selectedPaymentStatus ===
+    "PARTIALLY_PAID"
+    ? "Pay Remaining 50%"
+    : "Pay 50% Deposit";
 
     mpesaPaymentModal.hidden =
       false;
