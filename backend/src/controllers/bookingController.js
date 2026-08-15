@@ -1,15 +1,458 @@
 "use strict";
 
 const pool = require("../config/db");
-
+const crypto = require("crypto");
 function cleanText(value) {
   return String(value ?? "").trim();
+}
+
+function generateServiceStartPin() {
+  return String(
+    crypto.randomInt(
+      100000,
+      1000000
+    )
+  );
+}
+
+function hashServiceStartPin(pin) {
+  return crypto
+    .createHash("sha256")
+    .update(
+      String(pin)
+    )
+    .digest("hex");
 }
 
 function isValidUuid(value) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
     String(value || "")
   );
+}
+
+async function generateBookingStartPin(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const customerId =
+      req.user.userId;
+
+    const bookingId =
+      cleanText(
+        req.params.bookingId
+      );
+
+    if (
+      !isValidUuid(
+        bookingId
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid booking ID.",
+      });
+    }
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const bookingResult =
+      await client.query(
+        `
+          SELECT
+            id,
+            customer_id,
+            booking_status,
+            payment_status
+
+          FROM bookings
+
+          WHERE id =
+            $1::uuid
+
+          LIMIT 1
+
+          FOR UPDATE
+        `,
+        [
+          bookingId,
+        ]
+      );
+
+    if (
+      bookingResult.rows.length ===
+      0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Booking not found.",
+      });
+    }
+
+    const booking =
+      bookingResult.rows[0];
+
+    if (
+      booking.customer_id !==
+      customerId
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "You cannot generate a start PIN for this booking.",
+      });
+    }
+
+    if (
+      String(
+        booking.booking_status ||
+        ""
+      ).toUpperCase() !==
+        "CONFIRMED" ||
+      String(
+        booking.payment_status ||
+        ""
+      ).toUpperCase() !==
+        "PARTIALLY_PAID"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "A start PIN can only be generated after the deposit has been paid for a confirmed booking.",
+      });
+    }
+
+    const serviceStartPin =
+      generateServiceStartPin();
+
+    const serviceStartPinHash =
+      hashServiceStartPin(
+        serviceStartPin
+      );
+
+    await client.query(
+      `
+        UPDATE bookings
+
+        SET
+          service_start_pin_hash =
+            $1::varchar,
+
+          service_start_pin_created_at =
+            CURRENT_TIMESTAMP,
+
+          updated_at =
+            CURRENT_TIMESTAMP
+
+        WHERE id =
+          $2::uuid
+      `,
+      [
+        serviceStartPinHash,
+        bookingId,
+      ]
+    );
+
+    await client.query(
+      "COMMIT"
+    );
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Service start PIN generated successfully.",
+
+      bookingId,
+
+      startPin:
+        serviceStartPin,
+    });
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (
+      rollbackError
+    ) {
+      // Ignore rollback failure.
+    }
+
+    console.error(
+      "Generate booking start PIN error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to generate service start PIN.",
+    });
+  } finally {
+    client.release();
+  }
+}
+
+async function verifyBookingStartPin(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const providerUserId =
+      req.user.userId;
+
+    const bookingId =
+      cleanText(
+        req.params.bookingId
+      );
+
+    const startPin =
+      cleanText(
+        req.body.startPin
+      );
+
+    if (
+      !isValidUuid(
+        bookingId
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid booking ID.",
+      });
+    }
+
+    if (
+      !/^\d{6}$/.test(
+        startPin
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Enter the 6-digit service start PIN.",
+      });
+    }
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const bookingResult =
+      await client.query(
+        `
+          SELECT
+            b.id,
+            b.provider_id,
+            b.booking_status,
+            b.payment_status,
+            b.service_start_pin_hash,
+
+            pp.user_id
+              AS provider_user_id
+
+          FROM bookings b
+
+          INNER JOIN provider_profiles pp
+            ON pp.id =
+              b.provider_id
+
+          WHERE b.id =
+            $1::uuid
+
+          LIMIT 1
+
+          FOR UPDATE OF b
+        `,
+        [
+          bookingId,
+        ]
+      );
+
+    if (
+      bookingResult.rows.length ===
+      0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Booking not found.",
+      });
+    }
+
+    const booking =
+      bookingResult.rows[0];
+
+    if (
+      booking.provider_user_id !==
+      providerUserId
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "You cannot start this booking.",
+      });
+    }
+
+    if (
+      String(
+        booking.booking_status ||
+        ""
+      ).toUpperCase() !==
+        "CONFIRMED" ||
+      String(
+        booking.payment_status ||
+        ""
+      ).toUpperCase() !==
+        "PARTIALLY_PAID"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "This booking is not ready to start.",
+      });
+    }
+
+    if (
+      !booking.service_start_pin_hash
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "The customer has not generated a service start PIN yet.",
+      });
+    }
+
+    const enteredPinHash =
+      hashServiceStartPin(
+        startPin
+      );
+
+    if (
+      enteredPinHash !==
+      booking.service_start_pin_hash
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(400).json({
+        success: false,
+        message:
+          "Incorrect service start PIN.",
+      });
+    }
+
+    const updatedBookingResult =
+      await client.query(
+        `
+          UPDATE bookings
+
+          SET
+            booking_status =
+              'IN_PROGRESS',
+
+            service_started_at =
+              CURRENT_TIMESTAMP,
+
+            service_start_pin_hash =
+              NULL,
+
+            service_start_pin_created_at =
+              NULL,
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id =
+            $1::uuid
+
+          RETURNING
+            id,
+            booking_status,
+            payment_status,
+            service_started_at
+        `,
+        [
+          bookingId,
+        ]
+      );
+
+    await client.query(
+      "COMMIT"
+    );
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Service started successfully.",
+
+      booking:
+        updatedBookingResult.rows[0],
+    });
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (
+      rollbackError
+    ) {
+      // Ignore rollback failure.
+    }
+
+    console.error(
+      "Verify booking start PIN error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to start service.",
+    });
+  } finally {
+    client.release();
+  }
 }
 
 async function createBooking(
@@ -985,4 +1428,6 @@ module.exports = {
   createBooking,
   getMyBookings,
   createBookingReview,
+  generateBookingStartPin,
+  verifyBookingStartPin,
 };
