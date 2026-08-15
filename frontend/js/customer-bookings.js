@@ -901,8 +901,8 @@ function closeMpesaPaymentModal() {
   confirmPaymentButton.disabled =
     false;
 
-  confirmPaymentButton.textContent =
-    "Pay Now";
+ confirmPaymentButton.textContent =
+  "Pay 50% Deposit";
 }
 
 closePaymentModal?.addEventListener(
@@ -1097,6 +1097,42 @@ function initializeCustomerBookingSocket() {
       );
     }
   );
+
+  socket.on(
+  "provider-payment-completed",
+  async (payment) => {
+
+    console.log(
+      "Provider payment completed:",
+      payment
+    );
+
+    await loadCustomerBookings();
+
+    if (
+      payment.paymentStage ===
+      "DEPOSIT"
+    ) {
+      showMessage(
+        "Deposit payment completed successfully.",
+        "success"
+      );
+    } else if (
+      payment.paymentStage ===
+      "BALANCE"
+    ) {
+      showMessage(
+        "Remaining balance paid successfully.",
+        "success"
+      );
+    } else {
+      showMessage(
+        "Payment completed successfully.",
+        "success"
+      );
+    }
+  }
+);
 }
 customerBookingsGrid?.addEventListener(
   "click",
