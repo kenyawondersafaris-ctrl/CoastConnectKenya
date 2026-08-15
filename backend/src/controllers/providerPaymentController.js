@@ -356,7 +356,7 @@ VALUES (
             created_at,
             payment_stage,
             platform_fee_amount,
-            provider_share_amount,
+            provider_share_amount
         `,
        [
   booking.id,
