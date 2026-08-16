@@ -2536,13 +2536,124 @@ providerBookingsGrid?.addEventListener(
       nextStatus =
         "REJECTED";
     } else if (
-      button.classList.contains(
-        "start-booking-button"
+  button.classList.contains(
+    "start-booking-button"
+  )
+) {
+  const startPin = window.prompt(
+    "Enter the 6-digit customer start PIN:"
+  );
+
+  if (
+    startPin === null
+  ) {
+    return;
+  }
+
+  const normalizedPin =
+    String(startPin)
+      .trim();
+
+  if (
+    !/^\d{6}$/.test(
+      normalizedPin
+    )
+  ) {
+    setMessage(
+      providerBookingsMessage,
+      "Please enter a valid 6-digit customer PIN.",
+      "error"
+    );
+
+    return;
+  }
+
+  button.disabled = true;
+  const originalText =
+    button.textContent;
+
+  button.textContent =
+    "Starting...";
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/bookings/${encodeURIComponent(
+          bookingId
+        )}/start`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+          },
+
+          body:
+            JSON.stringify({
+              startPin:
+                normalizedPin,
+            }),
+        }
+      );
+
+    if (
+      handleUnauthorized(
+        response
       )
     ) {
-      nextStatus =
-        "IN_PROGRESS";
-    } else if (
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to start the service."
+      );
+    }
+
+    setMessage(
+      providerBookingsMessage,
+      data.message ||
+        "Service started successfully.",
+      "success"
+    );
+
+    await loadProviderBookings();
+
+    return;
+  } catch (error) {
+    console.error(
+      "Start booking error:",
+      error
+    );
+
+    setMessage(
+      providerBookingsMessage,
+      error.message ||
+        "Unable to start the service.",
+      "error"
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent =
+      originalText;
+  }
+
+  return;
+} else if (
       button.classList.contains(
         "complete-booking-button"
       )
