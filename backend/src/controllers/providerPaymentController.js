@@ -1376,6 +1376,18 @@ async function createProviderPayout(
       process.env.MPESA_ENVIRONMENT ===
       "production";
 
+      console.log(
+  "B2C sandbox configuration:",
+  {
+    shortcode:
+      process.env.MPESA_B2C_SHORTCODE,
+    initiator:
+      process.env.MPESA_B2C_INITIATOR_NAME,
+    environment:
+      process.env.MPESA_ENVIRONMENT,
+  }
+);
+
     const payoutPhone =
       isProduction
         ? providerPhone
