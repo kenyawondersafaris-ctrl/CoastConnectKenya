@@ -1197,6 +1197,458 @@ async function createProviderPayout(
   }
 }
 
+async function createProviderPayout(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const paymentId =
+      cleanText(
+        req.body.paymentId
+      );
+
+    if (
+      !isValidUuid(
+        paymentId
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid payment ID.",
+      });
+    }
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const paymentResult =
+      await client.query(
+        `
+          SELECT
+            pay.id,
+            pay.booking_id,
+            pay.provider_id,
+            pay.payment_reference,
+            pay.payment_stage,
+            pay.status,
+            pay.settlement_status,
+            pay.provider_share_amount,
+            pay.currency,
+
+            pp.user_id
+              AS provider_user_id,
+
+            u.phone
+              AS provider_phone
+
+          FROM provider_payments pay
+
+          INNER JOIN provider_profiles pp
+            ON pp.id =
+              pay.provider_id
+
+          INNER JOIN users u
+            ON u.id =
+              pp.user_id
+
+          WHERE pay.id =
+            $1::uuid
+
+          LIMIT 1
+
+          FOR UPDATE OF pay
+        `,
+        [
+          paymentId,
+        ]
+      );
+
+    if (
+      paymentResult.rows.length ===
+      0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Provider payment not found.",
+      });
+    }
+
+    const payment =
+      paymentResult.rows[0];
+
+    if (
+      String(
+        payment.status || ""
+      ).toUpperCase() !==
+      "PAID"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Only paid provider payments can be settled.",
+      });
+    }
+
+    if (
+      String(
+        payment.settlement_status ||
+        ""
+      ).toUpperCase() !==
+      "ELIGIBLE"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "This provider payment is not eligible for payout.",
+      });
+    }
+
+    const providerPhone =
+      cleanText(
+        payment.provider_phone
+      );
+
+    if (!providerPhone) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "The provider does not have an M-Pesa phone number.",
+      });
+    }
+
+    const payoutAmount =
+      Number(
+        payment.provider_share_amount ||
+        0
+      );
+
+    if (
+      !Number.isFinite(
+        payoutAmount
+      ) ||
+      payoutAmount <= 0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "The provider payout amount is invalid.",
+      });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Daraja sandbox recipient
+    |--------------------------------------------------------------------------
+    |
+    | In sandbox, Safaricom requires the simulator Party B number.
+    |
+    | Production continues using the actual provider phone number.
+    |
+    */
+
+    const isProduction =
+      process.env.MPESA_ENVIRONMENT ===
+      "production";
+
+    const payoutPhone =
+      isProduction
+        ? providerPhone
+        : "254708374149";
+
+    console.log(
+      "Provider B2C payout recipient:",
+      {
+        environment:
+          isProduction
+            ? "production"
+            : "sandbox",
+
+        providerPhone,
+
+        payoutPhone,
+      }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reserve payout before calling Safaricom
+    |--------------------------------------------------------------------------
+    */
+
+    await client.query(
+      `
+        UPDATE provider_payments
+
+        SET
+          settlement_status =
+            'PROCESSING',
+
+          payout_initiated_at =
+            CURRENT_TIMESTAMP,
+
+          payout_failure_reason =
+            NULL,
+
+          updated_at =
+            CURRENT_TIMESTAMP
+
+        WHERE id =
+          $1::uuid
+      `,
+      [
+        payment.id,
+      ]
+    );
+
+    await client.query(
+      "COMMIT"
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Initiate Daraja B2C
+    |--------------------------------------------------------------------------
+    */
+
+    try {
+      const payoutResult =
+        await initiateMpesaB2CPayout({
+          phoneNumber:
+            payoutPhone,
+
+          amount:
+            payoutAmount,
+
+          remarks:
+            `Coast Connect ${payment.payment_stage} payout`,
+
+          occasion:
+            payment.payment_reference ||
+            "Provider settlement",
+        });
+
+      const providerResponse =
+        payoutResult.response || {};
+
+      await client.query(
+        "BEGIN"
+      );
+
+      await client.query(
+        `
+          UPDATE provider_payments
+
+          SET
+            payout_conversation_id =
+              $1::varchar,
+
+            payout_originator_conversation_id =
+              $2::varchar,
+
+            payout_response =
+              $3::jsonb,
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id =
+            $4::uuid
+        `,
+        [
+          providerResponse
+            .ConversationID ||
+            null,
+
+          providerResponse
+            .OriginatorConversationID ||
+            null,
+
+          JSON.stringify(
+            providerResponse
+          ),
+
+          payment.id,
+        ]
+      );
+
+      await client.query(
+        "COMMIT"
+      );
+
+      return res.status(202).json({
+        success: true,
+
+        message:
+          "Provider payout submitted to M-Pesa.",
+
+        payout: {
+          paymentId:
+            payment.id,
+
+          bookingId:
+            payment.booking_id,
+
+          paymentStage:
+            payment.payment_stage,
+
+          amount:
+            payoutResult.amount,
+
+          currency:
+            payment.currency,
+
+          providerPhone:
+            payoutResult.normalizedPhone,
+
+          settlementStatus:
+            "PROCESSING",
+
+          conversationId:
+            providerResponse
+              .ConversationID ||
+            null,
+
+          originatorConversationId:
+            providerResponse
+              .OriginatorConversationID ||
+            null,
+        },
+      });
+    } catch (payoutError) {
+      console.error(
+        "Provider B2C payout error:",
+        payoutError.response?.data ||
+        payoutError.message
+      );
+
+      try {
+        await client.query(
+          "BEGIN"
+        );
+
+        await client.query(
+          `
+            UPDATE provider_payments
+
+            SET
+              settlement_status =
+                'ELIGIBLE',
+
+              payout_failure_reason =
+                $1::text,
+
+              payout_response =
+                $2::jsonb,
+
+              updated_at =
+                CURRENT_TIMESTAMP
+
+            WHERE id =
+              $3::uuid
+          `,
+          [
+            payoutError.message ||
+            "Unable to initiate provider payout.",
+
+            JSON.stringify(
+              payoutError.response?.data ||
+              {
+                message:
+                  payoutError.message,
+              }
+            ),
+
+            payment.id,
+          ]
+        );
+
+        await client.query(
+          "COMMIT"
+        );
+      } catch (
+        savePayoutError
+      ) {
+        try {
+          await client.query(
+            "ROLLBACK"
+          );
+        } catch (
+          rollbackError
+        ) {
+          // Ignore rollback failure.
+        }
+
+        console.error(
+          "Save B2C payout failure error:",
+          savePayoutError
+        );
+      }
+
+      return res.status(502).json({
+        success: false,
+
+        message:
+          payoutError.response?.data
+            ?.errorMessage ||
+          payoutError.response?.data
+            ?.ResponseDescription ||
+          payoutError.message ||
+          "Unable to initiate provider payout.",
+      });
+    }
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (
+      rollbackError
+    ) {
+      // The transaction may already
+      // have been committed.
+    }
+
+    console.error(
+      "Create provider payout error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to process provider payout.",
+    });
+  } finally {
+    client.release();
+  }
+}
+
 async function handleProviderB2CResult(
   req,
   res
