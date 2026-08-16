@@ -1428,13 +1428,10 @@ customerBookingsGrid?.addEventListener(
           }
         );
 
-      if (
-        handleUnauthorized(
-          response
-        )
-      ) {
-        return;
-      }
+     if (response.status === 401) {
+  clearSessionAndRedirect();
+  return;
+}
 
       const data =
         await response.json();
