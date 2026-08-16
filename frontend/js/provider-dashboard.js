@@ -2560,29 +2560,6 @@ if (!/^\d{6}$/.test(normalizedPin)) {
   return;
 }
 
-  if (
-    startPin === null
-  ) {
-    return;
-  }
-
-  const normalizedPin =
-    String(startPin)
-      .trim();
-
-  if (
-    !/^\d{6}$/.test(
-      normalizedPin
-    )
-  ) {
-    setMessage(
-      providerBookingsMessage,
-      "Please enter a valid 6-digit customer PIN.",
-      "error"
-    );
-
-    return;
-  }
 
   button.disabled = true;
   const originalText =

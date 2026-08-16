@@ -285,6 +285,34 @@ async function initiateMpesaB2CPayout({
       process.env.MPESA_B2C_SECURITY_CREDENTIAL || ""
     ).trim();
 
+    console.log(
+  "B2C credential format:",
+  {
+    length: securityCredential.length,
+    firstChar: securityCredential[0] || null,
+    lastChar:
+      securityCredential[
+        securityCredential.length - 1
+      ] || null,
+  }
+);
+
+    console.log(
+  "B2C security credential check:",
+  {
+    length:
+      securityCredential.length,
+    startsWithQuote:
+      securityCredential.startsWith('"'),
+    endsWithQuote:
+      securityCredential.endsWith('"'),
+    startsWithApostrophe:
+      securityCredential.startsWith("'"),
+    endsWithApostrophe:
+      securityCredential.endsWith("'"),
+  }
+);
+
   const resultUrl =
     String(
       process.env.MPESA_B2C_RESULT_URL || ""
