@@ -1011,6 +1011,175 @@ button {
     border-top: 1px solid #eef2f6;
 }
 
+.start-pin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 160ms ease,
+    visibility 160ms ease;
+}
+
+.start-pin-modal.is-visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.start-pin-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    rgba(15, 23, 42, 0.62);
+  backdrop-filter:
+    blur(10px);
+}
+
+.start-pin-modal__dialog {
+  position: relative;
+  width: min(100%, 460px);
+  overflow: hidden;
+  border: 1px solid
+    rgba(255, 255, 255, 0.14);
+  border-radius: 28px;
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #f8fafc 100%
+    );
+  box-shadow:
+    0 28px 80px
+      rgba(15, 23, 42, 0.28);
+  transform:
+    translateY(14px)
+    scale(0.98);
+  transition:
+    transform 180ms ease;
+}
+
+.start-pin-modal.is-visible
+  .start-pin-modal__dialog {
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+.start-pin-modal__icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 30px auto 16px;
+  border-radius: 20px;
+  background:
+    linear-gradient(
+      135deg,
+      #0f172a,
+      #334155
+    );
+  color: #ffffff;
+  font-size: 26px;
+  box-shadow:
+    0 12px 28px
+      rgba(15, 23, 42, 0.22);
+}
+
+.start-pin-modal__content {
+  padding:
+    0 32px 24px;
+  text-align: center;
+}
+
+.start-pin-modal__eyebrow {
+  margin: 0 0 7px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #64748b;
+}
+
+.start-pin-modal__title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+}
+
+.start-pin-modal__text {
+  max-width: 360px;
+  margin: 10px auto 24px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.start-pin-modal__label {
+  display: block;
+  margin-bottom: 10px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.start-pin-modal__input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 18px;
+  padding: 18px 20px;
+  background: #ffffff;
+  color: #0f172a;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.34em;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.start-pin-modal__input:focus {
+  border-color: #0f172a;
+  box-shadow:
+    0 0 0 4px
+      rgba(15, 23, 42, 0.08);
+}
+
+.start-pin-modal__input.has-error {
+  border-color: #dc2626;
+}
+
+.start-pin-modal__error {
+  margin:
+    10px 0 0;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.start-pin-modal__actions {
+  display: flex;
+  gap: 12px;
+  padding:
+    20px 32px 28px;
+  border-top: 1px solid
+    #e2e8f0;
+}
+
+.start-pin-modal__actions
+  button {
+  flex: 1;
+  min-height: 52px;
+  border-radius: 16px;
+}
+
 @media (max-width: 700px) {
     .provider-account-name {
         display: none;

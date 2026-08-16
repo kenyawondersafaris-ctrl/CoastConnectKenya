@@ -2540,9 +2540,25 @@ providerBookingsGrid?.addEventListener(
     "start-booking-button"
   )
 ) {
-  const startPin = window.prompt(
-    "Enter the 6-digit customer start PIN:"
+  const startPin =
+  await showStartPinModal();
+
+if (startPin === null) {
+  return;
+}
+
+const normalizedPin =
+  String(startPin).trim();
+
+if (!/^\d{6}$/.test(normalizedPin)) {
+  setMessage(
+    providerBookingsMessage,
+    "Please enter the 6-digit customer PIN.",
+    "error"
   );
+
+  return;
+}
 
   if (
     startPin === null

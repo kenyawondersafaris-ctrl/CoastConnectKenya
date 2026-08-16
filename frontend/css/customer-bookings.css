@@ -946,6 +946,125 @@ main.container {
   background: #fef3f2;
 }
 
+.service-start-pin-card {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #f8fafc 100%
+    );
+  box-shadow:
+    0 10px 30px rgba(15, 23, 42, 0.07);
+}
+
+.service-start-pin-card__icon {
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.service-start-pin-card__content {
+  flex: 1;
+}
+
+.service-start-pin-card__eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #64748b;
+}
+
+.service-start-pin-card__title {
+  display: block;
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.service-start-pin-card__text {
+  margin: 7px 0 14px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.generate-start-pin-button {
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 16px;
+  background: #0f172a;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+.generate-start-pin-button:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 20px rgba(15, 23, 42, 0.18);
+}
+
+.generate-start-pin-button:disabled {
+  cursor: default;
+  opacity: 0.65;
+  transform: none;
+}
+
+.service-start-pin-result {
+  margin-top: 14px;
+}
+
+.service-start-pin-card__success {
+  padding: 16px;
+  border-radius: 16px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  text-align: center;
+}
+
+.service-start-pin-card__success-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #64748b;
+}
+
+.service-start-pin-card__pin {
+  display: block;
+  margin: 2px 0 7px;
+  color: #0f172a;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+}
+
+.service-start-pin-card__hint {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 @media (max-width: 520px) {
     .payment-modal-card {
         padding: 24px 20px;

@@ -701,6 +701,52 @@ function renderCustomerBookings() {
 
                 <div class="booking-payment-actions">
 
+                ${
+  bookingStatus === "CONFIRMED" &&
+  paymentStatus === "PARTIALLY_PAID"
+    ? `
+      <div class="service-start-pin-card">
+        <div class="service-start-pin-card__icon">
+          🔐
+        </div>
+
+        <div class="service-start-pin-card__content">
+          <span class="service-start-pin-card__eyebrow">
+            SERVICE SECURITY
+          </span>
+
+          <strong class="service-start-pin-card__title">
+            Generate Start PIN
+          </strong>
+
+          <p class="service-start-pin-card__text">
+            Generate a one-time PIN and give it to your provider
+            when they arrive to start the service.
+          </p>
+
+          <button
+            type="button"
+            class="generate-start-pin-button"
+            data-booking-id="${escapeHtml(
+              booking.id
+            )}"
+          >
+            Generate Start PIN
+          </button>
+
+          <div
+            class="service-start-pin-result"
+            data-start-pin-result="${escapeHtml(
+              booking.id
+            )}"
+            hidden
+          ></div>
+        </div>
+      </div>
+    `
+    : ""
+}
+
                     <span
                     class="payment-status-badge payment-${escapeHtml(
                         paymentStatus.toLowerCase()
@@ -1324,5 +1370,148 @@ customerBookingsGrid.addEventListener(
         }
       );
 
+  }
+);
+
+customerBookingsGrid?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".generate-start-pin-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const bookingId =
+      button.dataset.bookingId;
+
+    if (!bookingId) {
+      return;
+    }
+
+    const resultElement =
+      document.querySelector(
+        `.service-start-pin-result[data-start-pin-result="${bookingId}"]`
+      );
+
+    const originalText =
+      button.textContent;
+
+    button.disabled = true;
+    button.textContent =
+      "Generating...";
+
+    if (resultElement) {
+      resultElement.hidden = true;
+      resultElement.textContent = "";
+    }
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/bookings/${encodeURIComponent(
+            bookingId
+          )}/start-pin`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              Accept:
+                "application/json",
+            },
+          }
+        );
+
+      if (
+        handleUnauthorized(
+          response
+        )
+      ) {
+        return;
+      }
+
+      const data =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to generate the service PIN."
+        );
+      }
+
+      const startPin =
+        String(
+          data.startPin || ""
+        ).trim();
+
+      if (
+        !/^\d{6}$/.test(
+          startPin
+        )
+      ) {
+        throw new Error(
+          "The server returned an invalid service PIN."
+        );
+      }
+
+      if (resultElement) {
+        resultElement.innerHTML = `
+          <div class="service-start-pin-card__success">
+            <span class="service-start-pin-card__success-label">
+              YOUR SERVICE PIN
+            </span>
+
+            <strong
+              class="service-start-pin-card__pin"
+              aria-label="Service start PIN"
+            >
+              ${escapeHtml(
+                startPin
+              )}
+            </strong>
+
+            <span class="service-start-pin-card__hint">
+              Give this 6-digit PIN to your provider when they arrive.
+            </span>
+          </div>
+        `;
+
+        resultElement.hidden =
+          false;
+      }
+
+      button.textContent =
+        "PIN Generated";
+
+      button.disabled =
+        true;
+    } catch (error) {
+      console.error(
+        "Generate start PIN error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+          "Unable to generate the service PIN.",
+        "error"
+      );
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        originalText;
+    }
   }
 );
