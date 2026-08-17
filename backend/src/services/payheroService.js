@@ -127,7 +127,7 @@ if (!channelId) {
   "PayHero STK request:",
   {
     url:
-      `${PAYHERO_BASE_URL}/payments/initiate-stk-push`,
+      `${PAYHERO_BASE_URL}/payments`,
 
     channelId,
 
