@@ -137,6 +137,11 @@ const adminPageTitle =
     "adminUsersContainer"
   );
 
+  const adminPayoutsContainer =
+  document.getElementById(
+    "adminPayoutsContainer"
+  );
+
   const adminSupportMessagesContainer =
   document.getElementById(
     "adminSupportMessagesContainer"
@@ -312,6 +317,23 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function formatMoney(
+  value,
+  currency = "KES"
+) {
+  const amount =
+    Number(value || 0);
+
+  return new Intl.NumberFormat(
+    "en-KE",
+    {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+    }
+  ).format(amount);
 }
 
 async function loadOverview() {
@@ -508,6 +530,164 @@ async function loadProviders() {
     showMessage(
       error.message ||
       "Unable to load providers.",
+      "error"
+    );
+  }
+}
+
+async function loadProviderPayouts() {
+  if (!adminPayoutsContainer) {
+    return;
+  }
+
+  adminPayoutsContainer.innerHTML =
+    "<p>Loading provider payouts...</p>";
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE}/admin/provider-payouts`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    if (
+      handleUnauthorizedResponse(
+        response
+      )
+    ) {
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+          "Unable to load provider payouts."
+      );
+    }
+
+    const payouts =
+      Array.isArray(
+        data.payouts
+      )
+        ? data.payouts
+        : [];
+
+    if (
+      payouts.length === 0
+    ) {
+      adminPayoutsContainer.innerHTML = `
+        <div class="admin-list-card">
+          <h3>No provider payouts ready</h3>
+          <p>
+            Paid provider earnings that are ready for manual settlement
+            will appear here.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+    adminPayoutsContainer.innerHTML =
+      payouts
+        .map(
+          (payout) => `
+            <article
+              class="admin-list-card provider-payout-card"
+              data-payment-id="${escapeHtml(
+                payout.id
+              )}"
+            >
+              <div>
+                <h3>
+                  ${escapeHtml(
+                    payout.provider_name ||
+                    "Provider"
+                  )}
+                </h3>
+
+                <p>
+                  ${escapeHtml(
+                    payout.payment_stage ||
+                    "Payment"
+                  )}
+                  ·
+                  ${escapeHtml(
+                    payout.booking_id ||
+                    ""
+                  )}
+                </p>
+
+                <p>
+                  ${escapeHtml(
+                    payout.provider_phone ||
+                    payout.provider_email ||
+                    "No contact information"
+                  )}
+                </p>
+
+                <span class="admin-status-badge eligible">
+                  READY TO PAY
+                </span>
+              </div>
+
+              <div class="admin-card-actions">
+                <strong>
+                  ${formatMoney(
+                    payout.provider_share_amount
+                  )}
+                </strong>
+
+                <button
+                  type="button"
+                  class="admin-mark-payout-paid-button"
+                  data-payment-id="${escapeHtml(
+                    payout.id
+                  )}"
+                >
+                  Mark as Paid
+                </button>
+              </div>
+            </article>
+          `
+        )
+        .join("");
+
+  } catch (error) {
+    console.error(
+      "Load provider payouts error:",
+      error
+    );
+
+    adminPayoutsContainer.innerHTML = `
+      <div class="admin-list-card">
+        <h3>Unable to load provider payouts</h3>
+        <p>
+          ${escapeHtml(
+            error.message ||
+            "Please try again."
+          )}
+        </p>
+      </div>
+    `;
+
+    showMessage(
+      error.message ||
+        "Unable to load provider payouts.",
       "error"
     );
   }
@@ -1085,6 +1265,13 @@ adminNavLinks.forEach(
         ) {
           loadProviders();
         }
+
+        if (
+  sectionName ===
+  "payouts"
+) {
+  loadProviderPayouts();
+}
 
         if (
           sectionName ===
@@ -2390,3 +2577,190 @@ if (
 }
 
 loadAdminNotifications();
+
+
+adminPayoutsContainer?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".admin-mark-payout-paid-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const paymentId =
+      button.dataset.paymentId;
+
+    if (!paymentId) {
+      return;
+    }
+
+    const method =
+      window.prompt(
+        "Enter payout method: BANK, MPESA, CASH, or OTHER"
+      );
+
+    if (method === null) {
+      return;
+    }
+
+    const payoutMethod =
+      String(method)
+        .trim()
+        .toUpperCase();
+
+    if (
+      ![
+        "BANK",
+        "MPESA",
+        "CASH",
+        "OTHER",
+      ].includes(
+        payoutMethod
+      )
+    ) {
+      showMessage(
+        "Please enter BANK, MPESA, CASH, or OTHER.",
+        "error"
+      );
+
+      return;
+    }
+
+    const payoutReference =
+      window.prompt(
+        "Enter the bank/M-Pesa/cash payment reference:"
+      );
+
+    if (
+      payoutReference === null ||
+      !String(
+        payoutReference
+      ).trim()
+    ) {
+      showMessage(
+        "A payout reference is required.",
+        "error"
+      );
+
+      return;
+    }
+
+    const notes =
+      window.prompt(
+        "Optional notes:"
+      );
+
+    const confirmed =
+      await showConfirm({
+        title:
+          "Record provider payout?",
+        message:
+          `This will mark payment ${paymentId} as SETTLED.`,
+        confirmText:
+          "Mark as Paid",
+        cancelText:
+          "Cancel",
+        danger:
+          false,
+      });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const originalText =
+      button.textContent;
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Recording...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE}/admin/provider-payouts/${encodeURIComponent(
+            paymentId
+          )}/mark-paid`,
+          {
+            method: "PATCH",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                payoutMethod,
+                payoutReference:
+                  String(
+                    payoutReference
+                  ).trim(),
+                notes:
+                  String(
+                    notes || ""
+                  ).trim(),
+              }),
+          }
+        );
+
+      if (
+        handleUnauthorizedResponse(
+          response
+        )
+      ) {
+        return;
+      }
+
+      const data =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to record provider payout."
+        );
+      }
+
+      showMessage(
+        "Provider payout recorded successfully.",
+        "success"
+      );
+
+      await loadProviderPayouts();
+
+    } catch (error) {
+      console.error(
+        "Record provider payout error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+        "Unable to record provider payout.",
+        "error"
+      );
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
