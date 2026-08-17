@@ -19,6 +19,7 @@ const uploadRoutes = require("./src/routes/uploadRoutes");
 const restaurantGalleryRoutes = require("./src/routes/restaurantGalleryRoutes");
 const orderRoutes =require("./src/routes/orderRoutes");
 const mpesaRoutes =require("./src/routes/mpesaRoutes");
+const payheroRoutes =require("./src/routes/payheroRoutes");
 const cardPaymentRoutes =require("./src/routes/cardPaymentRoutes");
 const checkoutRoutes =require("./src/routes/checkoutRoutes");
 const restaurantNotificationRoutes =require("./src/routes/restaurantNotificationRoutes");
@@ -259,6 +260,11 @@ app.use(
 app.use(
   "/api/payments/mpesa",
   mpesaRoutes
+);
+
+app.use(
+  "/api/payments/payhero",
+  payheroRoutes
 );
 
 app.use(
