@@ -95,22 +95,18 @@ async function initiatePayHeroStkPush({
     );
   }
 
-  const channelId =
-    Number(
-      process.env.PAYHERO_CHANNEL_ID ||
-      0
-    );
+ const channelId =
+  String(
+    process.env.PAYHERO_CHANNEL_ID ||
+    ""
+  ).trim();
 
-  if (
-    !Number.isInteger(
-      channelId
-    ) ||
-    channelId <= 0
-  ) {
-    throw new Error(
-      "PayHero payment channel is not configured."
-    );
-  }
+if (!channelId) {
+  throw new Error(
+    "PayHero payment channel is not configured."
+  );
+}
+
 
   const resolvedCallbackUrl =
     String(
