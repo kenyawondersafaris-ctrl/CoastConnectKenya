@@ -4,7 +4,10 @@ const pool =
   require("../config/db");
 
 const {
-  initiateMpesaStkPush,
+  initiatePayHeroStkPush,
+} = require("../services/payheroService");
+
+const {
   initiateMpesaB2CPayout,
 } = require("../services/mpesaService");
 
@@ -442,22 +445,26 @@ providerShareAmount:
     }
 
     try {
-      const stkResult =
-        await initiateMpesaStkPush({
-          phoneNumber:
-            payment.phone_number,
+     const stkResult =
+  await initiatePayHeroStkPush({
+    phoneNumber:
+      payment.phone_number,
 
-          amount:
-            Number(
-              payment.amount
-            ),
+    amount:
+      Number(
+        payment.amount
+      ),
 
-          accountReference:
-            payment.payment_reference,
+    externalReference:
+      payment.payment_reference,
 
-          transactionDescription:
-            "Coast Connect provider booking",
-        });
+    customerName:
+      booking.customer_name ||
+      "Coast Connect Customer",
+
+    callbackUrl:
+      process.env.PAYHERO_CALLBACK_URL,
+  });
 
       const providerResponse =
         stkResult.response || {};
