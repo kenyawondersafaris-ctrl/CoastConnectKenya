@@ -197,6 +197,11 @@ const adminSidebarOverlay =
     "adminSidebarOverlay"
   );
 
+  const adminPayoutHistoryContainer =
+  document.getElementById(
+    "adminPayoutHistoryContainer"
+  );
+
 function showMessage(
   message,
   type = "success"
@@ -586,6 +591,9 @@ async function loadProviderPayouts() {
         ? data.payouts
         : [];
 
+        window.adminProviderPayouts =
+  payouts;
+
     if (
       payouts.length === 0
     ) {
@@ -688,6 +696,188 @@ async function loadProviderPayouts() {
     showMessage(
       error.message ||
         "Unable to load provider payouts.",
+      "error"
+    );
+  }
+}
+
+async function loadProviderPayoutHistory() {
+  if (!adminPayoutHistoryContainer) {
+    return;
+  }
+
+  adminPayoutHistoryContainer.innerHTML =
+    "<p>Loading paid provider payouts...</p>";
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE}/admin/provider-payouts/history`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    if (
+      handleUnauthorizedResponse(
+        response
+      )
+    ) {
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+          "Unable to load payout history."
+      );
+    }
+
+    const payouts =
+      Array.isArray(
+        data.payouts
+      )
+        ? data.payouts
+        : [];
+
+    if (
+      payouts.length === 0
+    ) {
+      adminPayoutHistoryContainer.innerHTML = `
+        <div class="admin-list-card">
+          <h3>No settled payouts yet</h3>
+          <p>
+            Provider payments recorded as paid will appear here.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+    adminPayoutHistoryContainer.innerHTML =
+      payouts
+        .map(
+          (payout) => `
+            <article
+              class="admin-list-card provider-payout-history-card"
+            >
+              <div>
+                <h3>
+                  ${escapeHtml(
+                    payout.provider_name ||
+                    "Provider"
+                  )}
+                </h3>
+
+                <p>
+                  ${escapeHtml(
+                    payout.payment_stage ||
+                    "Payment"
+                  )}
+                  ·
+                  ${escapeHtml(
+                    payout.booking_id ||
+                    ""
+                  )}
+                </p>
+
+                <p>
+                  Method:
+                  ${escapeHtml(
+                    payout.manual_payout_method ||
+                    "Not recorded"
+                  )}
+                </p>
+
+                <p>
+                  Reference:
+                  ${escapeHtml(
+                    payout.manual_payout_reference ||
+                    "Not recorded"
+                  )}
+                </p>
+
+                ${
+                  payout.manual_payout_notes
+                    ? `
+                      <p>
+                        Notes:
+                        ${escapeHtml(
+                          payout.manual_payout_notes
+                        )}
+                      </p>
+                    `
+                    : ""
+                }
+              </div>
+
+              <div class="admin-card-actions">
+                <strong>
+                  ${formatMoney(
+                    payout.provider_share_amount,
+                    payout.currency ||
+                      "KES"
+                  )}
+                </strong>
+
+                <span class="admin-status-badge approved">
+                  PAID
+                </span>
+
+                <small>
+                  ${
+                    payout.manual_payout_paid_at
+                      ? new Date(
+                          payout.manual_payout_paid_at
+                        ).toLocaleString(
+                          "en-KE"
+                        )
+                      : ""
+                  }
+                </small>
+              </div>
+            </article>
+          `
+        )
+        .join("");
+
+  } catch (error) {
+    console.error(
+      "Load provider payout history error:",
+      error
+    );
+
+    adminPayoutHistoryContainer.innerHTML = `
+      <div class="admin-list-card">
+        <h3>
+          Unable to load payout history
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            error.message ||
+            "Please try again."
+          )}
+        </p>
+      </div>
+    `;
+
+    showMessage(
+      error.message ||
+        "Unable to load payout history.",
       "error"
     );
   }
@@ -1271,6 +1461,13 @@ adminNavLinks.forEach(
   "payouts"
 ) {
   loadProviderPayouts();
+}
+
+if (
+  sectionName ===
+  "payout-history"
+) {
+  loadProviderPayoutHistory();
 }
 
         if (
@@ -2579,9 +2776,133 @@ if (
 loadAdminNotifications();
 
 
+let selectedManualPayout = null;
+
+const manualPayoutModal =
+  document.getElementById(
+    "manualPayoutModal"
+  );
+
+const manualPayoutProviderName =
+  document.getElementById(
+    "manualPayoutProviderName"
+  );
+
+const manualPayoutAmount =
+  document.getElementById(
+    "manualPayoutAmount"
+  );
+
+const manualPayoutMethod =
+  document.getElementById(
+    "manualPayoutMethod"
+  );
+
+const manualPayoutReference =
+  document.getElementById(
+    "manualPayoutReference"
+  );
+
+const manualPayoutNotes =
+  document.getElementById(
+    "manualPayoutNotes"
+  );
+
+const manualPayoutModalError =
+  document.getElementById(
+    "manualPayoutModalError"
+  );
+
+const confirmManualPayoutButton =
+  document.getElementById(
+    "confirmManualPayoutButton"
+  );
+
+function openManualPayoutModal(
+  payout
+) {
+  selectedManualPayout =
+    payout;
+
+  manualPayoutProviderName.textContent =
+    payout.provider_name ||
+    "Provider";
+
+  manualPayoutAmount.textContent =
+    formatMoney(
+      payout.provider_share_amount,
+      payout.currency || "KES"
+    );
+
+  manualPayoutMethod.value =
+    "";
+
+  manualPayoutReference.value =
+    "";
+
+  manualPayoutNotes.value =
+    "";
+
+  manualPayoutModalError.hidden =
+    true;
+
+  manualPayoutModalError.textContent =
+    "";
+
+  confirmManualPayoutButton.disabled =
+    false;
+
+  confirmManualPayoutButton.textContent =
+    "Mark as Paid";
+
+  manualPayoutModal.hidden =
+    false;
+
+  document.body.style.overflow =
+    "hidden";
+
+  requestAnimationFrame(() => {
+    manualPayoutModal.classList.add(
+      "is-visible"
+    );
+
+    manualPayoutMethod.focus();
+  });
+}
+
+function closeManualPayoutModal() {
+  manualPayoutModal.classList.remove(
+    "is-visible"
+  );
+
+  setTimeout(() => {
+    manualPayoutModal.hidden =
+      true;
+
+    document.body.style.overflow =
+      "";
+
+    selectedManualPayout =
+      null;
+  }, 160);
+}
+
+manualPayoutModal
+  ?.querySelectorAll(
+    "[data-manual-payout-close]"
+  )
+  .forEach(
+    (element) => {
+      element.addEventListener(
+        "click",
+        closeManualPayoutModal
+      );
+    }
+  );
+
 adminPayoutsContainer?.addEventListener(
   "click",
-  async (event) => {
+  (event) => {
     const button =
       event.target.closest(
         ".admin-mark-payout-paid-button"
@@ -2594,98 +2915,96 @@ adminPayoutsContainer?.addEventListener(
     const paymentId =
       button.dataset.paymentId;
 
-    if (!paymentId) {
-      return;
-    }
-
-    const method =
-      window.prompt(
-        "Enter payout method: BANK, MPESA, CASH, or OTHER"
-      );
-
-    if (method === null) {
-      return;
-    }
-
-    const payoutMethod =
-      String(method)
-        .trim()
-        .toUpperCase();
-
-    if (
-      ![
-        "BANK",
-        "MPESA",
-        "CASH",
-        "OTHER",
-      ].includes(
-        payoutMethod
+    const payout =
+      Array.isArray(
+        window.adminProviderPayouts
       )
-    ) {
+        ? window.adminProviderPayouts.find(
+            (item) =>
+              item.id === paymentId
+          )
+        : null;
+
+    if (!payout) {
       showMessage(
-        "Please enter BANK, MPESA, CASH, or OTHER.",
+        "Provider payout information could not be found.",
         "error"
       );
 
       return;
     }
 
-    const payoutReference =
-      window.prompt(
-        "Enter the bank/M-Pesa/cash payment reference:"
-      );
+    openManualPayoutModal(
+      payout
+    );
+  }
+);
 
+confirmManualPayoutButton?.addEventListener(
+  "click",
+  async () => {
     if (
-      payoutReference === null ||
-      !String(
-        payoutReference
-      ).trim()
+      !selectedManualPayout
     ) {
-      showMessage(
-        "A payout reference is required.",
-        "error"
-      );
+      return;
+    }
+
+    const payoutMethodValue =
+      String(
+        manualPayoutMethod.value ||
+        ""
+      ).trim();
+
+    const payoutReferenceValue =
+      String(
+        manualPayoutReference.value ||
+        ""
+      ).trim();
+
+    const notesValue =
+      String(
+        manualPayoutNotes.value ||
+        ""
+      ).trim();
+
+    if (!payoutMethodValue) {
+      manualPayoutModalError.textContent =
+        "Please select the payment method.";
+
+      manualPayoutModalError.hidden =
+        false;
+
+      manualPayoutMethod.focus();
 
       return;
     }
 
-    const notes =
-      window.prompt(
-        "Optional notes:"
-      );
+    if (!payoutReferenceValue) {
+      manualPayoutModalError.textContent =
+        "Please enter the payment reference.";
 
-    const confirmed =
-      await showConfirm({
-        title:
-          "Record provider payout?",
-        message:
-          `This will mark payment ${paymentId} as SETTLED.`,
-        confirmText:
-          "Mark as Paid",
-        cancelText:
-          "Cancel",
-        danger:
-          false,
-      });
+      manualPayoutModalError.hidden =
+        false;
 
-    if (!confirmed) {
+      manualPayoutReference.focus();
+
       return;
     }
 
-    const originalText =
-      button.textContent;
-
-    button.disabled =
+    manualPayoutModalError.hidden =
       true;
 
-    button.textContent =
+    confirmManualPayoutButton.disabled =
+      true;
+
+    confirmManualPayoutButton.textContent =
       "Recording...";
 
     try {
       const response =
         await fetch(
           `${API_BASE}/admin/provider-payouts/${encodeURIComponent(
-            paymentId
+            selectedManualPayout.id
           )}/mark-paid`,
           {
             method: "PATCH",
@@ -2703,15 +3022,14 @@ adminPayoutsContainer?.addEventListener(
 
             body:
               JSON.stringify({
-                payoutMethod,
+                payoutMethod:
+                  payoutMethodValue,
+
                 payoutReference:
-                  String(
-                    payoutReference
-                  ).trim(),
+                  payoutReferenceValue,
+
                 notes:
-                  String(
-                    notes || ""
-                  ).trim(),
+                  notesValue,
               }),
           }
         );
@@ -2737,12 +3055,17 @@ adminPayoutsContainer?.addEventListener(
         );
       }
 
+      closeManualPayoutModal();
+
       showMessage(
         "Provider payout recorded successfully.",
         "success"
       );
 
-      await loadProviderPayouts();
+      await Promise.all([
+        loadProviderPayouts(),
+        loadProviderPayoutHistory(),
+      ]);
 
     } catch (error) {
       console.error(
@@ -2750,17 +3073,18 @@ adminPayoutsContainer?.addEventListener(
         error
       );
 
-      showMessage(
+      manualPayoutModalError.textContent =
         error.message ||
-        "Unable to record provider payout.",
-        "error"
-      );
+        "Unable to record provider payout.";
 
-      button.disabled =
+      manualPayoutModalError.hidden =
         false;
 
-      button.textContent =
-        originalText;
+      confirmManualPayoutButton.disabled =
+        false;
+
+      confirmManualPayoutButton.textContent =
+        "Mark as Paid";
     }
   }
 );

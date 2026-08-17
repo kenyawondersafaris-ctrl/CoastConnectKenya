@@ -98,6 +98,14 @@
 <button
   type="button"
   class="admin-nav-link"
+  data-admin-section="payout-history"
+>
+  Paid History
+</button>
+
+<button
+  type="button"
+  class="admin-nav-link"
   data-admin-section="support"
 >
   💬 Support Messages
@@ -428,6 +436,33 @@
 
 <section
   class="admin-section"
+  data-admin-panel="payout-history"
+  hidden
+>
+  <div class="admin-section-heading">
+    <div>
+      <h2>
+        Paid History
+      </h2>
+
+      <p>
+        Review provider payments already paid manually by Coast Connect.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="adminPayoutHistoryContainer"
+    class="admin-list"
+  >
+    <p>
+      Loading paid provider payouts...
+    </p>
+  </div>
+</section>
+
+<section
+  class="admin-section"
   data-admin-panel="support"
   hidden
 >
@@ -458,6 +493,140 @@
 
   </main>
 
+</div>
+
+<div
+  id="manualPayoutModal"
+  class="manual-payout-modal"
+  hidden
+>
+  <div
+    class="manual-payout-modal__backdrop"
+    data-manual-payout-close
+  ></div>
+
+  <div
+    class="manual-payout-modal__dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="manualPayoutModalTitle"
+  >
+    <div class="manual-payout-modal__header">
+      <div>
+        <span class="manual-payout-modal__eyebrow">
+          PROVIDER SETTLEMENT
+        </span>
+
+        <h2 id="manualPayoutModalTitle">
+          Record provider payout
+        </h2>
+
+        <p>
+          Record the payment you have already made to the provider.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="manual-payout-modal__close"
+        data-manual-payout-close
+        aria-label="Close"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="manual-payout-modal__summary">
+      <div>
+        <span>Provider</span>
+        <strong id="manualPayoutProviderName">
+          —
+        </strong>
+      </div>
+
+      <div>
+        <span>Amount</span>
+        <strong id="manualPayoutAmount">
+          KES 0.00
+        </strong>
+      </div>
+    </div>
+
+    <div class="manual-payout-modal__form">
+      <label for="manualPayoutMethod">
+        Payment method
+      </label>
+
+      <select
+        id="manualPayoutMethod"
+      >
+        <option value="">
+          Select payment method
+        </option>
+        <option value="BANK">
+          Bank transfer
+        </option>
+        <option value="MPESA">
+          M-Pesa
+        </option>
+        <option value="CASH">
+          Cash
+        </option>
+        <option value="OTHER">
+          Other
+        </option>
+      </select>
+
+      <label for="manualPayoutReference">
+        Payment reference
+      </label>
+
+      <input
+        id="manualPayoutReference"
+        type="text"
+        maxlength="150"
+        placeholder="e.g. Bank transaction or M-Pesa reference"
+        autocomplete="off"
+      />
+
+      <label for="manualPayoutNotes">
+        Notes
+        <span>(optional)</span>
+      </label>
+
+      <textarea
+        id="manualPayoutNotes"
+        rows="4"
+        maxlength="1000"
+        placeholder="Add any useful settlement notes..."
+      ></textarea>
+    </div>
+
+    <div
+      id="manualPayoutModalError"
+      class="manual-payout-modal__error"
+      hidden
+      aria-live="polite"
+    ></div>
+
+    <div class="manual-payout-modal__actions">
+      <button
+        type="button"
+        class="secondary-button"
+        data-manual-payout-close
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        id="confirmManualPayoutButton"
+        class="admin-mark-payout-paid-button"
+      >
+        Mark as Paid
+      </button>
+    </div>
+  </div>
 </div>
 <script src="js/ui-feedback.js"></script>
 <script src="js/admin-dashboard.js"></script>

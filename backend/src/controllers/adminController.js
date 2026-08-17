@@ -879,6 +879,80 @@ async function markProviderPayoutPaid(
   }
 }
 
+async function getProviderPayoutHistory(
+  req,
+  res
+) {
+  try {
+    const result =
+      await pool.query(
+        `
+          SELECT
+            pay.id,
+            pay.booking_id,
+            pay.payment_stage,
+            pay.provider_share_amount,
+            pay.currency,
+            pay.status,
+            pay.settlement_status,
+
+            pay.manual_payout_method,
+            pay.manual_payout_reference,
+            pay.manual_payout_notes,
+            pay.manual_payout_paid_at,
+
+            pay.settled_at,
+            pay.paid_at,
+            pay.created_at,
+
+            u.full_name AS provider_name,
+            u.phone AS provider_phone,
+            u.email AS provider_email
+
+          FROM provider_payments pay
+
+          INNER JOIN provider_profiles pp
+            ON pp.id = pay.provider_id
+
+          INNER JOIN users u
+            ON u.id = pp.user_id
+
+          WHERE
+            pay.status = 'PAID'
+
+            AND
+
+            pay.settlement_status = 'SETTLED'
+
+          ORDER BY
+            COALESCE(
+              pay.manual_payout_paid_at,
+              pay.settled_at,
+              pay.updated_at
+            ) DESC
+        `
+      );
+
+    return res.json({
+      success: true,
+      payouts:
+        result.rows,
+    });
+
+  } catch (error) {
+    console.error(
+      "Get provider payout history error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load provider payout history.",
+    });
+  }
+}
+
 module.exports = {
   getAdminOverview,
   getPendingProviders,
@@ -891,4 +965,5 @@ module.exports = {
   updateUserAccountStatus,
   getProviderPayouts,
   markProviderPayoutPaid,
+  getProviderPayoutHistory,
 };

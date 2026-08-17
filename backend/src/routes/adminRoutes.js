@@ -35,6 +35,7 @@ const {
   updateUserAccountStatus,
     getProviderPayouts,
   markProviderPayoutPaid,
+  getProviderPayoutHistory
 } =
   require("../controllers/adminController");
 
@@ -110,6 +111,13 @@ router.patch(
   authenticate,
   requireRole("ADMIN"),
   markProviderPayoutPaid
+);
+
+router.get(
+  "/provider-payouts/history",
+  authenticate,
+  requireRole("ADMIN"),
+  getProviderPayoutHistory
 );
 
 router.patch(
