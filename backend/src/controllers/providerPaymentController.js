@@ -1344,23 +1344,39 @@ async function createProviderPayout(
         0
       );
 
-    if (
-      !Number.isFinite(
-        payoutAmount
-      ) ||
-      payoutAmount <= 0
-    ) {
-      await client.query(
-        "ROLLBACK"
-      );
+    const MIN_B2C_PAYOUT_AMOUNT = 10;
 
-      return res.status(409).json({
-        success: false,
-        message:
-          "The provider payout amount is invalid.",
-      });
-    }
+if (
+  !Number.isFinite(
+    payoutAmount
+  ) ||
+  payoutAmount <= 0
+) {
+  await client.query(
+    "ROLLBACK"
+  );
 
+  return res.status(409).json({
+    success: false,
+    message:
+      "The provider payout amount is invalid.",
+  });
+}
+
+if (
+  payoutAmount <
+  MIN_B2C_PAYOUT_AMOUNT
+) {
+  await client.query(
+    "ROLLBACK"
+  );
+
+  return res.status(409).json({
+    success: false,
+    message:
+      `The provider payout amount must be at least KES ${MIN_B2C_PAYOUT_AMOUNT}.`,
+  });
+}
     /*
     |--------------------------------------------------------------------------
     | Daraja sandbox recipient
