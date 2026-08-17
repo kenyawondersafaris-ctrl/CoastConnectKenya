@@ -2774,3 +2774,217 @@ async function loadProviderProfileForSocket() {
     );
   }
 }
+
+
+function showStartPinModal() {
+  return new Promise((resolve) => {
+    const existingModal =
+      document.getElementById(
+        "startPinModal"
+      );
+
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    const modal =
+      document.createElement("div");
+
+    modal.id =
+      "startPinModal";
+
+    modal.className =
+      "start-pin-modal";
+
+    modal.innerHTML = `
+      <div
+        class="start-pin-modal__backdrop"
+        data-start-pin-cancel
+      ></div>
+
+      <div
+        class="start-pin-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="startPinModalTitle"
+      >
+        <div class="start-pin-modal__icon">
+          <span>🔐</span>
+        </div>
+
+        <div class="start-pin-modal__content">
+          <p class="start-pin-modal__eyebrow">
+            SECURE START
+          </p>
+
+          <h2
+            id="startPinModalTitle"
+            class="start-pin-modal__title"
+          >
+            Start service
+          </h2>
+
+          <p class="start-pin-modal__text">
+            Enter the 6-digit PIN provided by the customer
+            to securely start this booking.
+          </p>
+
+          <label
+            class="start-pin-modal__label"
+            for="startPinInput"
+          >
+            Customer PIN
+          </label>
+
+          <input
+            id="startPinInput"
+            class="start-pin-modal__input"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+            placeholder="000000"
+          />
+
+          <p
+            id="startPinModalError"
+            class="start-pin-modal__error"
+            hidden
+          >
+            Enter a valid 6-digit PIN.
+          </p>
+        </div>
+
+        <div class="start-pin-modal__actions">
+          <button
+            type="button"
+            class="secondary-button"
+            data-start-pin-cancel
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="primary-button"
+            id="confirmStartPinButton"
+          >
+            Start Service
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const input =
+      modal.querySelector(
+        "#startPinInput"
+      );
+
+    const error =
+      modal.querySelector(
+        "#startPinModalError"
+      );
+
+    const confirmButton =
+      modal.querySelector(
+        "#confirmStartPinButton"
+      );
+
+    const close =
+      (value) => {
+        modal.classList.remove(
+          "is-visible"
+        );
+
+        setTimeout(() => {
+          modal.remove();
+          resolve(value);
+        }, 160);
+      };
+
+    modal
+      .querySelectorAll(
+        "[data-start-pin-cancel]"
+      )
+      .forEach((element) => {
+        element.addEventListener(
+          "click",
+          () => close(null)
+        );
+      });
+
+    input.addEventListener(
+      "input",
+      () => {
+        input.value =
+          input.value
+            .replace(/\D/g, "")
+            .slice(0, 6);
+
+        error.hidden =
+          true;
+
+        input.classList.remove(
+          "has-error"
+        );
+      }
+    );
+
+    const submit =
+      () => {
+        const value =
+          input.value.trim();
+
+        if (!/^\d{6}$/.test(value)) {
+          error.hidden =
+            false;
+
+          input.classList.add(
+            "has-error"
+          );
+
+          input.focus();
+
+          return;
+        }
+
+        close(value);
+      };
+
+    confirmButton.addEventListener(
+      "click",
+      submit
+    );
+
+    input.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key === "Enter"
+        ) {
+          event.preventDefault();
+          submit();
+        }
+
+        if (
+          event.key === "Escape"
+        ) {
+          event.preventDefault();
+          close(null);
+        }
+      }
+    );
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        modal.classList.add(
+          "is-visible"
+        );
+
+        input.focus();
+      });
+    });
+  });
+}
