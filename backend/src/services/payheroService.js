@@ -127,6 +127,30 @@ async function initiatePayHeroStkPush({
     );
   }
 
+  console.log(
+  "PayHero STK request:",
+  {
+    url:
+      `${PAYHERO_BASE_URL}/payments/initiate-stk-push`,
+
+    channelId,
+
+    amount:
+      normalizedAmount,
+
+    phone:
+      normalizedPhone,
+
+    provider:
+      "m-pesa",
+
+    externalReference:
+      String(
+        externalReference || ""
+      ).slice(0, 100),
+  }
+);
+
   const response =
     await axios.post(
       `${PAYHERO_BASE_URL}/payments/initiate-stk-push`,
