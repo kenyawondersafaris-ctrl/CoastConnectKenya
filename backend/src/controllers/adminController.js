@@ -536,6 +536,349 @@ async function updateUserAccountStatus(
   }
 }
 
+async function getProviderPayouts(
+  req,
+  res
+) {
+  try {
+    const result =
+      await pool.query(
+        `
+          SELECT
+            pay.id,
+            pay.booking_id,
+            pay.provider_id,
+            pay.payment_stage,
+            pay.amount,
+            pay.provider_share_amount,
+            pay.currency,
+            pay.status,
+            pay.settlement_status,
+            pay.paid_at,
+            pay.created_at,
+
+            pay.manual_payout_method,
+            pay.manual_payout_reference,
+            pay.manual_payout_notes,
+            pay.manual_payout_paid_at,
+
+            pp.user_id AS provider_user_id,
+
+            u.full_name AS provider_name,
+            u.phone AS provider_phone,
+            u.email AS provider_email,
+
+            b.booking_date,
+            b.start_time,
+            b.service_address
+
+          FROM provider_payments pay
+
+          INNER JOIN provider_profiles pp
+            ON pp.id = pay.provider_id
+
+          INNER JOIN users u
+            ON u.id = pp.user_id
+
+          INNER JOIN bookings b
+            ON b.id = pay.booking_id
+
+          WHERE
+            pay.status = 'PAID'
+
+            AND
+
+            pay.settlement_status IN (
+              'ELIGIBLE',
+              'PENDING_MANUAL_PAYOUT'
+            )
+
+          ORDER BY
+            pay.created_at DESC
+        `
+      );
+
+    return res.json({
+      success: true,
+      payouts:
+        result.rows,
+    });
+
+  } catch (error) {
+    console.error(
+      "Get provider payouts error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load provider payouts.",
+    });
+  }
+}
+
+
+async function markProviderPayoutPaid(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const paymentId =
+      String(
+        req.params.paymentId ||
+        ""
+      ).trim();
+
+    const {
+      payoutMethod,
+      payoutReference,
+      notes,
+    } = req.body || {};
+
+    if (!paymentId) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Payment ID is required.",
+      });
+    }
+
+    const normalizedMethod =
+      String(
+        payoutMethod ||
+        ""
+      )
+        .trim()
+        .toUpperCase();
+
+    const normalizedReference =
+      String(
+        payoutReference ||
+        ""
+      ).trim();
+
+    const normalizedNotes =
+      String(
+        notes ||
+        ""
+      ).trim();
+
+    if (
+      ![
+        "BANK",
+        "MPESA",
+        "CASH",
+        "OTHER",
+      ].includes(
+        normalizedMethod
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid manual payout method.",
+      });
+    }
+
+    if (!normalizedReference) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Payout reference is required.",
+      });
+    }
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const paymentResult =
+      await client.query(
+        `
+          SELECT
+            id,
+            booking_id,
+            provider_id,
+            payment_stage,
+            provider_share_amount,
+            currency,
+            status,
+            settlement_status
+
+          FROM provider_payments
+
+          WHERE id =
+            $1::uuid
+
+          FOR UPDATE
+        `,
+        [
+          paymentId,
+        ]
+      );
+
+    if (
+      paymentResult.rows.length === 0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Provider payment not found.",
+      });
+    }
+
+    const payment =
+      paymentResult.rows[0];
+
+    if (
+      String(
+        payment.status ||
+        ""
+      ).toUpperCase() !==
+      "PAID"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Only paid provider payments can be marked as paid.",
+      });
+    }
+
+    const settlementStatus =
+      String(
+        payment.settlement_status ||
+        ""
+      ).toUpperCase();
+
+    if (
+      ![
+        "ELIGIBLE",
+        "PENDING_MANUAL_PAYOUT",
+      ].includes(
+        settlementStatus
+      )
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "This provider payment is not ready for manual payout.",
+      });
+    }
+
+    const updatedResult =
+      await client.query(
+        `
+          UPDATE provider_payments
+
+          SET
+            settlement_status =
+              'SETTLED',
+
+            manual_payout_method =
+              $1::varchar,
+
+            manual_payout_reference =
+              $2::varchar,
+
+            manual_payout_notes =
+              $3::text,
+
+            manual_payout_paid_at =
+              CURRENT_TIMESTAMP,
+
+            payout_failure_reason =
+              NULL,
+
+            settled_at =
+              COALESCE(
+                settled_at,
+                CURRENT_TIMESTAMP
+              ),
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id =
+            $4::uuid
+
+          RETURNING
+            id,
+            booking_id,
+            payment_stage,
+            provider_share_amount,
+            currency,
+            status,
+            settlement_status,
+            manual_payout_method,
+            manual_payout_reference,
+            manual_payout_notes,
+            manual_payout_paid_at,
+            settled_at
+        `,
+        [
+          normalizedMethod,
+          normalizedReference,
+          normalizedNotes ||
+            null,
+          paymentId,
+        ]
+      );
+
+    await client.query(
+      "COMMIT"
+    );
+
+    return res.json({
+      success: true,
+      message:
+        "Provider payout recorded successfully.",
+      payout:
+        updatedResult.rows[0],
+    });
+
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (
+      rollbackError
+    ) {
+      // Ignore rollback failure.
+    }
+
+    console.error(
+      "Mark provider payout paid error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to record provider payout.",
+    });
+
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   getAdminOverview,
   getPendingProviders,
@@ -546,4 +889,6 @@ module.exports = {
   rejectRestaurant,
   getUsers,
   updateUserAccountStatus,
+  getProviderPayouts,
+  markProviderPayoutPaid,
 };

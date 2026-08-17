@@ -33,6 +33,8 @@ const {
   rejectRestaurant,
   getUsers,
   updateUserAccountStatus,
+    getProviderPayouts,
+  markProviderPayoutPaid,
 } =
   require("../controllers/adminController");
 
@@ -94,6 +96,20 @@ router.get(
   authenticate,
   requireRole("ADMIN"),
   getUsers
+);
+
+router.get(
+  "/provider-payouts",
+  authenticate,
+  requireRole("ADMIN"),
+  getProviderPayouts
+);
+
+router.patch(
+  "/provider-payouts/:paymentId/mark-paid",
+  authenticate,
+  requireRole("ADMIN"),
+  markProviderPayoutPaid
 );
 
 router.patch(
