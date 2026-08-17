@@ -7,18 +7,28 @@ const PAYHERO_BASE_URL =
   "https://backend.payhero.co.ke/api/v2";
 
 function getPayHeroCredentials() {
-  const token =
+  const username =
     String(
-      process.env.PAYHERO_BASIC_AUTH_TOKEN || ""
+      process.env.PAYHERO_API_USERNAME || ""
     ).trim();
 
-  if (!token) {
+  const password =
+    String(
+      process.env.PAYHERO_API_PASSWORD || ""
+    ).trim();
+
+  if (
+    !username ||
+    !password
+  ) {
     throw new Error(
-      "PayHero Basic Auth token is required."
+      "PayHero API username and password are required."
     );
   }
 
-  return token;
+  return Buffer.from(
+    `${username}:${password}`
+  ).toString("base64");
 }
 
 function normalizePayHeroPhone(
