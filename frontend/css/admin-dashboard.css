@@ -1268,3 +1268,125 @@ button {
   width: 100%;
 }
 }
+
+.provider-payout-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+
+  padding: 22px 24px;
+
+  border: 1px solid
+    rgba(15, 23, 42, 0.08);
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #f8fafc 100%
+    );
+
+  box-shadow:
+    0 10px 28px
+      rgba(15, 23, 42, 0.06);
+}
+
+.provider-payout-card:hover {
+  box-shadow:
+    0 16px 36px
+      rgba(15, 23, 42, 0.09);
+}
+
+.provider-payout-card h3 {
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.provider-payout-card .admin-card-actions {
+  justify-content: flex-end;
+}
+
+.provider-payout-card
+  .admin-card-actions
+  strong {
+  min-width: 110px;
+
+  color:
+    var(--text);
+
+  font-size: 1.15rem;
+  font-weight: 800;
+
+  text-align: right;
+}
+
+.admin-status-badge.eligible {
+  color:
+    var(--success);
+
+  background:
+    var(--success-bg);
+}
+
+.admin-mark-payout-paid-button {
+  min-width: 130px;
+
+  padding: 11px 18px;
+
+  border: 0;
+  border-radius: 12px;
+
+  background:
+    var(--primary);
+
+  color:
+    var(--white);
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+.admin-mark-payout-paid-button:hover {
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 8px 20px
+      rgba(15, 23, 42, 0.16);
+}
+
+.admin-mark-payout-paid-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 720px) {
+  .provider-payout-card {
+    grid-template-columns: 1fr;
+  }
+
+  .provider-payout-card
+    .admin-card-actions {
+    justify-content: flex-start;
+  }
+
+  .provider-payout-card
+    .admin-card-actions
+    strong {
+    text-align: left;
+  }
+
+  .admin-mark-payout-paid-button {
+    width: 100%;
+  }
+}
