@@ -148,8 +148,8 @@ if (!channelId) {
 );
 
   const response =
-    await axios.post(
-      `${PAYHERO_BASE_URL}/payments/initiate-stk-push`,
+  await axios.post(
+    `${PAYHERO_BASE_URL}/payments`,
       {
         amount:
           normalizedAmount,
