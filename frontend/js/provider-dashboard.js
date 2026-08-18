@@ -2719,14 +2719,24 @@ function initializeBookingSocket() {
       "New booking received:",
       booking
     );
-
     await loadProviderBookings();
-
     setMessage(
       providerBookingsMessage,
       "New booking received.",
       "success"
     );
+  }
+);
+
+socket.on(
+  "provider-booking-status-updated",
+  async (booking) => {
+    console.log(
+      "Provider booking status updated:",
+      booking
+    );
+
+    await loadProviderBookings();
   }
 );
 
