@@ -2700,63 +2700,74 @@ if (!/^\d{6}$/.test(normalizedPin)) {
 );
 
 function initializeBookingSocket() {
+  const joinProviderRoom = async () => {
+    console.log(
+      "Provider socket connected:",
+      socket.id
+    );
+
+    await loadProviderProfileForSocket();
+  };
+
   socket.on(
     "connect",
-    () => {
+    joinProviderRoom
+  );
+
+  socket.on(
+    "provider-booking-created",
+    async (booking) => {
       console.log(
-        "Provider socket connected:",
-        socket.id
+        "New booking received:",
+        booking
       );
 
-      loadProviderProfileForSocket();
+      await loadProviderBookings();
+
+      setMessage(
+        providerBookingsMessage,
+        "New booking received.",
+        "success"
+      );
     }
   );
 
   socket.on(
-  "provider-booking-created",
-  async (booking) => {
-    console.log(
-      "New booking received:",
-      booking
-    );
-    await loadProviderBookings();
-    setMessage(
-      providerBookingsMessage,
-      "New booking received.",
-      "success"
-    );
+    "provider-booking-status-updated",
+    async (booking) => {
+      console.log(
+        "Provider booking status updated:",
+        booking
+      );
+
+      await loadProviderBookings();
+    }
+  );
+
+  socket.on(
+    "provider-booking-payment-updated",
+    async (payment) => {
+      console.log(
+        "Provider payment updated:",
+        payment
+      );
+
+      await loadProviderBookings();
+
+      setMessage(
+        providerBookingsMessage,
+        "Booking payment updated.",
+        "success"
+      );
+    }
+  );
+
+  // IMPORTANT:
+  // Socket may already be connected before
+  // initializeBookingSocket() is called.
+  if (socket.connected) {
+    joinProviderRoom();
   }
-);
-
-socket.on(
-  "provider-booking-status-updated",
-  async (booking) => {
-    console.log(
-      "Provider booking status updated:",
-      booking
-    );
-
-    await loadProviderBookings();
-  }
-);
-
-socket.on(
-  "provider-booking-payment-updated",
-  async (payment) => {
-    console.log(
-      "Provider payment updated:",
-      payment
-    );
-
-    await loadProviderBookings();
-
-    setMessage(
-      providerBookingsMessage,
-      "Booking payment updated.",
-      "success"
-    );
-  }
-);
 }
 
 async function loadProviderProfileForSocket() {
