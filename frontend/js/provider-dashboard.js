@@ -3,13 +3,17 @@
 const API_BASE_URL =
   "https://coastconnectkenya.onrender.com/api";
 
-  const socket =
-  io("https://coastconnectkenya.onrender.com");
-
 const token =
   localStorage.getItem(
     "coastConnectToken"
   );
+
+const socket =
+  io("https://coastconnectkenya.onrender.com", {
+    auth: {
+      token,
+    },
+  });
 
 let storedUser = null;
 
