@@ -1308,6 +1308,27 @@ if (io) {
           updatedBooking.updated_at,
       }
     );
+
+    io
+  .to(
+    `provider:${updatedBooking.provider_id}`
+  )
+  .emit(
+    "provider-booking-status-updated",
+    {
+      bookingId:
+        updatedBooking.id,
+
+      customerId:
+        updatedBooking.customer_id,
+
+      providerId:
+        updatedBooking.provider_id,
+
+      bookingStatus:
+        updatedBooking.booking_status,
+    }
+  );
 }
 
     return res.status(200).json({
