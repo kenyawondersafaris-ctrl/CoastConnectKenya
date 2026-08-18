@@ -1079,9 +1079,11 @@ function initializeCustomerBookingSocket() {
 
   function joinCustomerRoom() {
     const customerId =
-      String(
-        storedUser?.id || ""
-      ).trim();
+  String(
+    storedUser?.userId ||
+    storedUser?.id ||
+    ""
+  ).trim();
 
     if (!customerId) {
       console.warn(
