@@ -905,33 +905,52 @@ async function createBooking(
     const booking =
       result.rows[0];
 
-    const io =
-      req.app.get("io");
+   const io = req.app.get("io");
 
-    if (io) {
-      io
-    .to(`provider:${providerId}`)
-    .emit(
-        "provider-booking-created",
-        {
-          bookingId:
-            booking.id,
+console.log("========== BOOKING REALTIME DEBUG ==========");
+console.log("Booking created:", booking.id);
+console.log("Provider ID:", providerId);
+console.log(
+  "Target room:",
+  `provider:${providerId}`
+);
+console.log(
+  "Socket.IO available:",
+  !!io
+);
 
-          providerId,
+if (io) {
+  const room = `provider:${providerId}`;
 
-          customerId,
+  const socketsInRoom =
+    io.sockets.adapter.rooms.get(room);
 
-          serviceTitle:
-            service.title,
+  console.log(
+    "Sockets currently in provider room:",
+    socketsInRoom
+      ? Array.from(socketsInRoom)
+      : []
+  );
 
-          bookingDate:
-            booking.booking_date,
-
-          startTime:
-            booking.start_time,
-        }
-      );
+  io.to(room).emit(
+    "provider-booking-created",
+    {
+      bookingId: booking.id,
+      providerId,
+      customerId,
+      serviceTitle: service.title,
+      bookingDate: booking.booking_date,
+      startTime: booking.start_time,
     }
+  );
+
+  console.log(
+    "provider-booking-created emitted to:",
+    room
+  );
+}
+
+console.log("============================================");
 
     return res.status(201).json({
       success: true,
