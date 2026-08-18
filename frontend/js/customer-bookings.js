@@ -1125,6 +1125,16 @@ function initializeCustomerBookingSocket() {
   }
 
   socket.on(
+  "customer-room-joined",
+  (data) => {
+    console.log(
+      "CUSTOMER ROOM CONFIRMED:",
+      data
+    );
+  }
+);
+
+  socket.on(
     "customer-booking-status-updated",
     async (booking) => {
 

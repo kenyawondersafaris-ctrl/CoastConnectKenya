@@ -454,6 +454,17 @@ socket.on(
       `customer:${authenticatedUserId}`
     );
 
+    socket.emit(
+  "customer-room-joined",
+  {
+    customerId:
+      authenticatedUserId,
+
+    room:
+      `customer:${authenticatedUserId}`,
+  }
+);
+
     console.log(
       `Socket ${socket.id} joined customer:${authenticatedUserId}`
     );
