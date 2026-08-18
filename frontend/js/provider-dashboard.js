@@ -2713,22 +2713,40 @@ function initializeBookingSocket() {
   );
 
   socket.on(
-    "provider-booking-created",
-    async (booking) => {
-      console.log(
-        "New booking received:",
-        booking
-      );
+  "provider-booking-created",
+  async (booking) => {
+    console.log(
+      "New booking received:",
+      booking
+    );
 
-      await loadProviderBookings();
+    await loadProviderBookings();
 
-      setMessage(
-        providerBookingsMessage,
-        "New booking received.",
-        "success"
-      );
-    }
-  );
+    setMessage(
+      providerBookingsMessage,
+      "New booking received.",
+      "success"
+    );
+  }
+);
+
+socket.on(
+  "provider-booking-payment-updated",
+  async (payment) => {
+    console.log(
+      "Provider payment updated:",
+      payment
+    );
+
+    await loadProviderBookings();
+
+    setMessage(
+      providerBookingsMessage,
+      "Booking payment updated.",
+      "success"
+    );
+  }
+);
 }
 
 async function loadProviderProfileForSocket() {
