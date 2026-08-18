@@ -80,6 +80,16 @@ const io = new Server(server, {
 app.set("io", io);
 io.use((socket, next) => {
   try {
+
+    console.log(
+  "SOCKET AUTH DEBUG:",
+  {
+    socketId: socket.id,
+    hasToken: Boolean(
+      socket.handshake.auth?.token
+    ),
+  }
+);
     const token =
       socket.handshake.auth?.token;
 
