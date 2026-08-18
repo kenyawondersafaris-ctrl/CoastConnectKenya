@@ -15,8 +15,6 @@ const socket =
     },
   });
 
-  const startPinRequestedBookingIds =
-  new Set();
 
   const reviewRatings =
   {};
@@ -782,7 +780,7 @@ function renderCustomerBookings() {
                         paymentStatus === "PARTIALLY_PAID"
                       )
                         ? `
-                        
+
                         <button
                             type="button"
                             class="pay-provider-booking-button"
@@ -1155,9 +1153,7 @@ socket.on(
       booking
     );
 
-    startPinRequestedBookingIds.add(
-  booking.bookingId
-);
+
 
     await loadCustomerBookings();
 
@@ -1198,6 +1194,19 @@ socket.on(
       "Provider payment completed:",
       payment
     );
+
+    const booking =
+  customerBookings.find(
+    (item) =>
+      item.id === payment.bookingId
+  );
+
+if (booking) {
+  booking.payment_status =
+    payment.paymentStatus;
+
+  renderCustomerBookings();
+}
 
     await loadCustomerBookings();
 
