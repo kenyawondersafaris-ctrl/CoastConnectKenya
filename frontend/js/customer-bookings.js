@@ -15,6 +15,9 @@ const socket =
     },
   });
 
+  const startPinRequestedBookingIds =
+  new Set();
+
   const reviewRatings =
   {};
 
@@ -707,8 +710,13 @@ function renderCustomerBookings() {
                 <div class="booking-payment-actions">
 
                 ${
-  bookingStatus === "CONFIRMED" &&
-  paymentStatus === "PARTIALLY_PAID"
+  (
+    bookingStatus === "CONFIRMED" &&
+    paymentStatus === "PARTIALLY_PAID"
+  ) ||
+  startPinRequestedBookingIds.has(
+    booking.id
+  )
     ? `
       <div class="service-start-pin-card">
         <div class="service-start-pin-card__icon">
@@ -1146,6 +1154,10 @@ socket.on(
       "Provider requested service start:",
       booking
     );
+
+    startPinRequestedBookingIds.add(
+  booking.bookingId
+);
 
     await loadCustomerBookings();
 
