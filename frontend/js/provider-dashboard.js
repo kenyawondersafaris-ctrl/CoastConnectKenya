@@ -2544,40 +2544,20 @@ providerBookingsGrid?.addEventListener(
     "start-booking-button"
   )
 ) {
-  const startPin =
-  await showStartPinModal();
-
-if (startPin === null) {
-  return;
-}
-
-const normalizedPin =
-  String(startPin).trim();
-
-if (!/^\d{6}$/.test(normalizedPin)) {
-  setMessage(
-    providerBookingsMessage,
-    "Please enter the 6-digit customer PIN.",
-    "error"
-  );
-
-  return;
-}
-
-
   button.disabled = true;
+
   const originalText =
     button.textContent;
 
   button.textContent =
-    "Starting...";
+    "Requesting PIN...";
 
   try {
     const response =
       await fetch(
         `${API_BASE_URL}/bookings/${encodeURIComponent(
           bookingId
-        )}/start`,
+        )}/start-request`,
         {
           method: "POST",
 
@@ -2591,12 +2571,6 @@ if (!/^\d{6}$/.test(normalizedPin)) {
             Accept:
               "application/json",
           },
-
-          body:
-            JSON.stringify({
-              startPin:
-                normalizedPin,
-            }),
         }
       );
 
@@ -2617,30 +2591,26 @@ if (!/^\d{6}$/.test(normalizedPin)) {
     ) {
       throw new Error(
         data.message ||
-        "Unable to start the service."
+          "Unable to request the customer start PIN."
       );
     }
 
     setMessage(
       providerBookingsMessage,
       data.message ||
-        "Service started successfully.",
+        "Customer has been asked to generate the start PIN.",
       "success"
     );
-
-    await loadProviderBookings();
-
-    return;
   } catch (error) {
     console.error(
-      "Start booking error:",
+      "Start request error:",
       error
     );
 
     setMessage(
       providerBookingsMessage,
       error.message ||
-        "Unable to start the service.",
+        "Unable to request the customer start PIN.",
       "error"
     );
   } finally {
@@ -2649,13 +2619,13 @@ if (!/^\d{6}$/.test(normalizedPin)) {
       originalText;
   }
 
-  return;
+   return;
 } else if (
       button.classList.contains(
         "complete-booking-button"
       )
     ) {
-     const confirmed =
+      const confirmed =
   await showConfirm({
     title:
       "Complete job?",

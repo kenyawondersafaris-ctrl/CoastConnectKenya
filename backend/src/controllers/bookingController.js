@@ -212,6 +212,178 @@ async function generateBookingStartPin(
   }
 }
 
+async function requestBookingStart(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const providerUserId =
+      req.user.userId;
+
+    const bookingId =
+      String(
+        req.params.bookingId || ""
+      ).trim();
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const bookingResult =
+      await client.query(
+        `
+          SELECT
+            b.id,
+            b.customer_id,
+            b.provider_id,
+            b.booking_status,
+            b.payment_status,
+
+            pp.user_id AS provider_user_id
+
+          FROM bookings b
+
+          INNER JOIN provider_profiles pp
+            ON pp.id = b.provider_id
+
+          WHERE b.id = $1::uuid
+
+          LIMIT 1
+
+          FOR UPDATE OF b
+        `,
+        [bookingId]
+      );
+
+    if (
+      bookingResult.rows.length === 0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Booking not found.",
+      });
+    }
+
+    const booking =
+      bookingResult.rows[0];
+
+    if (
+      String(
+        booking.provider_user_id
+      ) !==
+      String(providerUserId)
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "You cannot manage this booking.",
+      });
+    }
+
+    if (
+      String(
+        booking.booking_status || ""
+      ).toUpperCase() !==
+      "CONFIRMED"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Only confirmed bookings can be started.",
+      });
+    }
+
+    if (
+      String(
+        booking.payment_status || ""
+      ).toUpperCase() !==
+      "PARTIALLY_PAID"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "The customer must pay the 50% deposit before the service can be started.",
+      });
+    }
+
+    await client.query(
+      "COMMIT"
+    );
+
+    const io =
+      req.app.get("io");
+
+    if (io) {
+      io
+        .to(
+          `customer:${booking.customer_id}`
+        )
+        .emit(
+          "customer-booking-start-requested",
+          {
+            bookingId:
+              booking.id,
+
+            customerId:
+              booking.customer_id,
+
+            providerId:
+              booking.provider_id,
+          }
+        );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Customer has been asked to generate the start PIN.",
+    });
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (
+      rollbackError
+    ) {
+      // Ignore rollback failure.
+    }
+
+    console.error(
+      "Request booking start error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to request the customer start PIN.",
+    });
+  } finally {
+    client.release();
+  }
+}
+
 async function verifyBookingStartPin(
   req,
   res
@@ -1477,4 +1649,5 @@ module.exports = {
   createBookingReview,
   generateBookingStartPin,
   verifyBookingStartPin,
+  requestBookingStart,
 };

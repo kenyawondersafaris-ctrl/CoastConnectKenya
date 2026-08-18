@@ -8,6 +8,7 @@ const {
   createBookingReview,
   generateBookingStartPin,
   verifyBookingStartPin,
+  requestBookingStart,
 } = require("../controllers/bookingController");
 
 const authenticate =
@@ -24,6 +25,13 @@ router.get(
   authenticate,
   requireRole("CUSTOMER"),
   getMyBookings
+);
+
+router.post(
+  "/:bookingId/start-request",
+  authenticate,
+  requireRole("PROVIDER"),
+  requestBookingStart
 );
 
 router.post(

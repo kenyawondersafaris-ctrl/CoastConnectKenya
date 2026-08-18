@@ -1139,6 +1139,23 @@ function initializeCustomerBookingSocket() {
   }
 );
 
+socket.on(
+  "customer-booking-start-requested",
+  async (booking) => {
+    console.log(
+      "Provider requested service start:",
+      booking
+    );
+
+    await loadCustomerBookings();
+
+    showMessage(
+      "Your provider is ready to start. Please generate your Start PIN.",
+      "success"
+    );
+  }
+);
+
   socket.on(
     "customer-booking-status-updated",
     async (booking) => {
