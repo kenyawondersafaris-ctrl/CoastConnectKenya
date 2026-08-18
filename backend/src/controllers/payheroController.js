@@ -243,6 +243,50 @@ async function handlePayHeroCallback(
         payment.payment_stage,
       ]
     );
+
+    const io =
+  req.app.get("io");
+
+if (io) {
+  io.to(
+    `customer:${payment.customer_id}`
+  ).emit(
+    "provider-payment-completed",
+    {
+      bookingId:
+        payment.booking_id,
+
+      providerId:
+        payment.provider_id,
+
+      paymentStatus:
+        payment.payment_stage ===
+        "DEPOSIT"
+          ? "PARTIALLY_PAID"
+          : "PAID",
+
+      paymentReference:
+        externalReference,
+
+      transactionId:
+        mpesaReceiptNumber,
+
+      amount:
+        Number(
+          response.Amount || 0
+        ),
+
+      paymentStage:
+        payment.payment_stage,
+
+      providerShareAmount:
+        Number(
+          payment.provider_share_amount ||
+          0
+        ),
+    }
+  );
+}
   } else {
     await pool.query(
       `
