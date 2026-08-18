@@ -286,6 +286,36 @@ if (io) {
         ),
     }
   );
+
+  io.to(
+  `provider:${payment.provider_id}`
+).emit(
+  "provider-booking-payment-updated",
+  {
+    bookingId:
+      payment.booking_id,
+
+    paymentStatus:
+      payment.payment_stage ===
+      "DEPOSIT"
+        ? "PARTIALLY_PAID"
+        : "PAID",
+
+    amount:
+      Number(
+        response.Amount || 0
+      ),
+
+    paymentStage:
+      payment.payment_stage,
+
+    providerShareAmount:
+      Number(
+        payment.provider_share_amount ||
+        0
+      ),
+  }
+);
 }
   } else {
     await pool.query(
