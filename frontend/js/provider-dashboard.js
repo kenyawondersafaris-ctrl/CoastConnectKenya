@@ -955,7 +955,7 @@ async function initializeProviderDashboard() {
   await Promise.all([
     loadProviderProfile(),
     loadServiceCategories(),
-    
+
   ]);
 
   await loadProviderServices();
@@ -2539,25 +2539,45 @@ providerBookingsGrid?.addEventListener(
 
       nextStatus =
         "REJECTED";
-    } else if (
+   } else if (
   button.classList.contains(
     "start-booking-button"
   )
 ) {
+  const startPin =
+    await showStartPinModal();
+
+  if (startPin === null) {
+    return;
+  }
+
+  const normalizedPin =
+    String(startPin).trim();
+
+  if (!/^\d{6}$/.test(normalizedPin)) {
+    setMessage(
+      providerBookingsMessage,
+      "Please enter the 6-digit customer PIN.",
+      "error"
+    );
+
+    return;
+  }
+
   button.disabled = true;
 
   const originalText =
     button.textContent;
 
   button.textContent =
-    "Requesting PIN...";
+    "Starting...";
 
   try {
     const response =
       await fetch(
         `${API_BASE_URL}/bookings/${encodeURIComponent(
           bookingId
-        )}/start-request`,
+        )}/start`,
         {
           method: "POST",
 
@@ -2571,6 +2591,12 @@ providerBookingsGrid?.addEventListener(
             Accept:
               "application/json",
           },
+
+          body:
+            JSON.stringify({
+              startPin:
+                normalizedPin,
+            }),
         }
       );
 
@@ -2591,35 +2617,38 @@ providerBookingsGrid?.addEventListener(
     ) {
       throw new Error(
         data.message ||
-          "Unable to request the customer start PIN."
+        "Unable to start the service."
       );
     }
 
     setMessage(
       providerBookingsMessage,
       data.message ||
-        "Customer has been asked to generate the start PIN.",
+        "Service started successfully.",
       "success"
     );
+
+    await loadProviderBookings();
   } catch (error) {
     console.error(
-      "Start request error:",
+      "Start service error:",
       error
     );
 
     setMessage(
       providerBookingsMessage,
       error.message ||
-        "Unable to request the customer start PIN.",
+        "Unable to start the service.",
       "error"
     );
   } finally {
     button.disabled = false;
+
     button.textContent =
       originalText;
   }
 
-   return;
+  return;
 } else if (
       button.classList.contains(
         "complete-booking-button"
@@ -2822,7 +2851,7 @@ function showStartPinModal() {
         aria-labelledby="startPinModalTitle"
       >
         <div class="start-pin-modal__icon">
-          <span>🔐</span>
+          <span>Ã°Å¸â€Â</span>
         </div>
 
         <div class="start-pin-modal__content">
