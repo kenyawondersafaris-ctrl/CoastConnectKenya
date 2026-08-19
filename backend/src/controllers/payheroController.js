@@ -87,10 +87,14 @@ async function handlePayHeroCallback(
     await pool.query(
       `
         SELECT
-          id,
-          status,
-          payment_stage
-        FROM provider_payments
+  id,
+  status,
+  payment_stage,
+  booking_id,
+  provider_id,
+  customer_id,
+  provider_share_amount
+FROM provider_payments
         WHERE
           payment_reference =
             $1::varchar
@@ -368,7 +372,34 @@ if (io) {
         payment.id,
       ]
     );
+
+        await pool.query(
+      `
+        UPDATE bookings
+        SET
+          payment_status =
+            CASE
+              WHEN $2::varchar = 'BALANCE'
+              THEN 'PARTIALLY_PAID'
+              ELSE 'UNPAID'
+            END,
+          updated_at =
+            CURRENT_TIMESTAMP
+        WHERE id =
+          (
+            SELECT booking_id
+            FROM provider_payments
+            WHERE id = $1::uuid
+          )
+      `,
+      [
+        payment.id,
+        payment.payment_stage,
+      ]
+    );
   }
+
+
 
   return res.status(200).json({
     success: true,
