@@ -707,14 +707,10 @@ function renderCustomerBookings() {
 
                 <div class="booking-payment-actions">
 
-                ${
-  (
-    bookingStatus === "CONFIRMED" &&
-    paymentStatus === "PARTIALLY_PAID"
-  ) ||
-  startPinRequestedBookingIds.has(
-    booking.id
-  )
+
+ ${
+  bookingStatus === "CONFIRMED" &&
+  paymentStatus === "PARTIALLY_PAID"
     ? `
       <div class="service-start-pin-card">
         <div class="service-start-pin-card__icon">
