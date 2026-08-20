@@ -1064,24 +1064,23 @@ confirmPaymentButton?.addEventListener(
       closeMpesaPaymentModal();
 
       await loadCustomerBookings();
-    } catch (error) {
-      console.error(
-        "Provider payment error:",
-        error
-      );
+   } catch (error) {
+  console.error(
+    "Provider payment error:",
+    error
+  );
 
-      showMessage(
-        error.message ||
-        "Unable to start payment.",
-        "error"
-      );
+  alert(
+    error.message ||
+    "Unable to start payment."
+  );
 
-      confirmPaymentButton.disabled =
-        false;
+  confirmPaymentButton.disabled =
+    false;
 
-      confirmPaymentButton.textContent =
-        "Pay Now";
-    }
+  confirmPaymentButton.textContent =
+    "Pay Now";
+}
   }
 );
 
