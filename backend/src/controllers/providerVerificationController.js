@@ -1,0 +1,659 @@
+"use strict";
+
+const pool =
+  require("../config/db");
+
+const cloudinary =
+  require("../config/cloudinary");
+
+/*
+|--------------------------------------------------------------------------
+| Get My Verification Application
+|--------------------------------------------------------------------------
+*/
+
+async function getMyVerification(
+  request,
+  response,
+  next
+) {
+  try {
+    const providerResult =
+      await pool.query(
+        `
+          SELECT
+            id,
+            verification_status
+          FROM provider_profiles
+          WHERE user_id = $1
+        `,
+        [request.user.id]
+      );
+
+    if (
+      providerResult.rows.length === 0
+    ) {
+      return response.status(404).json({
+        success: false,
+        message:
+          "Provider profile not found.",
+      });
+    }
+
+    const provider =
+      providerResult.rows[0];
+
+    const verificationResult =
+      await pool.query(
+        `
+          SELECT
+            id,
+            status,
+            qualification_summary,
+            portfolio_description,
+            portfolio_url,
+            provider_notes,
+            admin_notes,
+            submitted_at,
+            reviewed_at,
+            created_at,
+            updated_at
+          FROM provider_verifications
+          WHERE provider_id = $1
+        `,
+        [provider.id]
+      );
+
+    if (
+      verificationResult.rows.length === 0
+    ) {
+      return response.json({
+        success: true,
+
+        verification: null,
+
+        providerVerificationStatus:
+          provider.verification_status,
+
+        documents: [],
+      });
+    }
+
+    const verification =
+      verificationResult.rows[0];
+
+    const documentsResult =
+      await pool.query(
+        `
+          SELECT
+            id,
+            document_type,
+            document_name,
+            document_url,
+            qualification_name,
+            issuing_organization,
+            document_number,
+            expiry_date,
+            status,
+            admin_notes,
+            reviewed_at,
+            created_at
+          FROM provider_verification_documents
+          WHERE verification_id = $1
+          ORDER BY created_at DESC
+        `,
+        [verification.id]
+      );
+
+    return response.json({
+      success: true,
+
+      verification,
+
+      providerVerificationStatus:
+        provider.verification_status,
+
+      documents:
+        documentsResult.rows,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Create Or Update Verification Application
+|--------------------------------------------------------------------------
+*/
+
+async function saveMyVerification(
+  request,
+  response,
+  next
+) {
+  try {
+    const {
+      qualificationSummary,
+      portfolioDescription,
+      portfolioUrl,
+      providerNotes,
+    } = request.body;
+
+    const providerResult =
+      await pool.query(
+        `
+          SELECT
+            id,
+            verification_status
+          FROM provider_profiles
+          WHERE user_id = $1
+        `,
+        [request.user.id]
+      );
+
+    if (
+      providerResult.rows.length === 0
+    ) {
+      return response.status(404).json({
+        success: false,
+        message:
+          "Provider profile not found.",
+      });
+    }
+
+    const provider =
+      providerResult.rows[0];
+
+    if (
+      provider.verification_status ===
+      "VERIFIED"
+    ) {
+      return response.status(400).json({
+        success: false,
+        message:
+          "Your provider profile is already verified.",
+      });
+    }
+
+    const verificationResult =
+      await pool.query(
+        `
+          INSERT INTO provider_verifications (
+            provider_id,
+            qualification_summary,
+            portfolio_description,
+            portfolio_url,
+            provider_notes,
+            status,
+            updated_at
+          )
+          VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            'DRAFT',
+            CURRENT_TIMESTAMP
+          )
+          ON CONFLICT (provider_id)
+          DO UPDATE SET
+            qualification_summary =
+              EXCLUDED.qualification_summary,
+
+            portfolio_description =
+              EXCLUDED.portfolio_description,
+
+            portfolio_url =
+              EXCLUDED.portfolio_url,
+
+            provider_notes =
+              EXCLUDED.provider_notes,
+
+            updated_at =
+              CURRENT_TIMESTAMP
+          RETURNING
+            id,
+            status,
+            qualification_summary,
+            portfolio_description,
+            portfolio_url,
+            provider_notes,
+            admin_notes,
+            submitted_at,
+            reviewed_at,
+            created_at,
+            updated_at
+        `,
+        [
+          provider.id,
+          qualificationSummary ||
+            null,
+          portfolioDescription ||
+            null,
+          portfolioUrl ||
+            null,
+          providerNotes ||
+            null,
+        ]
+      );
+
+    return response.json({
+      success: true,
+
+      message:
+        "Verification information saved successfully.",
+
+      verification:
+        verificationResult.rows[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Upload Verification Document
+|--------------------------------------------------------------------------
+*/
+
+async function uploadMyVerificationDocument(
+  request,
+  response,
+  next
+) {
+  try {
+    if (!request.file) {
+      return response.status(400).json({
+        success: false,
+        message:
+          "Please select a document to upload.",
+      });
+    }
+
+    const {
+      documentType,
+      documentName,
+      qualificationName,
+      issuingOrganization,
+      documentNumber,
+      expiryDate,
+    } = request.body;
+
+    if (
+      !documentType ||
+      !documentName
+    ) {
+      return response.status(400).json({
+        success: false,
+        message:
+          "Document type and document name are required.",
+      });
+    }
+
+    const providerResult =
+      await pool.query(
+        `
+          SELECT
+            id,
+            verification_status
+          FROM provider_profiles
+          WHERE user_id = $1
+        `,
+        [request.user.id]
+      );
+
+    if (
+      providerResult.rows.length === 0
+    ) {
+      return response.status(404).json({
+        success: false,
+        message:
+          "Provider profile not found.",
+      });
+    }
+
+    const provider =
+      providerResult.rows[0];
+
+    if (
+      provider.verification_status ===
+      "VERIFIED"
+    ) {
+      return response.status(400).json({
+        success: false,
+        message:
+          "Your provider profile is already verified.",
+      });
+    }
+
+    let verificationResult =
+      await pool.query(
+        `
+          SELECT
+            id
+          FROM provider_verifications
+          WHERE provider_id = $1
+        `,
+        [provider.id]
+      );
+
+    let verificationId;
+
+    if (
+      verificationResult.rows.length === 0
+    ) {
+      const createdVerification =
+        await pool.query(
+          `
+            INSERT INTO provider_verifications (
+              provider_id,
+              status
+            )
+            VALUES (
+              $1,
+              'DRAFT'
+            )
+            RETURNING id
+          `,
+          [provider.id]
+        );
+
+      verificationId =
+        createdVerification.rows[0].id;
+    } else {
+      verificationId =
+        verificationResult.rows[0].id;
+    }
+
+    const base64File =
+      request.file.buffer.toString(
+        "base64"
+      );
+
+    const dataUri =
+      `data:${request.file.mimetype};base64,${base64File}`;
+
+    const uploadResult =
+      await cloudinary.uploader.upload(
+        dataUri,
+        {
+          folder:
+            "coast-connect/provider-verification",
+
+          resource_type:
+            "auto",
+        }
+      );
+
+    const documentResult =
+      await pool.query(
+        `
+          INSERT INTO
+            provider_verification_documents (
+              verification_id,
+              document_type,
+              document_name,
+              document_url,
+              qualification_name,
+              issuing_organization,
+              document_number,
+              expiry_date,
+              status
+            )
+          VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            'PENDING'
+          )
+          RETURNING
+            id,
+            document_type,
+            document_name,
+            document_url,
+            qualification_name,
+            issuing_organization,
+            document_number,
+            expiry_date,
+            status,
+            created_at
+        `,
+        [
+          verificationId,
+          documentType,
+          documentName,
+          uploadResult.secure_url,
+          qualificationName || null,
+          issuingOrganization || null,
+          documentNumber || null,
+          expiryDate || null,
+        ]
+      );
+
+    return response.status(201).json({
+      success: true,
+
+      message:
+        "Verification document uploaded successfully.",
+
+      document:
+        documentResult.rows[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Delete My Verification Document
+|--------------------------------------------------------------------------
+*/
+
+async function deleteMyVerificationDocument(
+  request,
+  response,
+  next
+) {
+  try {
+    const {
+      documentId,
+    } = request.params;
+
+    const providerResult =
+      await pool.query(
+        `
+          SELECT
+            pp.id AS provider_id,
+            pv.id AS verification_id
+          FROM provider_profiles pp
+          LEFT JOIN provider_verifications pv
+            ON pv.provider_id = pp.id
+          WHERE pp.user_id = $1
+        `,
+        [request.user.id]
+      );
+
+    if (
+      providerResult.rows.length === 0 ||
+      !providerResult.rows[0].verification_id
+    ) {
+      return response.status(404).json({
+        success: false,
+        message:
+          "Verification application not found.",
+      });
+    }
+
+    const verificationId =
+      providerResult.rows[0]
+        .verification_id;
+
+    const deleteResult =
+      await pool.query(
+        `
+          DELETE FROM
+            provider_verification_documents
+          WHERE
+            id = $1
+            AND verification_id = $2
+          RETURNING id
+        `,
+        [
+          documentId,
+          verificationId,
+        ]
+      );
+
+    if (
+      deleteResult.rows.length === 0
+    ) {
+      return response.status(404).json({
+        success: false,
+        message:
+          "Verification document not found.",
+      });
+    }
+
+    return response.json({
+      success: true,
+      message:
+        "Verification document deleted successfully.",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Submit Verification For Review
+|--------------------------------------------------------------------------
+*/
+
+async function submitMyVerification(
+  request,
+  response,
+  next
+) {
+  try {
+    const providerResult =
+      await pool.query(
+        `
+          SELECT
+            pp.id AS provider_id,
+            pp.verification_status,
+            pv.id AS verification_id
+          FROM provider_profiles pp
+          LEFT JOIN provider_verifications pv
+            ON pv.provider_id = pp.id
+          WHERE pp.user_id = $1
+        `,
+        [request.user.id]
+      );
+
+    if (
+      providerResult.rows.length === 0
+    ) {
+      return response.status(404).json({
+        success: false,
+        message:
+          "Provider profile not found.",
+      });
+    }
+
+    const provider =
+      providerResult.rows[0];
+
+    if (
+      provider.verification_status ===
+      "VERIFIED"
+    ) {
+      return response.status(400).json({
+        success: false,
+        message:
+          "Your provider profile is already verified.",
+      });
+    }
+
+    if (!provider.verification_id) {
+      return response.status(400).json({
+        success: false,
+        message:
+          "Please complete your verification information first.",
+      });
+    }
+
+    const documentsResult =
+      await pool.query(
+        `
+          SELECT COUNT(*)::INTEGER AS count
+          FROM
+            provider_verification_documents
+          WHERE verification_id = $1
+        `,
+        [provider.verification_id]
+      );
+
+    const documentCount =
+      documentsResult.rows[0].count;
+
+    if (documentCount < 1) {
+      return response.status(400).json({
+        success: false,
+        message:
+          "Please upload at least one verification document before submitting.",
+      });
+    }
+
+    const verificationResult =
+      await pool.query(
+        `
+          UPDATE provider_verifications
+          SET
+            status = 'SUBMITTED',
+
+            submitted_at =
+              CURRENT_TIMESTAMP,
+
+            updated_at =
+              CURRENT_TIMESTAMP
+          WHERE id = $1
+          RETURNING
+            id,
+            status,
+            submitted_at,
+            updated_at
+        `,
+        [provider.verification_id]
+      );
+
+    return response.json({
+      success: true,
+
+      message:
+        "Your verification application has been submitted for review.",
+
+      verification:
+        verificationResult.rows[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = {
+  getMyVerification,
+  saveMyVerification,
+  uploadMyVerificationDocument,
+  deleteMyVerificationDocument,
+  submitMyVerification,
+};

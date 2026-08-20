@@ -13,6 +13,22 @@ const {
 } = require("../controllers/providerController");
 
 const {
+  getMyVerification,
+  saveMyVerification,
+  uploadMyVerificationDocument,
+  deleteMyVerificationDocument,
+  submitMyVerification,
+} = require(
+  "../controllers/providerVerificationController"
+);
+
+
+const uploadVerificationDocument =
+  require(
+    "../middleware/uploadVerificationDocument"
+  );
+
+const {
   getMyProviderServices,
   createMyProviderService,
   updateMyProviderService,
@@ -120,6 +136,50 @@ router.delete(
 | Keep this dynamic route last.
 |--------------------------------------------------------------------------
 */
+
+/*
+|--------------------------------------------------------------------------
+| Logged-in Provider Verification
+|--------------------------------------------------------------------------
+*/
+
+router.get(
+  "/me/verification",
+  authenticate,
+  requireRole("PROVIDER"),
+  getMyVerification
+);
+
+router.put(
+  "/me/verification",
+  authenticate,
+  requireRole("PROVIDER"),
+  saveMyVerification
+);
+
+router.post(
+  "/me/verification/documents",
+  authenticate,
+  requireRole("PROVIDER"),
+  uploadVerificationDocument.single(
+    "document"
+  ),
+  uploadMyVerificationDocument
+);
+
+router.delete(
+  "/me/verification/documents/:documentId",
+  authenticate,
+  requireRole("PROVIDER"),
+  deleteMyVerificationDocument
+);
+
+router.post(
+  "/me/verification/submit",
+  authenticate,
+  requireRole("PROVIDER"),
+  submitMyVerification
+);
 
 router.get(
   "/:providerId",

@@ -203,3 +203,94 @@ ON contact_messages(status);
 CREATE INDEX IF NOT EXISTS
 idx_contact_messages_created
 ON contact_messages(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS provider_verifications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+
+    provider_id UUID NOT NULL
+        REFERENCES provider_profiles(id)
+        ON DELETE CASCADE,
+
+    status VARCHAR(30) NOT NULL
+        DEFAULT 'DRAFT',
+
+    qualification_summary TEXT,
+
+    portfolio_description TEXT,
+
+    portfolio_url TEXT,
+
+    provider_notes TEXT,
+
+    admin_notes TEXT,
+
+    reviewed_by UUID
+        REFERENCES users(id)
+        ON DELETE SET NULL,
+
+    reviewed_at TIMESTAMP WITH TIME ZONE,
+
+    submitted_at TIMESTAMP WITH TIME ZONE,
+
+    created_at TIMESTAMP WITH TIME ZONE
+        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP WITH TIME ZONE
+        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(provider_id)
+);
+
+
+CREATE TABLE IF NOT EXISTS provider_verification_documents (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+
+    verification_id UUID NOT NULL
+        REFERENCES provider_verifications(id)
+        ON DELETE CASCADE,
+
+    document_type VARCHAR(50) NOT NULL,
+
+    document_name VARCHAR(200) NOT NULL,
+
+    document_url TEXT NOT NULL,
+
+    qualification_name VARCHAR(200),
+
+    issuing_organization VARCHAR(200),
+
+    document_number VARCHAR(150),
+
+    expiry_date DATE,
+
+    status VARCHAR(30) NOT NULL
+        DEFAULT 'PENDING',
+
+    admin_notes TEXT,
+
+    reviewed_by UUID
+        REFERENCES users(id)
+        ON DELETE SET NULL,
+
+    reviewed_at TIMESTAMP WITH TIME ZONE,
+
+    created_at TIMESTAMP WITH TIME ZONE
+        NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS
+idx_provider_verifications_provider
+ON provider_verifications(provider_id);
+
+CREATE INDEX IF NOT EXISTS
+idx_provider_verifications_status
+ON provider_verifications(status);
+
+CREATE INDEX IF NOT EXISTS
+idx_provider_verification_documents_verification
+ON provider_verification_documents(verification_id);
+
+CREATE INDEX IF NOT EXISTS
+idx_provider_verification_documents_status
+ON provider_verification_documents(status);
+
