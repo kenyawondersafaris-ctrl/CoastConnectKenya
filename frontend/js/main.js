@@ -635,7 +635,7 @@ if (
       const searchType =
         document.getElementById(
           "searchType"
-        )?.value || "restaurants";
+        )?.value || "services";
 
       const searchLocation =
         document.getElementById(
