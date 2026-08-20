@@ -766,16 +766,19 @@ function renderCustomerBookings() {
                     )}
                     </span>
 
-                    ${
+                   ${
+                    (
+                      bookingStatus === "CONFIRMED" &&
+                      paymentStatus === "UNPAID"
+                    ) ||
+                    (
+                      paymentStatus === "PARTIALLY_PAID" &&
                       (
-                        bookingStatus === "CONFIRMED" &&
-                        paymentStatus === "UNPAID"
-                      ) ||
-                      (
-                        bookingStatus === "COMPLETED" &&
-                        paymentStatus === "PARTIALLY_PAID"
+                        bookingStatus === "CONFIRMED" ||
+                        bookingStatus === "COMPLETED"
                       )
-                        ? `
+                    )
+                      ? `
 
                         <button
                             type="button"
