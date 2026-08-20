@@ -666,6 +666,62 @@ const providerLogoutButton =
     "providerLogoutButton"
   );
 
+  /*
+|--------------------------------------------------------------------------
+| Professional verification elements
+|--------------------------------------------------------------------------
+*/
+
+const professionalVerificationForm =
+  document.getElementById(
+    "professionalVerificationForm"
+  );
+
+const professionalVerificationStatus =
+  document.getElementById(
+    "professionalVerificationStatus"
+  );
+
+const qualificationTitle =
+  document.getElementById(
+    "qualificationTitle"
+  );
+
+const institutionName =
+  document.getElementById(
+    "institutionName"
+  );
+
+const qualificationYear =
+  document.getElementById(
+    "qualificationYear"
+  );
+
+const professionalExperience =
+  document.getElementById(
+    "professionalExperience"
+  );
+
+const verificationDocument =
+  document.getElementById(
+    "verificationDocument"
+  );
+
+const verificationDocumentsList =
+  document.getElementById(
+    "verificationDocumentsList"
+  );
+
+const professionalVerificationMessage =
+  document.getElementById(
+    "professionalVerificationMessage"
+  );
+
+const submitVerificationButton =
+  document.getElementById(
+    "submitVerificationButton"
+  );
+
 /*
 |--------------------------------------------------------------------------
 | Provider service elements
@@ -2700,6 +2756,563 @@ providerBookingsGrid?.addEventListener(
     button.textContent =
       originalText;
   }
+);
+
+/*
+|--------------------------------------------------------------------------
+| Professional Verification
+|--------------------------------------------------------------------------
+*/
+
+async function loadProfessionalVerification() {
+
+  if (
+    !professionalVerificationForm
+  ) {
+    return;
+  }
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_BASE_URL}/providers/me/verification`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    if (
+      handleUnauthorized(response)
+    ) {
+      return;
+    }
+
+    const data =
+      await readJsonResponse(
+        response
+      );
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to load verification details."
+      );
+    }
+
+    populateProfessionalVerification(
+      data
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Load professional verification error:",
+      error
+    );
+
+    setMessage(
+      professionalVerificationMessage,
+      error.message ||
+        "Unable to load verification details.",
+      "error"
+    );
+  }
+}
+
+
+function populateProfessionalVerification(
+  data
+) {
+
+  const verification =
+    data.verification || {};
+
+  if (qualificationTitle) {
+    qualificationTitle.value =
+      verification.qualificationTitle ||
+      "";
+  }
+
+  if (institutionName) {
+    institutionName.value =
+      verification.institutionName ||
+      "";
+  }
+
+  if (qualificationYear) {
+    qualificationYear.value =
+      verification.qualificationYear ||
+      "";
+  }
+
+  if (professionalExperience) {
+    professionalExperience.value =
+      verification.professionalExperience ||
+      "";
+  }
+
+  const status =
+    String(
+      verification.status ||
+      data.providerVerificationStatus ||
+      "PENDING"
+    ).toUpperCase();
+
+  if (
+    professionalVerificationStatus
+  ) {
+
+    professionalVerificationStatus.textContent =
+      status;
+
+    professionalVerificationStatus.className =
+      `verification-status-badge ${status.toLowerCase()}`;
+  }
+
+  renderVerificationDocuments(
+    Array.isArray(data.documents)
+      ? data.documents
+      : []
+  );
+}
+
+
+function renderVerificationDocuments(
+  documents
+) {
+
+  if (
+    !verificationDocumentsList
+  ) {
+    return;
+  }
+
+  if (documents.length === 0) {
+
+    verificationDocumentsList.innerHTML =
+      `
+        <p class="verification-empty">
+          No supporting documents uploaded yet.
+        </p>
+      `;
+
+    return;
+  }
+
+  verificationDocumentsList.innerHTML =
+    documents
+      .map(
+        (document) => `
+          <div
+            class="verification-document-item"
+          >
+
+            <div>
+              <strong>
+                ${escapeHtml(
+                  document.fileName ||
+                  "Verification document"
+                )}
+              </strong>
+            </div>
+
+            <div
+              class="verification-document-actions"
+            >
+
+              ${
+                document.fileUrl
+                  ? `
+                    <a
+                      href="${escapeHtml(
+                        document.fileUrl
+                      )}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View
+                    </a>
+                  `
+                  : ""
+              }
+
+              <button
+                type="button"
+                onclick="deleteVerificationDocument('${document.id}')"
+              >
+                Remove
+              </button>
+
+            </div>
+
+          </div>
+        `
+      )
+      .join("");
+}
+
+
+async function saveProfessionalVerification(
+  event
+) {
+
+  event.preventDefault();
+
+  setMessage(
+    professionalVerificationMessage
+  );
+
+  const payload = {
+    qualificationTitle:
+      qualificationTitle?.value.trim() || "",
+
+    institutionName:
+      institutionName?.value.trim() || "",
+
+    qualificationYear:
+      qualificationYear?.value
+        ? Number(
+            qualificationYear.value
+          )
+        : null,
+
+    professionalExperience:
+      professionalExperience?.value.trim() || "",
+  };
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_BASE_URL}/providers/me/verification`,
+        {
+          method: "PUT",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+          },
+
+          body:
+            JSON.stringify(payload),
+        }
+      );
+
+    if (
+      handleUnauthorized(response)
+    ) {
+      return;
+    }
+
+    const data =
+      await readJsonResponse(
+        response
+      );
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to save verification details."
+      );
+    }
+
+    setMessage(
+      professionalVerificationMessage,
+      data.message ||
+        "Verification details saved.",
+      "success"
+    );
+
+    await loadProfessionalVerification();
+
+  } catch (error) {
+
+    console.error(
+      "Save verification error:",
+      error
+    );
+
+    setMessage(
+      professionalVerificationMessage,
+      error.message ||
+        "Unable to save verification details.",
+      "error"
+    );
+  }
+}
+
+
+verificationDocument?.addEventListener(
+  "change",
+  async () => {
+
+    const file =
+      verificationDocument.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    setMessage(
+      professionalVerificationMessage
+    );
+
+    const formData =
+      new FormData();
+
+    formData.append(
+      "document",
+      file
+    );
+
+    try {
+
+      const response =
+        await fetch(
+          `${API_BASE_URL}/providers/me/verification/documents`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              Accept:
+                "application/json",
+            },
+
+            body: formData,
+          }
+        );
+
+      if (
+        handleUnauthorized(response)
+      ) {
+        return;
+      }
+
+      const data =
+        await readJsonResponse(
+          response
+        );
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to upload document."
+        );
+      }
+
+      verificationDocument.value =
+        "";
+
+      setMessage(
+        professionalVerificationMessage,
+        data.message ||
+          "Document uploaded successfully.",
+        "success"
+      );
+
+      await loadProfessionalVerification();
+
+    } catch (error) {
+
+      console.error(
+        "Upload verification document error:",
+        error
+      );
+
+      setMessage(
+        professionalVerificationMessage,
+        error.message ||
+          "Unable to upload document.",
+        "error"
+      );
+    }
+  }
+);
+
+
+async function deleteVerificationDocument(
+  documentId
+) {
+
+  if (
+    !window.confirm(
+      "Remove this verification document?"
+    )
+  ) {
+    return;
+  }
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_BASE_URL}/providers/me/verification/documents/${encodeURIComponent(
+          documentId
+        )}`,
+        {
+          method: "DELETE",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    if (
+      handleUnauthorized(response)
+    ) {
+      return;
+    }
+
+    const data =
+      await readJsonResponse(
+        response
+      );
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to remove document."
+      );
+    }
+
+    setMessage(
+      professionalVerificationMessage,
+      data.message ||
+        "Document removed successfully.",
+      "success"
+    );
+
+    await loadProfessionalVerification();
+
+  } catch (error) {
+
+    console.error(
+      "Delete verification document error:",
+      error
+    );
+
+    setMessage(
+      professionalVerificationMessage,
+      error.message ||
+        "Unable to remove document.",
+      "error"
+    );
+  }
+}
+
+
+async function submitProfessionalVerification() {
+
+  setMessage(
+    professionalVerificationMessage
+  );
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_BASE_URL}/providers/me/verification/submit`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    if (
+      handleUnauthorized(response)
+    ) {
+      return;
+    }
+
+    const data =
+      await readJsonResponse(
+        response
+      );
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to submit verification."
+      );
+    }
+
+    setMessage(
+      professionalVerificationMessage,
+      data.message ||
+        "Verification submitted for review.",
+      "success"
+    );
+
+    await loadProfessionalVerification();
+
+  } catch (error) {
+
+    console.error(
+      "Submit verification error:",
+      error
+    );
+
+    setMessage(
+      professionalVerificationMessage,
+      error.message ||
+        "Unable to submit verification.",
+      "error"
+    );
+  }
+}
+
+
+professionalVerificationForm?.addEventListener(
+  "submit",
+  saveProfessionalVerification
+);
+
+submitVerificationButton?.addEventListener(
+  "click",
+  submitProfessionalVerification
 );
 
 function initializeBookingSocket() {

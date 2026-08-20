@@ -348,6 +348,142 @@
 
       </aside>
 
+      <article class="provider-panel provider-verification-panel">
+
+  <div class="panel-heading">
+    <div>
+      <span class="panel-label">
+        Professional Verification
+      </span>
+
+      <h2>
+        Verify Your Professional Qualifications
+      </h2>
+
+      <p>
+        Submit your qualifications and supporting documents for review.
+      </p>
+    </div>
+
+    <span
+      id="professionalVerificationStatus"
+      class="verification-status-badge pending"
+    >
+      Pending
+    </span>
+  </div>
+
+  <form id="professionalVerificationForm">
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="qualificationTitle">
+          Professional Qualification
+        </label>
+
+        <input
+          type="text"
+          id="qualificationTitle"
+          name="qualificationTitle"
+          placeholder="Example: Professional Chef Certificate"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="institutionName">
+          Institution or Training Provider
+        </label>
+
+        <input
+          type="text"
+          id="institutionName"
+          name="institutionName"
+          placeholder="Example: Kenya Utalii College"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="qualificationYear">
+          Year Completed
+        </label>
+
+        <input
+          type="number"
+          id="qualificationYear"
+          name="qualificationYear"
+          min="1950"
+          max="2100"
+          placeholder="Example: 2024"
+        >
+      </div>
+
+    </div>
+
+    <div class="form-group">
+      <label for="professionalExperience">
+        Professional Experience
+      </label>
+
+      <textarea
+        id="professionalExperience"
+        name="professionalExperience"
+        rows="4"
+        placeholder="Describe your professional experience, training and relevant skills."
+      ></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="verificationDocument">
+        Upload Supporting Document
+      </label>
+
+      <input
+        type="file"
+        id="verificationDocument"
+        name="document"
+        accept=".jpg,.jpeg,.png,.webp"
+      >
+
+      <small>
+        Upload a certificate, licence, qualification or other supporting document. JPG, PNG or WebP only, maximum 5MB.
+      </small>
+    </div>
+
+    <div
+      id="verificationDocumentsList"
+      class="verification-documents-list"
+    >
+    </div>
+
+    <div
+      id="professionalVerificationMessage"
+      class="page-message"
+    ></div>
+
+    <div class="verification-actions">
+
+      <button
+        type="submit"
+        class="primary-button"
+      >
+        Save Verification Details
+      </button>
+
+      <button
+        type="button"
+        id="submitVerificationButton"
+        class="secondary-button"
+      >
+        Submit for Review
+      </button>
+
+    </div>
+
+  </form>
+
+</article>
+
     </section>
 
     <section class="provider-services-section">
