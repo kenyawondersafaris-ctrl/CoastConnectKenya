@@ -766,39 +766,36 @@ function renderCustomerBookings() {
                     )}
                     </span>
 
-                   ${
-                    (
-                      bookingStatus === "CONFIRMED" &&
-                      paymentStatus === "UNPAID"
-                    ) ||
-                    (
-                      paymentStatus === "PARTIALLY_PAID" &&
-                      (
-                        bookingStatus === "CONFIRMED" ||
-                        bookingStatus === "COMPLETED"
-                      )
-                    )
-                      ? `
+                 ${
+  (
+    bookingStatus === "CONFIRMED" &&
+    paymentStatus === "UNPAID"
+  ) ||
+  (
+    bookingStatus === "IN_PROGRESS" &&
+    paymentStatus === "PARTIALLY_PAID"
+  )
+    ? `
 
-                        <button
-                            type="button"
-                            class="pay-provider-booking-button"
-                            data-booking-id="${escapeHtml(
-                            booking.id
-                            )}"
-                            data-provider-name="${escapeHtml(
-                            booking.provider_name || ""
-                            )}"
-                        >
-                            ${
-                          paymentStatus === "PARTIALLY_PAID"
-                            ? "Pay Remaining 50%"
-                            : "Pay 50% Deposit"
-                        }
-                        </button>
-                        `
-                        : ""
-                    }
+      <button
+        type="button"
+        class="pay-provider-booking-button"
+        data-booking-id="${escapeHtml(
+          booking.id
+        )}"
+        data-provider-name="${escapeHtml(
+          booking.provider_name || ""
+        )}"
+      >
+        ${
+          paymentStatus === "PARTIALLY_PAID"
+            ? "Pay Remaining 50%"
+            : "Pay 50% Deposit"
+        }
+      </button>
+    `
+    : ""
+}
 
                 </div>
 
