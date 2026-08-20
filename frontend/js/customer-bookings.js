@@ -297,6 +297,23 @@ function showMessage(
       : "page-message";
 }
 
+function showMessage(
+  message = "",
+  type = ""
+) {
+  if (!bookingsMessage) {
+    return;
+  }
+
+  bookingsMessage.textContent =
+    message;
+
+  bookingsMessage.className =
+    type
+      ? `page-message ${type}`
+      : "page-message";
+}
+
 function clearSessionAndRedirect() {
   localStorage.removeItem(
     "coastConnectToken"
@@ -1070,10 +1087,11 @@ confirmPaymentButton?.addEventListener(
     error
   );
 
-  alert(
-    error.message ||
-    "Unable to start payment."
-  );
+showPremiumAlert(
+  "Payment Unavailable",
+  error.message ||
+  "Unable to start payment."
+);
 
   confirmPaymentButton.disabled =
     false;
