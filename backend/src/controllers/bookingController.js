@@ -438,6 +438,7 @@ async function verifyBookingStartPin(
         `
           SELECT
             b.id,
+            b.customer_id,
             b.provider_id,
             b.booking_status,
             b.payment_status,
@@ -618,10 +619,36 @@ async function verifyBookingStartPin(
 );
 
     await client.query(
-      "COMMIT"
-    );
+  "COMMIT"
+);
 
-    return res.status(200).json({
+const io =
+  req.app.get("io");
+
+if (io) {
+  io
+    .to(
+      `customer:${booking.customer_id}`
+    )
+    .emit(
+      "customer-booking-started",
+      {
+        bookingId:
+          booking.id,
+
+        customerId:
+          booking.customer_id,
+
+        providerId:
+          booking.provider_id,
+
+        bookingStatus:
+          "IN_PROGRESS",
+      }
+    );
+}
+
+return res.status(200).json({
       success: true,
       message:
         "Service started successfully.",

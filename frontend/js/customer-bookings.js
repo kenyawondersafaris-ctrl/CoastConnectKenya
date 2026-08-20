@@ -1151,12 +1151,32 @@ socket.on(
 
 
 
+
     await loadCustomerBookings();
 
     showMessage(
       "Your provider is ready to start. Please generate your Start PIN.",
       "success"
     );
+  }
+);
+
+socket.on(
+  "customer-booking-started",
+  async (booking) => {
+    console.log(
+      "Provider started service:",
+      booking
+    );
+
+    try {
+      await loadCustomerBookings();
+    } catch (error) {
+      console.error(
+        "Customer booking refresh error:",
+        error
+      );
+    }
   }
 );
 
