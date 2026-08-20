@@ -772,7 +772,10 @@ function renderCustomerBookings() {
     paymentStatus === "UNPAID"
   ) ||
   (
-    bookingStatus === "IN_PROGRESS" &&
+    (
+      bookingStatus === "IN_PROGRESS" ||
+      bookingStatus === "COMPLETED"
+    ) &&
     paymentStatus === "PARTIALLY_PAID"
   )
     ? `
