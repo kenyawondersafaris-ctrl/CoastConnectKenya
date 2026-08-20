@@ -280,6 +280,8 @@ function getUserRoles() {
     : [];
 }
 
+
+
 function showMessage(
   message = "",
   type = ""
@@ -297,21 +299,105 @@ function showMessage(
       : "page-message";
 }
 
-function showMessage(
-  message = "",
-  type = ""
+function showPremiumAlert(
+  title = "Notice",
+  message = ""
 ) {
-  if (!bookingsMessage) {
-    return;
+  const existingModal =
+    document.getElementById(
+      "premiumAlertModal"
+    );
+
+  if (existingModal) {
+    existingModal.remove();
   }
 
-  bookingsMessage.textContent =
-    message;
+  const modal =
+    document.createElement("div");
 
-  bookingsMessage.className =
-    type
-      ? `page-message ${type}`
-      : "page-message";
+  modal.id =
+    "premiumAlertModal";
+
+  modal.className =
+    "premium-alert-modal";
+
+  modal.innerHTML =
+    `
+      <div
+        class="premium-alert-backdrop"
+      ></div>
+
+      <div
+        class="premium-alert-dialog"
+        role="alertdialog"
+        aria-modal="true"
+      >
+        <div
+          class="premium-alert-icon"
+        >
+          !
+        </div>
+
+        <h3>
+          ${escapeHtml(title)}
+        </h3>
+
+        <p>
+          ${escapeHtml(message)}
+        </p>
+
+        <button
+          type="button"
+          class="premium-alert-close"
+        >
+          Got it
+        </button>
+      </div>
+    `;
+
+  document.body.appendChild(
+    modal
+  );
+
+  const closeModal =
+    () => {
+      modal.classList.remove(
+        "is-visible"
+      );
+
+      setTimeout(
+        () => {
+          modal.remove();
+        },
+        200
+      );
+    };
+
+  modal
+    .querySelector(
+      ".premium-alert-close"
+    )
+    ?.addEventListener(
+      "click",
+      closeModal
+    );
+
+  modal
+    .querySelector(
+      ".premium-alert-backdrop"
+    )
+    ?.addEventListener(
+      "click",
+      closeModal
+    );
+
+  requestAnimationFrame(
+    () => {
+      modal.classList.add(
+        "is-visible"
+      );
+    }
+  );
 }
 
 function clearSessionAndRedirect() {
