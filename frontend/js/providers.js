@@ -188,32 +188,6 @@ function renderServiceCategories() {
           "option"
         );
 
-        if (requestedCategory) {
-
-  const matchedCategory =
-    serviceCategories.find(
-      (category) =>
-        String(category.name)
-          .trim()
-          .toLowerCase()
-          .includes(
-            requestedCategory
-          )
-    );
-
-  if (matchedCategory) {
-    categoryFilter.value =
-      matchedCategory.id;
-  }
-
-}
-
-if (
-  categoryFilter.value
-) {
-  loadProviders();
-}
-
       option.value =
         category.id;
 
@@ -225,6 +199,26 @@ if (
       );
     }
   );
+
+  if (requestedCategory) {
+
+    const matchedCategory =
+      serviceCategories.find(
+        (category) =>
+          String(
+            category.name || ""
+          )
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "-") ===
+          requestedCategory
+      );
+
+    if (matchedCategory) {
+      categoryFilter.value =
+        matchedCategory.id;
+    }
+  }
 }
 
 async function loadProviders() {
