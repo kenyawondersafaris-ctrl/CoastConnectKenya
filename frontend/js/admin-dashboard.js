@@ -575,7 +575,7 @@ async function loadProviders() {
       return;
     }
 
-    const data = await readJsonResponse(response);
+   const data = await response.json();
 
     if (!response.ok || !data.success) {
       throw new Error(
