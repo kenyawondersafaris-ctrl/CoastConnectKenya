@@ -687,11 +687,6 @@ const qualificationSummary =
     "qualificationSummary"
   );
 
-const qualificationSummary =
-  document.getElementById(
-    "qualificationSummary"
-  );
-
 const portfolioDescription =
   document.getElementById(
     "portfolioDescription"
