@@ -652,33 +652,23 @@ function renderProviderVerifications(
 
               <div class="admin-list-card__details">
 
-                <span>
-                  <strong>Qualification:</strong>
-                  ${escapeHtml(
-                    verification.qualification_title ||
-                    "Not provided"
-                  )}
-                </span>
+  <span>
+    <strong>Qualification:</strong>
+    ${escapeHtml(
+      verification.qualification_summary ||
+      "Not provided"
+    )}
+  </span>
 
-                <span>
-                  <strong>Institution:</strong>
-                  ${escapeHtml(
-                    verification.institution_name ||
-                    "Not provided"
-                  )}
-                </span>
+  <span>
+    <strong>Portfolio:</strong>
+    ${escapeHtml(
+      verification.portfolio_description ||
+      "Not provided"
+    )}
+  </span>
 
-                <span>
-                  <strong>Year:</strong>
-                  ${escapeHtml(
-                    String(
-                      verification.qualification_year ||
-                      "Not provided"
-                    )
-                  )}
-                </span>
-
-              </div>
+</div>
 
             </div>
 

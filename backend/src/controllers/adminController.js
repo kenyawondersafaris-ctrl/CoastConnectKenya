@@ -966,38 +966,38 @@ async function getPendingProviderVerifications(
   try {
 
     const result =
-      await pool.query(
-        `
-          SELECT
-            pv.id AS verification_id,
-            pv.provider_id,
-            pv.status,
-            pv.submitted_at,
+  await pool.query(
+    `
+      SELECT
+        pv.id AS verification_id,
+        pv.provider_id,
+        pv.status,
+        pv.submitted_at,
 
-            pp.user_id,
+        pp.user_id,
 
-            u.full_name,
-            u.email,
-            u.phone,
+        u.full_name,
+        u.email,
+        u.phone,
 
-            pv.qualification_title,
-            pv.institution_name,
-            pv.qualification_year
+        pv.qualification_summary,
+        pv.portfolio_description,
+        pv.portfolio_url
 
-          FROM provider_verifications pv
+      FROM provider_verifications pv
 
-          INNER JOIN provider_profiles pp
-            ON pp.id = pv.provider_id
+      INNER JOIN provider_profiles pp
+        ON pp.id = pv.provider_id
 
-          INNER JOIN users u
-            ON u.id = pp.user_id
+      INNER JOIN users u
+        ON u.id = pp.user_id
 
-          WHERE pv.status = 'SUBMITTED'
+      WHERE pv.status = 'SUBMITTED'
 
-          ORDER BY
-            pv.submitted_at ASC
-        `
-      );
+      ORDER BY
+        pv.submitted_at ASC
+    `
+  );
 
     return res.json({
       success: true,
@@ -1038,12 +1038,12 @@ async function getProviderVerificationDetails(
           SELECT
             pv.id,
             pv.provider_id,
-            pv.qualification_title,
-            pv.institution_name,
-            pv.qualification_year,
-            pv.professional_experience,
+            pv.qualification_summary,
+            pv.portfolio_description,
+            pv.portfolio_url,
+            pv.provider_notes,
+            pv.admin_notes,
             pv.status,
-            pv.rejection_reason,
             pv.submitted_at,
             pv.reviewed_at,
 
@@ -1153,31 +1153,32 @@ async function approveProviderVerification(
     );
 
     const result =
-      await client.query(
-        `
-          UPDATE provider_verifications
+  await client.query(
+    `
+      UPDATE provider_verifications
 
-          SET
-            status = 'APPROVED',
-            rejection_reason = NULL,
-            reviewed_at = CURRENT_TIMESTAMP,
-            updated_at = CURRENT_TIMESTAMP
+      SET
+        status = 'APPROVED',
+        admin_notes = NULL,
+        reviewed_by = $2::uuid,
+        reviewed_at = CURRENT_TIMESTAMP,
+        updated_at = CURRENT_TIMESTAMP
 
-          WHERE provider_id =
-            $1::uuid
+      WHERE provider_id =
+        $1::uuid
 
-            AND status = 'SUBMITTED'
+        AND status = 'SUBMITTED'
 
-          RETURNING
-            id,
-            provider_id,
-            status
-        `,
-        [
-          providerId,
-        ]
-      );
-
+      RETURNING
+        id,
+        provider_id,
+        status
+    `,
+    [
+      providerId,
+      req.user.id,
+    ]
+  );
     if (
       result.rows.length === 0
     ) {
@@ -1275,36 +1276,34 @@ async function rejectProviderVerification(
     );
 
     const result =
-      await client.query(
-        `
-          UPDATE provider_verifications
+  await client.query(
+    `
+      UPDATE provider_verifications
 
-          SET
-            status = 'REJECTED',
-            rejection_reason =
-              $2::text,
-            reviewed_at =
-              CURRENT_TIMESTAMP,
-            updated_at =
-              CURRENT_TIMESTAMP
+      SET
+        status = 'REJECTED',
+        admin_notes = $2::text,
+        reviewed_by = $3::uuid,
+        reviewed_at = CURRENT_TIMESTAMP,
+        updated_at = CURRENT_TIMESTAMP
 
-          WHERE provider_id =
-            $1::uuid
+      WHERE provider_id =
+        $1::uuid
 
-            AND status = 'SUBMITTED'
+        AND status = 'SUBMITTED'
 
-          RETURNING
-            id,
-            provider_id,
-            status,
-            rejection_reason
-        `,
-        [
-          providerId,
-          rejectionReason,
-        ]
-      );
-
+      RETURNING
+        id,
+        provider_id,
+        status,
+        admin_notes
+    `,
+    [
+      providerId,
+      rejectionReason,
+      req.user.id,
+    ]
+  );
     if (
       result.rows.length === 0
     ) {
@@ -1372,7 +1371,6 @@ module.exports = {
   getProviderPayouts,
   markProviderPayoutPaid,
   getProviderPayoutHistory,
-
   getPendingProviderVerifications,
   getProviderVerificationDetails,
   approveProviderVerification,
