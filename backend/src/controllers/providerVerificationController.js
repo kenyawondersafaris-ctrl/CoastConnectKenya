@@ -6,6 +6,51 @@ const pool =
 const cloudinary =
   require("../config/cloudinary");
 
+  async function getOrCreateProviderProfile(
+  userId
+) {
+
+  const existingResult =
+    await pool.query(
+      `
+        SELECT
+          id,
+          verification_status
+        FROM provider_profiles
+        WHERE user_id = $1
+      `,
+      [userId]
+    );
+
+  if (
+    existingResult.rows.length > 0
+  ) {
+    return existingResult.rows[0];
+  }
+
+  const createdResult =
+    await pool.query(
+      `
+        INSERT INTO provider_profiles (
+          user_id,
+          verification_status,
+          availability_status
+        )
+        VALUES (
+          $1,
+          'PENDING',
+          'AVAILABLE'
+        )
+        RETURNING
+          id,
+          verification_status
+      `,
+      [userId]
+    );
+
+  return createdResult.rows[0];
+}
+
 /*
 |--------------------------------------------------------------------------
 | Get My Verification Application
@@ -18,30 +63,10 @@ async function getMyVerification(
   next
 ) {
   try {
-    const providerResult =
-      await pool.query(
-        `
-          SELECT
-            id,
-            verification_status
-          FROM provider_profiles
-          WHERE user_id = $1
-        `,
-        [request.user.id]
-      );
-
-    if (
-      providerResult.rows.length === 0
-    ) {
-      return response.status(404).json({
-        success: false,
-        message:
-          "Provider profile not found.",
-      });
-    }
-
-    const provider =
-      providerResult.rows[0];
+   const provider =
+  await getOrCreateProviderProfile(
+    request.user.id
+  );
 
     const verificationResult =
       await pool.query(
@@ -140,30 +165,10 @@ async function saveMyVerification(
       providerNotes,
     } = request.body;
 
-    const providerResult =
-      await pool.query(
-        `
-          SELECT
-            id,
-            verification_status
-          FROM provider_profiles
-          WHERE user_id = $1
-        `,
-        [request.user.id]
-      );
-
-    if (
-      providerResult.rows.length === 0
-    ) {
-      return response.status(404).json({
-        success: false,
-        message:
-          "Provider profile not found.",
-      });
-    }
-
-    const provider =
-      providerResult.rows[0];
+   const provider =
+  await getOrCreateProviderProfile(
+    request.user.id
+  );
 
     if (
       provider.verification_status ===
@@ -293,30 +298,10 @@ async function uploadMyVerificationDocument(
       });
     }
 
-    const providerResult =
-      await pool.query(
-        `
-          SELECT
-            id,
-            verification_status
-          FROM provider_profiles
-          WHERE user_id = $1
-        `,
-        [request.user.id]
-      );
-
-    if (
-      providerResult.rows.length === 0
-    ) {
-      return response.status(404).json({
-        success: false,
-        message:
-          "Provider profile not found.",
-      });
-    }
-
     const provider =
-      providerResult.rows[0];
+  await getOrCreateProviderProfile(
+    request.user.id
+  );
 
     if (
       provider.verification_status ===
@@ -468,34 +453,32 @@ async function deleteMyVerificationDocument(
       documentId,
     } = request.params;
 
-    const providerResult =
-      await pool.query(
-        `
-          SELECT
-            pp.id AS provider_id,
-            pv.id AS verification_id
-          FROM provider_profiles pp
-          LEFT JOIN provider_verifications pv
-            ON pv.provider_id = pp.id
-          WHERE pp.user_id = $1
-        `,
-        [request.user.id]
-      );
+    const provider =
+  await getOrCreateProviderProfile(
+    request.user.id
+  );
 
-    if (
-      providerResult.rows.length === 0 ||
-      !providerResult.rows[0].verification_id
-    ) {
-      return response.status(404).json({
-        success: false,
-        message:
-          "Verification application not found.",
-      });
-    }
+const verificationResult =
+  await pool.query(
+    `
+      SELECT id
+      FROM provider_verifications
+      WHERE provider_id = $1
+    `,
+    [provider.id]
+  );
 
-    const verificationId =
-      providerResult.rows[0]
-        .verification_id;
+const verificationId =
+  verificationResult.rows[0]?.id ||
+  null;
+
+if (!verificationId) {
+  return response.status(404).json({
+    success: false,
+    message:
+      "Verification application not found.",
+  });
+}
 
     const deleteResult =
       await pool.query(
@@ -545,33 +528,32 @@ async function submitMyVerification(
   next
 ) {
   try {
-    const providerResult =
-      await pool.query(
-        `
-          SELECT
-            pp.id AS provider_id,
-            pp.verification_status,
-            pv.id AS verification_id
-          FROM provider_profiles pp
-          LEFT JOIN provider_verifications pv
-            ON pv.provider_id = pp.id
-          WHERE pp.user_id = $1
-        `,
-        [request.user.id]
-      );
+    const providerProfile =
+  await getOrCreateProviderProfile(
+    request.user.id
+  );
 
-    if (
-      providerResult.rows.length === 0
-    ) {
-      return response.status(404).json({
-        success: false,
-        message:
-          "Provider profile not found.",
-      });
-    }
+const existingVerificationResult =
+  await pool.query(
+    `
+      SELECT id
+      FROM provider_verifications
+      WHERE provider_id = $1
+    `,
+    [providerProfile.id]
+  );
 
-    const provider =
-      providerResult.rows[0];
+const provider = {
+  provider_id:
+    providerProfile.id,
+
+  verification_status:
+    providerProfile.verification_status,
+
+  verification_id:
+    existingVerificationResult.rows[0]?.id ||
+    null,
+};
 
     if (
       provider.verification_status ===
