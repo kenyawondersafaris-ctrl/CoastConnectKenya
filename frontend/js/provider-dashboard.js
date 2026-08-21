@@ -682,24 +682,34 @@ const professionalVerificationStatus =
     "professionalVerificationStatus"
   );
 
-const qualificationTitle =
+const qualificationSummary =
   document.getElementById(
-    "qualificationTitle"
+    "qualificationSummary"
   );
 
-const institutionName =
+const qualificationSummary =
   document.getElementById(
-    "institutionName"
+    "qualificationSummary"
   );
 
-const qualificationYear =
+const portfolioDescription =
   document.getElementById(
-    "qualificationYear"
+    "portfolioDescription"
   );
 
-const professionalExperience =
+const portfolioUrl =
   document.getElementById(
-    "professionalExperience"
+    "portfolioUrl"
+  );
+
+const providerNotes =
+  document.getElementById(
+    "providerNotes"
+  );
+
+const verificationDocumentType =
+  document.getElementById(
+    "verificationDocumentType"
   );
 
 const verificationDocument =
@@ -1011,6 +1021,7 @@ async function initializeProviderDashboard() {
   await Promise.all([
     loadProviderProfile(),
     loadServiceCategories(),
+    loadProfessionalVerification(),
 
   ]);
 
@@ -2837,27 +2848,27 @@ function populateProfessionalVerification(
   const verification =
     data.verification || {};
 
-  if (qualificationTitle) {
-    qualificationTitle.value =
-      verification.qualificationTitle ||
+  if (qualificationSummary) {
+    qualificationSummary.value =
+      verification.qualification_summary ||
       "";
   }
 
-  if (institutionName) {
-    institutionName.value =
-      verification.institutionName ||
+  if (portfolioDescription) {
+    portfolioDescription.value =
+      verification.portfolio_description ||
       "";
   }
 
-  if (qualificationYear) {
-    qualificationYear.value =
-      verification.qualificationYear ||
+  if (portfolioUrl) {
+    portfolioUrl.value =
+      verification.portfolio_url ||
       "";
   }
 
-  if (professionalExperience) {
-    professionalExperience.value =
-      verification.professionalExperience ||
+  if (providerNotes) {
+    providerNotes.value =
+      verification.provider_notes ||
       "";
   }
 
@@ -2973,22 +2984,18 @@ async function saveProfessionalVerification(
   );
 
   const payload = {
-    qualificationTitle:
-      qualificationTitle?.value.trim() || "",
+  qualificationSummary:
+    qualificationSummary?.value.trim() || "",
 
-    institutionName:
-      institutionName?.value.trim() || "",
+  portfolioDescription:
+    portfolioDescription?.value.trim() || "",
 
-    qualificationYear:
-      qualificationYear?.value
-        ? Number(
-            qualificationYear.value
-          )
-        : null,
+  portfolioUrl:
+    portfolioUrl?.value.trim() || "",
 
-    professionalExperience:
-      professionalExperience?.value.trim() || "",
-  };
+  providerNotes:
+    providerNotes?.value.trim() || "",
+};
 
   try {
 
@@ -3076,13 +3083,43 @@ verificationDocument?.addEventListener(
       professionalVerificationMessage
     );
 
-    const formData =
-      new FormData();
+  const documentType =
+  verificationDocumentType?.value.trim() ||
+  "";
 
-    formData.append(
-      "document",
-      file
-    );
+const documentName =
+  file.name;
+
+if (!documentType) {
+
+  setMessage(
+    professionalVerificationMessage,
+    "Please select a document type before uploading.",
+    "error"
+  );
+
+  verificationDocument.value = "";
+
+  return;
+}
+
+const formData =
+  new FormData();
+
+formData.append(
+  "document",
+  file
+);
+
+formData.append(
+  "documentType",
+  documentType
+);
+
+formData.append(
+  "documentName",
+  documentName
+);
 
     try {
 

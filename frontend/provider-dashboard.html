@@ -184,62 +184,69 @@
 
         <form id="providerProfileForm">
 
-          <div class="form-grid">
+         <div class="form-grid">
 
-            <div class="form-group">
-              <label for="providerServiceArea">
-                Service area
-              </label>
+  <div class="form-group form-group-full">
 
-              <input
-                type="text"
-                id="providerServiceArea"
-                placeholder="Example: Nyali, Mombasa"
-                required
-              >
-            </div>
+    <label for="qualificationSummary">
+      Professional Qualification
+    </label>
 
-            <div class="form-group">
-              <label for="providerExperienceYears">
-                Years of experience
-              </label>
+    <textarea
+      id="qualificationSummary"
+      name="qualificationSummary"
+      rows="4"
+      placeholder="Describe your professional qualifications, certificates, licences, training and relevant skills."
+    ></textarea>
 
-              <input
-                type="number"
-                id="providerExperienceYears"
-                min="0"
-                max="60"
-                value="0"
-                required
-              >
-            </div>
+  </div>
 
-            <div class="form-group form-group-full">
-              <label for="providerBio">
-                Professional bio
-              </label>
+  <div class="form-group form-group-full">
 
-              <textarea
-                id="providerBio"
-                rows="5"
-                maxlength="1500"
-                placeholder="Describe your experience, skills and the type of work you provide."
-              ></textarea>
-            </div>
+    <label for="portfolioDescription">
+      Portfolio / Work Experience
+    </label>
 
-            <div class="form-group form-group-full">
-              <label for="providerProfilePhoto">
-                Profile photo URL
-              </label>
+    <textarea
+      id="portfolioDescription"
+      name="portfolioDescription"
+      rows="4"
+      placeholder="Describe your previous work, professional experience or examples of services you have provided."
+    ></textarea>
 
-              <input
-                type="url"
-                id="providerProfilePhoto"
-                placeholder="https://..."
-              >
-            </div>
+  </div>
 
-          </div>
+  <div class="form-group form-group-full">
+
+    <label for="portfolioUrl">
+      Portfolio Link
+    </label>
+
+    <input
+      type="url"
+      id="portfolioUrl"
+      name="portfolioUrl"
+      placeholder="https://..."
+    >
+
+  </div>
+
+  <div class="form-group form-group-full">
+
+    <label for="providerNotes">
+      Additional Notes
+    </label>
+
+    <textarea
+      id="providerNotes"
+      name="providerNotes"
+      rows="3"
+      placeholder="Add any additional information for the verification team."
+    ></textarea>
+
+  </div>
+
+</div>
 
           <div
             id="providerProfileMessage"
@@ -437,6 +444,35 @@
       <label for="verificationDocument">
         Upload Supporting Document
       </label>
+
+      <select
+  id="verificationDocumentType"
+  name="documentType"
+>
+  <option value="">
+    Select document type
+  </option>
+
+  <option value="QUALIFICATION">
+    Qualification Certificate
+  </option>
+
+  <option value="LICENCE">
+    Professional Licence
+  </option>
+
+  <option value="IDENTIFICATION">
+    Identification Document
+  </option>
+
+  <option value="PORTFOLIO">
+    Portfolio / Work Evidence
+  </option>
+
+  <option value="OTHER">
+    Other Supporting Document
+  </option>
+</select>
 
       <input
         type="file"
