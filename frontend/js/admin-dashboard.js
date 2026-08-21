@@ -571,7 +571,7 @@ async function loadProviders() {
       }
     );
 
-    if (handleAdminUnauthorized(response)) {
+    if (handleUnauthorizedResponse(response)) {
       return;
     }
 
