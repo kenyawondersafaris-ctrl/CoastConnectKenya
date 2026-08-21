@@ -303,17 +303,6 @@ async function uploadMyVerificationDocument(
   request.user.userId
 );
 
-    if (
-      provider.verification_status ===
-      "VERIFIED"
-    ) {
-      return response.status(400).json({
-        success: false,
-        message:
-          "Your provider profile is already verified.",
-      });
-    }
-
     let verificationResult =
       await pool.query(
         `
