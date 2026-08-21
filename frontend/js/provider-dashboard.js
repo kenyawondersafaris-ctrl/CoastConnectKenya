@@ -3311,12 +3311,14 @@ async function submitProfessionalVerification() {
       );
     }
 
-    setMessage(
-      professionalVerificationMessage,
-      data.message ||
-        "Verification submitted for review.",
-      "success"
-    );
+   await loadProfessionalVerification();
+
+setMessage(
+  professionalVerificationMessage,
+  data.message ||
+    "Verification submitted successfully and is now awaiting review.",
+  "success"
+);
 
     await loadProfessionalVerification();
 
