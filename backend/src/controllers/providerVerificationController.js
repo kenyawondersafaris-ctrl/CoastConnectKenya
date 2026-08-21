@@ -64,9 +64,9 @@ async function getMyVerification(
 ) {
   try {
    const provider =
-  await getOrCreateProviderProfile(
-    request.user.id
-  );
+await getOrCreateProviderProfile(
+  request.user.userId
+);
 
     const verificationResult =
       await pool.query(
@@ -166,9 +166,9 @@ async function saveMyVerification(
     } = request.body;
 
    const provider =
-  await getOrCreateProviderProfile(
-    request.user.id
-  );
+await getOrCreateProviderProfile(
+  request.user.userId
+);
 
     if (
       provider.verification_status ===
@@ -299,9 +299,9 @@ async function uploadMyVerificationDocument(
     }
 
     const provider =
-  await getOrCreateProviderProfile(
-    request.user.id
-  );
+ await getOrCreateProviderProfile(
+  request.user.userId
+);
 
     if (
       provider.verification_status ===
@@ -455,7 +455,7 @@ async function deleteMyVerificationDocument(
 
     const provider =
   await getOrCreateProviderProfile(
-    request.user.id
+    request.user.userId
   );
 
 const verificationResult =
@@ -529,9 +529,9 @@ async function submitMyVerification(
 ) {
   try {
     const providerProfile =
-  await getOrCreateProviderProfile(
-    request.user.id
-  );
+await getOrCreateProviderProfile(
+  request.user.userId
+);
 
 const existingVerificationResult =
   await pool.query(
