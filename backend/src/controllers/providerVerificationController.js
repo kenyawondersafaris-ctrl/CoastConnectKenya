@@ -170,17 +170,6 @@ await getOrCreateProviderProfile(
   request.user.userId
 );
 
-    if (
-      provider.verification_status ===
-      "VERIFIED"
-    ) {
-      return response.status(400).json({
-        success: false,
-        message:
-          "Your provider profile is already verified.",
-      });
-    }
-
     const verificationResult =
       await pool.query(
         `
@@ -543,17 +532,6 @@ const provider = {
     existingVerificationResult.rows[0]?.id ||
     null,
 };
-
-    if (
-      provider.verification_status ===
-      "VERIFIED"
-    ) {
-      return response.status(400).json({
-        success: false,
-        message:
-          "Your provider profile is already verified.",
-      });
-    }
 
     if (!provider.verification_id) {
       return response.status(400).json({

@@ -159,368 +159,392 @@
       aria-live="polite"
     ></div>
 
-    <section class="provider-grid">
+   <section class="provider-grid">
 
-      <article class="provider-panel">
+  <!-- PROVIDER PROFILE -->
+  <article class="provider-panel">
 
-        <div class="panel-heading">
-          <div>
-            <span class="provider-label">
-              Profile setup
-            </span>
+    <div class="panel-heading">
+      <div>
+        <span class="provider-label">
+          Profile setup
+        </span>
 
-            <h2>
-              Your provider profile
-            </h2>
-          </div>
+        <h2>
+          Your provider profile
+        </h2>
+      </div>
 
-          <span
-            id="providerProfileState"
-            class="profile-state"
+      <span
+        id="providerProfileState"
+        class="profile-state"
+      >
+        Loading...
+      </span>
+    </div>
+
+    <form id="providerProfileForm">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="providerServiceArea">
+            Service area
+          </label>
+
+          <input
+            type="text"
+            id="providerServiceArea"
+            placeholder="Example: Nyali, Mombasa"
+            required
           >
-            Loading...
-          </span>
         </div>
 
-        <form id="providerProfileForm">
+        <div class="form-group">
+          <label for="providerExperienceYears">
+            Years of experience
+          </label>
 
-         <div class="form-grid">
-
-  <div class="form-group form-group-full">
-
-    <label for="qualificationSummary">
-      Professional Qualification
-    </label>
-
-    <textarea
-      id="qualificationSummary"
-      name="qualificationSummary"
-      rows="4"
-      placeholder="Describe your professional qualifications, certificates, licences, training and relevant skills."
-    ></textarea>
-
-  </div>
-
-  <div class="form-group form-group-full">
-
-    <label for="portfolioDescription">
-      Portfolio / Work Experience
-    </label>
-
-    <textarea
-      id="portfolioDescription"
-      name="portfolioDescription"
-      rows="4"
-      placeholder="Describe your previous work, professional experience or examples of services you have provided."
-    ></textarea>
-
-  </div>
-
-  <div class="form-group form-group-full">
-
-    <label for="portfolioUrl">
-      Portfolio Link
-    </label>
-
-    <input
-      type="url"
-      id="portfolioUrl"
-      name="portfolioUrl"
-      placeholder="https://..."
-    >
-
-  </div>
-
-  <div class="form-group form-group-full">
-
-    <label for="providerNotes">
-      Additional Notes
-    </label>
-
-    <textarea
-      id="providerNotes"
-      name="providerNotes"
-      rows="3"
-      placeholder="Add any additional information for the verification team."
-    ></textarea>
-
-  </div>
-
-</div>
-
-          <div
-            id="providerProfileMessage"
-            class="form-message"
-          ></div>
-
-          <button
-            type="submit"
-            id="saveProviderProfileButton"
-            class="primary-button"
+          <input
+            type="number"
+            id="providerExperienceYears"
+            min="0"
+            max="60"
+            value="0"
+            required
           >
-            Create Provider Profile
-          </button>
+        </div>
 
-        </form>
+        <div class="form-group form-group-full">
+          <label for="providerBio">
+            Professional bio
+          </label>
 
-      </article>
+          <textarea
+            id="providerBio"
+            rows="5"
+            maxlength="1500"
+            placeholder="Describe your experience, skills and the type of work you provide."
+          ></textarea>
+        </div>
 
-      <aside class="provider-sidebar">
+        <div class="form-group form-group-full">
+          <label for="providerProfilePhoto">
+            Profile photo URL
+          </label>
 
-        <article class="provider-summary-card">
+          <input
+            type="url"
+            id="providerProfilePhoto"
+            placeholder="https://..."
+          >
+        </div>
 
-  <h3>
-    Availability
-  </h3>
-
-  <strong
-    id="providerAvailabilityStatus"
-    class="status-badge status-offline"
-  >
-    Offline
-  </strong>
-
-  <div class="form-group">
-
-    <label for="providerAvailabilitySelect">
-      Change status
-    </label>
-
-    <select
-      id="providerAvailabilitySelect"
-    >
-      <option value="OFFLINE">
-        Offline
-      </option>
-
-      <option value="AVAILABLE">
-        Available
-      </option>
-
-      <option value="BUSY">
-        Busy
-      </option>
-
-      <option value="AWAY">
-        Away
-      </option>
-
-    </select>
-
-  </div>
-
-  <button
-    type="button"
-    id="saveAvailabilityButton"
-    class="primary-button"
-  >
-    Update Status
-  </button>
-
-  <div
-    id="availabilityMessage"
-    class="form-message"
-  ></div>
-
-</article>
-
-        <article class="provider-summary-card">
-          <h3>
-            Rating
-          </h3>
-
-          <strong id="providerAverageRating">
-            0.0
-          </strong>
-
-          <p>
-            <span id="providerTotalReviews">
-              0
-            </span>
-            customer reviews
-          </p>
-        </article>
-
-        <article class="provider-summary-card">
-          <h3>
-            Next step
-          </h3>
-
-          <p>
-            After creating your profile,
-            you will add the services you offer,
-            pricing and availability.
-          </p>
-        </article>
-
-      </aside>
-
-      <article class="provider-panel provider-verification-panel">
-
-  <div class="panel-heading">
-    <div>
-      <span class="panel-label">
-        Professional Verification
-      </span>
-
-      <h2>
-        Verify Your Professional Qualifications
-      </h2>
-
-      <p>
-        Submit your qualifications and supporting documents for review.
-      </p>
-    </div>
-
-    <span
-      id="professionalVerificationStatus"
-      class="verification-status-badge pending"
-    >
-      Pending
-    </span>
-  </div>
-
-  <form id="professionalVerificationForm">
-
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label for="qualificationTitle">
-          Professional Qualification
-        </label>
-
-        <input
-          type="text"
-          id="qualificationTitle"
-          name="qualificationTitle"
-          placeholder="Example: Professional Chef Certificate"
-        >
       </div>
 
-      <div class="form-group">
-        <label for="institutionName">
-          Institution or Training Provider
-        </label>
-
-        <input
-          type="text"
-          id="institutionName"
-          name="institutionName"
-          placeholder="Example: Kenya Utalii College"
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="qualificationYear">
-          Year Completed
-        </label>
-
-        <input
-          type="number"
-          id="qualificationYear"
-          name="qualificationYear"
-          min="1950"
-          max="2100"
-          placeholder="Example: 2024"
-        >
-      </div>
-
-    </div>
-
-    <div class="form-group">
-      <label for="professionalExperience">
-        Professional Experience
-      </label>
-
-      <textarea
-        id="professionalExperience"
-        name="professionalExperience"
-        rows="4"
-        placeholder="Describe your professional experience, training and relevant skills."
-      ></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="verificationDocument">
-        Upload Supporting Document
-      </label>
-
-      <select
-  id="verificationDocumentType"
-  name="documentType"
->
-  <option value="">
-    Select document type
-  </option>
-
-  <option value="QUALIFICATION">
-    Qualification Certificate
-  </option>
-
-  <option value="LICENCE">
-    Professional Licence
-  </option>
-
-  <option value="IDENTIFICATION">
-    Identification Document
-  </option>
-
-  <option value="PORTFOLIO">
-    Portfolio / Work Evidence
-  </option>
-
-  <option value="OTHER">
-    Other Supporting Document
-  </option>
-</select>
-
-      <input
-        type="file"
-        id="verificationDocument"
-        name="document"
-        accept=".jpg,.jpeg,.png,.webp"
-      >
-
-      <small>
-        Upload a certificate, licence, qualification or other supporting document. JPG, PNG or WebP only, maximum 5MB.
-      </small>
-    </div>
-
-    <div
-      id="verificationDocumentsList"
-      class="verification-documents-list"
-    >
-    </div>
-
-    <div
-      id="professionalVerificationMessage"
-      class="page-message"
-    ></div>
-
-    <div class="verification-actions">
+      <div
+        id="providerProfileMessage"
+        class="form-message"
+      ></div>
 
       <button
         type="submit"
+        id="saveProviderProfileButton"
         class="primary-button"
       >
-        Save Verification Details
+        Create Provider Profile
       </button>
+
+    </form>
+
+  </article>
+
+
+  <!-- PROVIDER SIDEBAR -->
+  <aside class="provider-sidebar">
+
+    <article class="provider-summary-card">
+
+      <h3>
+        Availability
+      </h3>
+
+      <strong
+        id="providerAvailabilityStatus"
+        class="status-badge status-offline"
+      >
+        Offline
+      </strong>
+
+      <div class="form-group">
+
+        <label for="providerAvailabilitySelect">
+          Change status
+        </label>
+
+        <select
+          id="providerAvailabilitySelect"
+        >
+          <option value="OFFLINE">
+            Offline
+          </option>
+
+          <option value="AVAILABLE">
+            Available
+          </option>
+
+          <option value="BUSY">
+            Busy
+          </option>
+
+          <option value="AWAY">
+            Away
+          </option>
+        </select>
+
+      </div>
 
       <button
         type="button"
-        id="submitVerificationButton"
-        class="secondary-button"
+        id="saveAvailabilityButton"
+        class="primary-button"
       >
-        Submit for Review
+        Update Status
       </button>
+
+      <div
+        id="availabilityMessage"
+        class="form-message"
+      ></div>
+
+    </article>
+
+
+    <article class="provider-summary-card">
+
+      <h3>
+        Rating
+      </h3>
+
+      <strong id="providerAverageRating">
+        0.0
+      </strong>
+
+      <p>
+        <span id="providerTotalReviews">
+          0
+        </span>
+        customer reviews
+      </p>
+
+    </article>
+
+
+    <article class="provider-summary-card">
+
+      <h3>
+        Next step
+      </h3>
+
+      <p>
+        After creating your profile,
+        you will add the services you offer,
+        pricing and availability.
+      </p>
+
+    </article>
+
+  </aside>
+
+
+  <!-- PROFESSIONAL VERIFICATION -->
+  <article class="provider-panel provider-verification-panel">
+
+    <div class="panel-heading">
+
+      <div>
+        <span class="panel-label">
+          Professional Verification
+        </span>
+
+        <h2>
+          Verify Your Professional Qualifications
+        </h2>
+
+        <p>
+          Submit your qualifications and supporting documents for review.
+        </p>
+      </div>
+
+      <span
+        id="professionalVerificationStatus"
+        class="verification-status-badge pending"
+      >
+        Pending
+      </span>
 
     </div>
 
-  </form>
 
-</article>
+    <form id="professionalVerificationForm">
 
-    </section>
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label for="qualificationTitle">
+            Professional Qualification
+          </label>
+
+          <input
+            type="text"
+            id="qualificationTitle"
+            name="qualificationTitle"
+            placeholder="Example: Professional Chef Certificate"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="institutionName">
+            Institution or Training Provider
+          </label>
+
+          <input
+            type="text"
+            id="institutionName"
+            name="institutionName"
+            placeholder="Example: Kenya Utalii College"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="qualificationYear">
+            Year Completed
+          </label>
+
+          <input
+            type="number"
+            id="qualificationYear"
+            name="qualificationYear"
+            min="1950"
+            max="2100"
+            placeholder="Example: 2024"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="professionalExperience">
+          Professional Experience
+        </label>
+
+        <textarea
+          id="professionalExperience"
+          name="professionalExperience"
+          rows="4"
+          placeholder="Describe your professional experience, training and relevant skills."
+        ></textarea>
+
+      </div>
+
+
+      <!-- DOCUMENT UPLOAD -->
+      <div class="form-group">
+
+        <label for="verificationDocument">
+          Upload Supporting Document
+        </label>
+
+        <select
+          id="verificationDocumentType"
+          name="documentType"
+        >
+          <option value="">
+            Select document type
+          </option>
+
+          <option value="QUALIFICATION">
+            Qualification Certificate
+          </option>
+
+          <option value="LICENCE">
+            Professional Licence
+          </option>
+
+          <option value="IDENTIFICATION">
+            Identification Document
+          </option>
+
+          <option value="PORTFOLIO">
+            Portfolio / Work Evidence
+          </option>
+
+          <option value="OTHER">
+            Other Supporting Document
+          </option>
+        </select>
+
+        <input
+          type="file"
+          id="verificationDocument"
+          name="document"
+          accept=".jpg,.jpeg,.png,.webp"
+        >
+
+        <small>
+          Upload a certificate, licence, qualification or other supporting
+          document. JPG, PNG or WebP only, maximum 5MB.
+        </small>
+
+      </div>
+
+
+      <div
+        id="verificationDocumentsList"
+        class="verification-documents-list"
+      ></div>
+
+
+      <div
+        id="professionalVerificationMessage"
+        class="page-message"
+      ></div>
+
+
+      <div class="verification-actions">
+
+        <button
+          type="submit"
+          class="primary-button"
+        >
+          Save Verification Details
+        </button>
+
+        <button
+          type="button"
+          id="submitVerificationButton"
+          class="secondary-button"
+        >
+          Submit for Review
+        </button>
+
+      </div>
+
+    </form>
+
+  </article>
+
+</section>
 
     <section class="provider-services-section">
 
