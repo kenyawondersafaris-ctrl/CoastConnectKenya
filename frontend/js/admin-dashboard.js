@@ -207,6 +207,21 @@ const adminSidebarOverlay =
     "adminProviderVerificationsContainer"
   );
 
+  const providerVerificationModal =
+  document.getElementById(
+    "providerVerificationModal"
+  );
+
+const providerVerificationModalContent =
+  document.getElementById(
+    "providerVerificationModalContent"
+  );
+
+const closeProviderVerificationModal =
+  document.getElementById(
+    "closeProviderVerificationModal"
+  );
+
 
 
 function showMessage(
@@ -321,6 +336,14 @@ document.addEventListener(
     }
   }
 );
+
+if (closeProviderVerificationModal) {
+
+  closeProviderVerificationModal.addEventListener(
+    "click",
+    closeProviderVerificationReview
+  );
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -1581,14 +1604,238 @@ function showAdminSection(
 async function reviewProviderVerification(
   providerId
 ) {
-  console.log(
-    "Review provider verification:",
-    providerId
-  );
+
+  if (
+    !providerVerificationModal ||
+    !providerVerificationModalContent
+  ) {
+    return;
+  }
+
+  providerVerificationModal.hidden = false;
+
+  providerVerificationModalContent.innerHTML = `
+    <p>
+      Loading verification details...
+    </p>
+  `;
+
+  try {
+
+    const response = await fetch(
+      `${API_BASE}/admin/provider-verifications/${providerId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    if (
+      handleUnauthorizedResponse(response)
+    ) {
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to load verification details."
+      );
+    }
+
+    renderProviderVerificationDetails(
+      data.verification,
+      data.documents || []
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Load provider verification details error:",
+      error
+    );
+
+    providerVerificationModalContent.innerHTML = `
+      <p class="admin-empty-state">
+        ${escapeHtml(
+          error.message ||
+          "Unable to load verification details."
+        )}
+      </p>
+    `;
+  }
 }
 
-window.reviewProviderVerification =
-  reviewProviderVerification;
+function renderProviderVerificationDetails(
+  verification,
+  documents
+) {
+
+  const documentHtml =
+    documents.length > 0
+      ? documents
+          .map(
+            (document) => `
+              <a
+                href="${escapeHtml(
+                  document.file_url
+                )}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="provider-verification-document"
+              >
+                View:
+                ${escapeHtml(
+                  document.file_name ||
+                  "Verification Document"
+                )}
+              </a>
+            `
+          )
+          .join("")
+      : `
+          <p class="admin-empty-state">
+            No verification documents uploaded.
+          </p>
+        `;
+
+  providerVerificationModalContent.innerHTML = `
+    <div class="provider-verification-review">
+
+      <div class="provider-verification-review__header">
+        <h2>
+          ${escapeHtml(
+            verification.full_name ||
+            "Provider Verification"
+          )}
+        </h2>
+
+        <p>
+          ${escapeHtml(
+            verification.email || ""
+          )}
+        </p>
+
+        <p>
+          ${escapeHtml(
+            verification.phone || ""
+          )}
+        </p>
+      </div>
+
+      <div class="provider-verification-review__section">
+        <h3>
+          Professional Qualification
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            verification.qualification_summary ||
+            "Not provided"
+          )}
+        </p>
+      </div>
+
+      <div class="provider-verification-review__section">
+        <h3>
+          Portfolio
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            verification.portfolio_description ||
+            "Not provided"
+          )}
+        </p>
+
+        ${
+          verification.portfolio_url
+            ? `
+              <a
+                href="${escapeHtml(
+                  verification.portfolio_url
+                )}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open Portfolio
+              </a>
+            `
+            : ""
+        }
+      </div>
+
+      <div class="provider-verification-review__section">
+        <h3>
+          Provider Notes
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            verification.provider_notes ||
+            "No additional notes provided."
+          )}
+        </p>
+      </div>
+
+      <div class="provider-verification-review__section">
+        <h3>
+          Supporting Documents
+        </h3>
+
+        <div class="provider-verification-documents">
+          ${documentHtml}
+        </div>
+      </div>
+
+      <div
+        class="provider-verification-review__actions"
+      >
+
+        <button
+          type="button"
+          class="primary-button"
+          onclick="approveProviderVerification(
+            '${verification.provider_id}'
+          )"
+        >
+          Approve Verification
+        </button>
+
+        <button
+          type="button"
+          class="danger-button"
+          onclick="rejectProviderVerification(
+            '${verification.provider_id}'
+          )"
+        >
+          Reject Verification
+        </button>
+
+      </div>
+
+    </div>
+  `;
+}
+
+function closeProviderVerificationReview() {
+
+  if (!providerVerificationModal) {
+    return;
+  }
+
+  providerVerificationModal.hidden = true;
+
+  providerVerificationModalContent.innerHTML = "";
+}
 
 
 adminNavLinks.forEach(
@@ -3266,3 +3513,169 @@ confirmManualPayoutButton?.addEventListener(
     }
   }
 );
+
+
+async function approveProviderVerification(
+  providerId
+) {
+
+  const confirmed =
+    window.confirm(
+      "Approve this provider's professional verification?"
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      `${API_BASE}/admin/provider-verifications/${providerId}/approve`,
+      {
+        method: "PATCH",
+
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    if (
+      handleUnauthorizedResponse(response)
+    ) {
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to approve provider verification."
+      );
+    }
+
+    alert(
+      data.message ||
+      "Provider verification approved."
+    );
+
+    closeProviderVerificationReview();
+
+    await loadProviderVerifications();
+
+  } catch (error) {
+
+    console.error(
+      "Approve provider verification error:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to approve provider verification."
+    );
+  }
+}
+
+async function rejectProviderVerification(
+  providerId
+) {
+
+  const rejectionReason =
+    window.prompt(
+      "Enter the reason for rejecting this verification:"
+    );
+
+  if (
+    rejectionReason === null
+  ) {
+    return;
+  }
+
+  if (
+    !rejectionReason.trim()
+  ) {
+    alert(
+      "A rejection reason is required."
+    );
+
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      `${API_BASE}/admin/provider-verifications/${providerId}/reject`,
+      {
+        method: "PATCH",
+
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          rejectionReason:
+            rejectionReason.trim(),
+        }),
+      }
+    );
+
+    if (
+      handleUnauthorizedResponse(response)
+    ) {
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to reject provider verification."
+      );
+    }
+
+    alert(
+      data.message ||
+      "Provider verification rejected."
+    );
+
+    closeProviderVerificationReview();
+
+    await loadProviderVerifications();
+
+  } catch (error) {
+
+    console.error(
+      "Reject provider verification error:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to reject provider verification."
+    );
+  }
+}
+
+window.reviewProviderVerification =
+  reviewProviderVerification;
+
+  window.approveProviderVerification =
+  approveProviderVerification;
+
+  window.rejectProviderVerification =
+  rejectProviderVerification;
