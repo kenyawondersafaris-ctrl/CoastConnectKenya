@@ -562,10 +562,10 @@ async function loadProviders() {
   try {
 
     const response = await fetch(
-      `${API_BASE_URL}/admin/provider-verifications`,
+      `${API_BASE}/admin/provider-verifications`,
       {
         headers: {
-          Authorization: `Bearer ${adminToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: "application/json",
         },
       }
