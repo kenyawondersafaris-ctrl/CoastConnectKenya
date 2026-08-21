@@ -202,6 +202,13 @@ const adminSidebarOverlay =
     "adminPayoutHistoryContainer"
   );
 
+  const adminProviderVerificationsContainer =
+  document.getElementById(
+    "adminProviderVerificationsContainer"
+  );
+
+
+
 function showMessage(
   message,
   type = "success"
@@ -538,6 +545,161 @@ async function loadProviders() {
       "error"
     );
   }
+}
+
+  async function loadProviderVerifications() {
+
+  if (!adminProviderVerificationsContainer) {
+    return;
+  }
+
+  adminProviderVerificationsContainer.innerHTML = `
+    <p>
+      Loading professional verification requests...
+    </p>
+  `;
+
+  try {
+
+    const response = await fetch(
+      `${API_BASE_URL}/admin/provider-verifications`,
+      {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    if (handleAdminUnauthorized(response)) {
+      return;
+    }
+
+    const data = await readJsonResponse(response);
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message ||
+        "Unable to load professional verifications."
+      );
+    }
+
+    renderProviderVerifications(
+      data.verifications || []
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Load provider verifications error:",
+      error
+    );
+
+    adminProviderVerificationsContainer.innerHTML = `
+      <p class="admin-empty-state">
+        ${escapeHtml(
+          error.message ||
+          "Unable to load professional verifications."
+        )}
+      </p>
+    `;
+  }
+}
+
+
+function renderProviderVerifications(
+  verifications
+) {
+
+  if (
+    !adminProviderVerificationsContainer
+  ) {
+    return;
+  }
+
+  if (verifications.length === 0) {
+
+    adminProviderVerificationsContainer.innerHTML = `
+      <p class="admin-empty-state">
+        No professional verification requests are waiting for review.
+      </p>
+    `;
+
+    return;
+  }
+
+  adminProviderVerificationsContainer.innerHTML =
+    verifications
+      .map(
+        (verification) => `
+          <article class="admin-list-card">
+
+            <div class="admin-list-card__content">
+
+              <div>
+                <h3>
+                  ${escapeHtml(
+                    verification.full_name || "Provider"
+                  )}
+                </h3>
+
+                <p>
+                  ${escapeHtml(
+                    verification.email || ""
+                  )}
+                </p>
+              </div>
+
+              <div class="admin-list-card__details">
+
+                <span>
+                  <strong>Qualification:</strong>
+                  ${escapeHtml(
+                    verification.qualification_title ||
+                    "Not provided"
+                  )}
+                </span>
+
+                <span>
+                  <strong>Institution:</strong>
+                  ${escapeHtml(
+                    verification.institution_name ||
+                    "Not provided"
+                  )}
+                </span>
+
+                <span>
+                  <strong>Year:</strong>
+                  ${escapeHtml(
+                    String(
+                      verification.qualification_year ||
+                      "Not provided"
+                    )
+                  )}
+                </span>
+
+              </div>
+
+            </div>
+
+            <div class="admin-list-card__actions">
+
+              <button
+                type="button"
+                class="secondary-button"
+                onclick="reviewProviderVerification(
+                  '${verification.provider_id}'
+                )"
+              >
+                Review
+              </button>
+
+            </div>
+
+          </article>
+        `
+      )
+      .join("");
 }
 
 async function loadProviderPayouts() {
@@ -1426,6 +1588,18 @@ function showAdminSection(
   );
 }
 
+async function reviewProviderVerification(
+  providerId
+) {
+  console.log(
+    "Review provider verification:",
+    providerId
+  );
+}
+
+window.reviewProviderVerification =
+  reviewProviderVerification;
+
 
 adminNavLinks.forEach(
   (link) => {
@@ -1455,6 +1629,13 @@ adminNavLinks.forEach(
         ) {
           loadProviders();
         }
+
+        if (
+  sectionName ===
+  "provider-verifications"
+) {
+  loadProviderVerifications();
+}
 
         if (
   sectionName ===
@@ -2750,6 +2931,13 @@ if (
   "providers"
 ) {
   loadProviders();
+}
+
+if (
+  savedAdminSection ===
+  "provider-verifications"
+) {
+  loadProviderVerifications();
 }
 
 if (

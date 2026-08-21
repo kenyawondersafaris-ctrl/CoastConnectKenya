@@ -953,6 +953,412 @@ async function getProviderPayoutHistory(
   }
 }
 
+/*
+|--------------------------------------------------------------------------
+| Provider Professional Verification
+|--------------------------------------------------------------------------
+*/
+
+async function getPendingProviderVerifications(
+  req,
+  res
+) {
+  try {
+
+    const result =
+      await pool.query(
+        `
+          SELECT
+            pv.id AS verification_id,
+            pv.provider_id,
+            pv.status,
+            pv.submitted_at,
+
+            pp.user_id,
+
+            u.full_name,
+            u.email,
+            u.phone,
+
+            pv.qualification_title,
+            pv.institution_name,
+            pv.qualification_year
+
+          FROM provider_verifications pv
+
+          INNER JOIN provider_profiles pp
+            ON pp.id = pv.provider_id
+
+          INNER JOIN users u
+            ON u.id = pp.user_id
+
+          WHERE pv.status = 'SUBMITTED'
+
+          ORDER BY
+            pv.submitted_at ASC
+        `
+      );
+
+    return res.json({
+      success: true,
+      verifications:
+        result.rows,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "Get pending provider verifications error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load provider verification requests.",
+    });
+  }
+}
+
+
+async function getProviderVerificationDetails(
+  req,
+  res
+) {
+  try {
+
+    const providerId =
+      String(
+        req.params.providerId || ""
+      ).trim();
+
+    const verificationResult =
+      await pool.query(
+        `
+          SELECT
+            pv.id,
+            pv.provider_id,
+            pv.qualification_title,
+            pv.institution_name,
+            pv.qualification_year,
+            pv.professional_experience,
+            pv.status,
+            pv.rejection_reason,
+            pv.submitted_at,
+            pv.reviewed_at,
+
+            pp.user_id,
+            pp.service_area,
+            pp.experience_years,
+            pp.profile_photo,
+
+            u.full_name,
+            u.email,
+            u.phone
+
+          FROM provider_verifications pv
+
+          INNER JOIN provider_profiles pp
+            ON pp.id = pv.provider_id
+
+          INNER JOIN users u
+            ON u.id = pp.user_id
+
+          WHERE pv.provider_id =
+            $1::uuid
+
+          LIMIT 1
+        `,
+        [
+          providerId,
+        ]
+      );
+
+    if (
+      verificationResult.rows.length ===
+      0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Provider verification not found.",
+      });
+    }
+
+    const documentsResult =
+      await pool.query(
+        `
+          SELECT
+            id,
+            verification_id,
+            file_name,
+            file_url,
+            created_at
+
+          FROM provider_verification_documents
+
+          WHERE verification_id =
+            $1::uuid
+
+          ORDER BY
+            created_at DESC
+        `,
+        [
+          verificationResult.rows[0].id,
+        ]
+      );
+
+    return res.json({
+      success: true,
+
+      verification:
+        verificationResult.rows[0],
+
+      documents:
+        documentsResult.rows,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "Get provider verification details error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load provider verification details.",
+    });
+  }
+}
+
+
+async function approveProviderVerification(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+
+    const providerId =
+      String(
+        req.params.providerId || ""
+      ).trim();
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const result =
+      await client.query(
+        `
+          UPDATE provider_verifications
+
+          SET
+            status = 'APPROVED',
+            rejection_reason = NULL,
+            reviewed_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+
+          WHERE provider_id =
+            $1::uuid
+
+            AND status = 'SUBMITTED'
+
+          RETURNING
+            id,
+            provider_id,
+            status
+        `,
+        [
+          providerId,
+        ]
+      );
+
+    if (
+      result.rows.length === 0
+    ) {
+
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Submitted provider verification not found.",
+      });
+    }
+
+    await client.query(
+      "COMMIT"
+    );
+
+    return res.json({
+      success: true,
+      message:
+        "Provider professional verification approved.",
+
+      verification:
+        result.rows[0],
+    });
+
+  } catch (error) {
+
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (rollbackError) {
+      // Ignore rollback failure.
+    }
+
+    console.error(
+      "Approve provider verification error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to approve provider verification.",
+    });
+
+  } finally {
+    client.release();
+  }
+}
+
+
+async function rejectProviderVerification(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+
+    const providerId =
+      String(
+        req.params.providerId || ""
+      ).trim();
+
+    const rejectionReason =
+      String(
+        req.body?.rejectionReason || ""
+      ).trim();
+
+    if (!rejectionReason) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "A rejection reason is required.",
+      });
+    }
+
+    if (
+      rejectionReason.length > 2000
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Rejection reason is too long.",
+      });
+    }
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const result =
+      await client.query(
+        `
+          UPDATE provider_verifications
+
+          SET
+            status = 'REJECTED',
+            rejection_reason =
+              $2::text,
+            reviewed_at =
+              CURRENT_TIMESTAMP,
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE provider_id =
+            $1::uuid
+
+            AND status = 'SUBMITTED'
+
+          RETURNING
+            id,
+            provider_id,
+            status,
+            rejection_reason
+        `,
+        [
+          providerId,
+          rejectionReason,
+        ]
+      );
+
+    if (
+      result.rows.length === 0
+    ) {
+
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Submitted provider verification not found.",
+      });
+    }
+
+    await client.query(
+      "COMMIT"
+    );
+
+    return res.json({
+      success: true,
+      message:
+        "Provider professional verification rejected.",
+
+      verification:
+        result.rows[0],
+    });
+
+  } catch (error) {
+
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (rollbackError) {
+      // Ignore rollback failure.
+    }
+
+    console.error(
+      "Reject provider verification error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to reject provider verification.",
+    });
+
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   getAdminOverview,
   getPendingProviders,
@@ -966,4 +1372,9 @@ module.exports = {
   getProviderPayouts,
   markProviderPayoutPaid,
   getProviderPayoutHistory,
+
+  getPendingProviderVerifications,
+  getProviderVerificationDetails,
+  approveProviderVerification,
+  rejectProviderVerification,
 };

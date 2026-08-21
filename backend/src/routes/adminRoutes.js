@@ -33,11 +33,15 @@ const {
   rejectRestaurant,
   getUsers,
   updateUserAccountStatus,
-    getProviderPayouts,
+  getProviderPayouts,
   markProviderPayoutPaid,
-  getProviderPayoutHistory
-} =
-  require("../controllers/adminController");
+  getProviderPayoutHistory,
+  getPendingProviderVerifications,
+  getProviderVerificationDetails,
+  approveProviderVerification,
+  rejectProviderVerification
+
+} = require("../controllers/adminController");
 
 const router =
   express.Router();
@@ -90,6 +94,40 @@ router.patch(
   authenticate,
   requireRole("ADMIN"),
   rejectRestaurant
+);
+
+/*
+|--------------------------------------------------------------------------
+| Provider Professional Verification
+|--------------------------------------------------------------------------
+*/
+
+router.get(
+  "/provider-verifications",
+  authenticate,
+  requireRole("ADMIN"),
+  getPendingProviderVerifications
+);
+
+router.get(
+  "/provider-verifications/:providerId",
+  authenticate,
+  requireRole("ADMIN"),
+  getProviderVerificationDetails
+);
+
+router.patch(
+  "/provider-verifications/:providerId/approve",
+  authenticate,
+  requireRole("ADMIN"),
+  approveProviderVerification
+);
+
+router.patch(
+  "/provider-verifications/:providerId/reject",
+  authenticate,
+  requireRole("ADMIN"),
+  rejectProviderVerification
 );
 
 router.get(
