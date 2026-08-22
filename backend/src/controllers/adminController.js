@@ -1092,7 +1092,7 @@ async function getProviderVerificationDetails(
             id,
             verification_id,
             document_name,
-            file_url,
+            document_url,
             created_at
 
           FROM provider_verification_documents
