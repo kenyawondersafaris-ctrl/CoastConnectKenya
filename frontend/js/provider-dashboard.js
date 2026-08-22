@@ -3083,64 +3083,85 @@ async function saveProfessionalVerification(
 
   event.preventDefault();
 
-  console.log(
-    "VERIFICATION INPUT DEBUG:",
-    {
-      qualificationTitleElement:
-        qualificationTitle,
-
-      qualificationTitleValue:
-        qualificationTitle?.value,
-
-      institutionNameElement:
-        institutionName,
-
-      institutionNameValue:
-        institutionName?.value,
-
-      qualificationYearElement:
-        qualificationYear,
-
-      qualificationYearValue:
-        qualificationYear?.value,
-
-      professionalExperienceElement:
-        professionalExperience,
-
-      professionalExperienceValue:
-        professionalExperience?.value,
-
-      providerNotesElement:
-        providerNotes,
-
-      providerNotesValue:
-        providerNotes?.value,
-    }
-  );
-
   setMessage(
     professionalVerificationMessage
   );
 
+  const qualificationTitleValue =
+    qualificationTitle?.value.trim() || "";
+
+  const institutionNameValue =
+    institutionName?.value.trim() || "";
+
+  const qualificationYearValue =
+    qualificationYear?.value
+      ? Number(qualificationYear.value)
+      : null;
+
+  const professionalExperienceValue =
+    professionalExperience?.value.trim() || "";
+
+  const providerNotesValue =
+    providerNotes?.value.trim() || "";
+
+  const missingFields = [];
+
+  if (!qualificationTitleValue) {
+    missingFields.push(
+      "Professional Qualification"
+    );
+  }
+
+  if (!institutionNameValue) {
+    missingFields.push(
+      "Institution Name"
+    );
+  }
+
+  if (!qualificationYearValue) {
+    missingFields.push(
+      "Year Completed"
+    );
+  }
+
+  if (!professionalExperienceValue) {
+    missingFields.push(
+      "Professional Experience"
+    );
+  }
+
+  if (!providerNotesValue) {
+    missingFields.push(
+      "Provider Notes"
+    );
+  }
+
+  if (missingFields.length > 0) {
+
+    setMessage(
+      professionalVerificationMessage,
+      `Please complete: ${missingFields.join(", ")}.`,
+      "error"
+    );
+
+    return;
+  }
+
   const payload = {
     qualificationTitle:
-      qualificationTitle?.value.trim() || "",
+      qualificationTitleValue,
 
     institutionName:
-      institutionName?.value.trim() || "",
+      institutionNameValue,
 
     qualificationYear:
-      qualificationYear?.value
-        ? Number(
-            qualificationYear.value
-          )
-        : null,
+      qualificationYearValue,
 
     professionalExperience:
-      professionalExperience?.value.trim() || "",
+      professionalExperienceValue,
 
     providerNotes:
-      providerNotes?.value.trim() || "",
+      providerNotesValue,
   };
 
   try {
@@ -3195,10 +3216,10 @@ async function saveProfessionalVerification(
       "success"
     );
 
-   await Promise.all([
-  loadProfessionalVerification(),
-  loadProviderProfile(),
-]);
+    await Promise.all([
+      loadProfessionalVerification(),
+      loadProviderProfile(),
+    ]);
 
   } catch (error) {
 
