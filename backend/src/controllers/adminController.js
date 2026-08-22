@@ -1158,32 +1158,33 @@ async function approveProviderVerification(
     );
 
     const result =
-  await client.query(
-    `
-      UPDATE provider_verifications
+      await client.query(
+        `
+          UPDATE provider_verifications
 
-      SET
-        status = 'APPROVED',
-        admin_notes = NULL,
-        reviewed_by = $2::uuid,
-        reviewed_at = CURRENT_TIMESTAMP,
-        updated_at = CURRENT_TIMESTAMP
+          SET
+            status = 'APPROVED',
+            admin_notes = NULL,
+            reviewed_by = $2::uuid,
+            reviewed_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
 
-      WHERE provider_id =
-        $1::uuid
+          WHERE provider_id =
+            $1::uuid
 
-        AND status = 'SUBMITTED'
+            AND status = 'SUBMITTED'
 
-      RETURNING
-        id,
-        provider_id,
-        status
-    `,
-    [
-      providerId,
-      req.user.id,
-    ]
-  );
+          RETURNING
+            id,
+            provider_id,
+            status
+        `,
+        [
+          providerId,
+          req.user.id,
+        ]
+      );
+
     if (
       result.rows.length === 0
     ) {
@@ -1198,6 +1199,21 @@ async function approveProviderVerification(
           "Submitted provider verification not found.",
       });
     }
+
+    await client.query(
+      `
+        UPDATE provider_profiles
+
+        SET
+          verification_status = 'APPROVED',
+          updated_at = CURRENT_TIMESTAMP
+
+        WHERE id = $1::uuid
+      `,
+      [
+        providerId,
+      ]
+    );
 
     await client.query(
       "COMMIT"
@@ -1281,34 +1297,35 @@ async function rejectProviderVerification(
     );
 
     const result =
-  await client.query(
-    `
-      UPDATE provider_verifications
+      await client.query(
+        `
+          UPDATE provider_verifications
 
-      SET
-        status = 'REJECTED',
-        admin_notes = $2::text,
-        reviewed_by = $3::uuid,
-        reviewed_at = CURRENT_TIMESTAMP,
-        updated_at = CURRENT_TIMESTAMP
+          SET
+            status = 'REJECTED',
+            admin_notes = $2::text,
+            reviewed_by = $3::uuid,
+            reviewed_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
 
-      WHERE provider_id =
-        $1::uuid
+          WHERE provider_id =
+            $1::uuid
 
-        AND status = 'SUBMITTED'
+            AND status = 'SUBMITTED'
 
-      RETURNING
-        id,
-        provider_id,
-        status,
-        admin_notes
-    `,
-    [
-      providerId,
-      rejectionReason,
-      req.user.id,
-    ]
-  );
+          RETURNING
+            id,
+            provider_id,
+            status,
+            admin_notes
+        `,
+        [
+          providerId,
+          rejectionReason,
+          req.user.id,
+        ]
+      );
+
     if (
       result.rows.length === 0
     ) {
@@ -1323,6 +1340,21 @@ async function rejectProviderVerification(
           "Submitted provider verification not found.",
       });
     }
+
+    await client.query(
+      `
+        UPDATE provider_profiles
+
+        SET
+          verification_status = 'REJECTED',
+          updated_at = CURRENT_TIMESTAMP
+
+        WHERE id = $1::uuid
+      `,
+      [
+        providerId,
+      ]
+    );
 
     await client.query(
       "COMMIT"

@@ -157,6 +157,9 @@ async function saveMyVerification(
   response,
   next
 ) {
+  const client =
+    await pool.connect();
+
   try {
 
     console.log(
@@ -198,8 +201,55 @@ async function saveMyVerification(
     const providerNotesValue =
       providerNotes?.trim() || null;
 
+    await client.query(
+      "BEGIN"
+    );
+
+    const existingVerificationResult =
+      await client.query(
+        `
+          SELECT
+            id,
+            status
+          FROM provider_verifications
+          WHERE provider_id = $1
+          FOR UPDATE
+        `,
+        [
+          provider.id,
+        ]
+      );
+
+    const existingVerification =
+      existingVerificationResult.rows[0];
+
+    if (
+      existingVerification?.status ===
+      "SUBMITTED"
+    ) {
+
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return response.status(409).json({
+        success: false,
+        message:
+          "Your verification application is currently under review and cannot be changed.",
+      });
+    }
+
+    const requiresNewReview =
+      existingVerification &&
+      [
+        "REJECTED",
+        "APPROVED",
+      ].includes(
+        existingVerification.status
+      );
+
     const verificationResult =
-      await pool.query(
+      await client.query(
         `
           INSERT INTO provider_verifications (
             provider_id,
@@ -207,6 +257,10 @@ async function saveMyVerification(
             portfolio_description,
             provider_notes,
             status,
+            reviewed_by,
+            reviewed_at,
+            admin_notes,
+            submitted_at,
             updated_at
           )
           VALUES (
@@ -215,8 +269,13 @@ async function saveMyVerification(
             $3,
             $4,
             'DRAFT',
+            NULL,
+            NULL,
+            NULL,
+            NULL,
             CURRENT_TIMESTAMP
           )
+
           ON CONFLICT (provider_id)
           DO UPDATE SET
             qualification_summary =
@@ -230,14 +289,50 @@ async function saveMyVerification(
 
             status =
               CASE
-                WHEN provider_verifications.status = 'SUBMITTED'
+                WHEN provider_verifications.status IN (
+                  'REJECTED',
+                  'APPROVED'
+                )
                   THEN 'DRAFT'
                 ELSE provider_verifications.status
               END,
 
+            reviewed_by =
+              CASE
+                WHEN provider_verifications.status IN (
+                  'REJECTED',
+                  'APPROVED'
+                )
+                  THEN NULL
+                ELSE provider_verifications.reviewed_by
+              END,
+
+            reviewed_at =
+              CASE
+                WHEN provider_verifications.status IN (
+                  'REJECTED',
+                  'APPROVED'
+                )
+                  THEN NULL
+                ELSE provider_verifications.reviewed_at
+              END,
+
+            admin_notes =
+              CASE
+                WHEN provider_verifications.status IN (
+                  'REJECTED',
+                  'APPROVED'
+                )
+                  THEN NULL
+                ELSE provider_verifications.admin_notes
+              END,
+
             submitted_at =
               CASE
-                WHEN provider_verifications.status = 'SUBMITTED'
+                WHEN provider_verifications.status IN (
+                  'REJECTED',
+                  'APPROVED'
+                )
                   THEN NULL
                 ELSE provider_verifications.submitted_at
               END,
@@ -266,21 +361,58 @@ async function saveMyVerification(
         ]
       );
 
+    if (requiresNewReview) {
+
+      await client.query(
+        `
+          UPDATE provider_profiles
+
+          SET
+            verification_status = 'PENDING',
+            updated_at = CURRENT_TIMESTAMP
+
+          WHERE id = $1
+        `,
+        [
+          provider.id,
+        ]
+      );
+    }
+
+    await client.query(
+      "COMMIT"
+    );
+
     return response.json({
       success: true,
 
       message:
-        "Verification information saved successfully.",
+        requiresNewReview
+          ? "Verification information updated. Your changes require a new review before approval."
+          : "Verification information saved successfully.",
 
       verification:
         verificationResult.rows[0],
     });
 
   } catch (error) {
+
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (rollbackError) {
+      // Ignore rollback failure.
+    }
+
     next(error);
+
+  } finally {
+
+    client.release();
+
   }
 }
-
 /*
 |--------------------------------------------------------------------------
 | Upload Verification Document
@@ -540,26 +672,30 @@ async function submitMyVerification(
   next
 ) {
   try {
+
     const providerProfile =
-await getOrCreateProviderProfile(
-  request.user.userId
-);
+      await getOrCreateProviderProfile(
+        request.user.userId
+      );
 
-const existingVerificationResult =
-  await pool.query(
-    `
-      SELECT id
-      FROM provider_verifications
-      WHERE provider_id = $1
-    `,
-    [providerProfile.id]
-  );
+    const existingVerificationResult =
+      await pool.query(
+        `
+          SELECT
+            id,
+            status
+          FROM provider_verifications
+          WHERE provider_id = $1
+        `,
+        [
+          providerProfile.id,
+        ]
+      );
 
-const verificationId =
-  existingVerificationResult.rows[0]?.id ||
-  null;
+    const verification =
+      existingVerificationResult.rows[0];
 
-   if (!verificationId) {
+    if (!verification) {
       return response.status(400).json({
         success: false,
         message:
@@ -567,15 +703,32 @@ const verificationId =
       });
     }
 
+    if (
+      verification.status !== "DRAFT"
+    ) {
+      return response.status(409).json({
+        success: false,
+        message:
+          verification.status === "SUBMITTED"
+            ? "Your verification application is already under review."
+            : verification.status === "APPROVED"
+              ? "Your professional verification has already been approved."
+              : "Please update your verification information before submitting again.",
+      });
+    }
+
     const documentsResult =
       await pool.query(
         `
-          SELECT COUNT(*)::INTEGER AS count
+          SELECT
+            COUNT(*)::INTEGER AS count
           FROM
             provider_verification_documents
           WHERE verification_id = $1
         `,
-        [verificationId]
+        [
+          verification.id,
+        ]
       );
 
     const documentCount =
@@ -602,14 +755,28 @@ const verificationId =
             updated_at =
               CURRENT_TIMESTAMP
           WHERE id = $1
+            AND status = 'DRAFT'
+
           RETURNING
             id,
             status,
             submitted_at,
             updated_at
         `,
-       [verificationId]
+        [
+          verification.id,
+        ]
       );
+
+    if (
+      verificationResult.rows.length === 0
+    ) {
+      return response.status(409).json({
+        success: false,
+        message:
+          "Your verification status changed. Please refresh and try again.",
+      });
+    }
 
     return response.json({
       success: true,
@@ -620,6 +787,7 @@ const verificationId =
       verification:
         verificationResult.rows[0],
     });
+
   } catch (error) {
     next(error);
   }
