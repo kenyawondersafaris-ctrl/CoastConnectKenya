@@ -2023,263 +2023,229 @@ button {
 }
 
 /* =========================================================
-   PROFESSIONAL VERIFICATIONS
+   PREMIUM PROFESSIONAL VERIFICATIONS
 ========================================================= */
 
 #adminProviderVerificationsContainer {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 #adminProviderVerificationsContainer .admin-list-card {
   display: grid;
-  grid-template-columns: minmax(220px, 0.9fr)
-                         minmax(0, 2.4fr)
-                         auto;
-  align-items: center;
-  gap: 32px;
+  grid-template-columns:
+    minmax(220px, 0.85fr)
+    minmax(520px, 2fr)
+    auto;
 
-  padding: 24px 28px;
+  align-items: center;
+  gap: 36px;
+
+  padding: 28px 32px;
 
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: 18px;
 
   box-shadow:
-    0 4px 16px
-    rgba(15, 23, 42, 0.04);
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 10px 30px rgba(15, 23, 42, 0.06);
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
 }
 
-.admin-list-card__content {
-  display: contents;
+#adminProviderVerificationsContainer .admin-list-card:hover {
+  transform: translateY(-2px);
+
+  border-color: #cbd5e1;
+
+  box-shadow:
+    0 4px 10px rgba(15, 23, 42, 0.04),
+    0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
-.admin-list-card__content > div:first-child {
+
+/* =========================================================
+   PROVIDER IDENTITY
+========================================================= */
+
+.admin-list-card__identity {
   min-width: 0;
 }
 
-.admin-list-card__content h3 {
+.admin-list-card__identity-label {
+  display: block;
+
+  margin-bottom: 10px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  color: #94a3b8;
+}
+
+.admin-list-card__identity h3 {
   margin: 0 0 8px;
 
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 750;
+  line-height: 1.3;
 
   color: #1e293b;
 }
 
-.admin-list-card__content p {
+.admin-list-card__identity p {
   margin: 0;
 
   font-size: 14px;
   line-height: 1.5;
 
   color: #64748b;
+
   overflow-wrap: anywhere;
 }
 
 
-/* Professional verification details */
+/* =========================================================
+   VERIFICATION DETAILS
+========================================================= */
 
 .admin-list-card__details {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px 28px;
+
   min-width: 0;
 }
 
-.admin-list-card__details span {
+.verification-detail {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 
-  min-height: 92px;
-  padding: 16px 18px 16px 20px;
+  min-width: 0;
 
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-left: 4px solid #0f766e;
-  border-radius: 12px;
-
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.5;
-
-  color: #334155;
-  overflow-wrap: anywhere;
+  padding: 4px 0 4px 18px;
 }
 
-.admin-list-card__details span:nth-child(2) {
-  border-left-color: #2563eb;
+.verification-detail::before {
+  content: "";
+
+  position: absolute;
+
+  top: 9px;
+  left: 0;
+
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #0f766e;
+
+  box-shadow:
+    0 0 0 4px rgba(15, 118, 110, 0.10);
 }
 
-.admin-list-card__details span:nth-child(3) {
-  border-left-color: #7c3aed;
+.verification-detail:nth-child(2)::before {
+  background: #2563eb;
+
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.10);
 }
 
-.admin-list-card__details span:nth-child(4) {
-  border-left-color: #ea580c;
+.verification-detail:nth-child(3)::before {
+  background: #7c3aed;
+
+  box-shadow:
+    0 0 0 4px rgba(124, 58, 237, 0.10);
 }
 
-.admin-list-card__details strong {
+.verification-detail:nth-child(4)::before {
+  background: #ea580c;
+
+  box-shadow:
+    0 0 0 4px rgba(234, 88, 12, 0.10);
+}
+
+.verification-detail strong {
   display: block;
 
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 
   font-size: 11px;
   font-weight: 800;
 
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
 
-  color: #64748b;
+  color: #94a3b8;
+}
+
+.verification-detail span {
+  display: block;
+
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  color: #334155;
+
+  overflow-wrap: anywhere;
 }
 
 
-/* Review button */
+/* =========================================================
+   REVIEW ACTION
+========================================================= */
 
 .admin-list-card__actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
 
-  flex-shrink: 0;
+  padding-left: 8px;
 }
 
 .admin-list-card__actions .secondary-button {
-  min-width: 120px;
+  min-width: 128px;
 
-  padding: 11px 20px;
-
-  border-radius: 9px;
-}
-
-
-/* Empty state */
-
-.admin-list-card__empty {
-  padding: 32px;
-
-  text-align: center;
-
-  color: #64748b;
-}
-
-
-/* =========================================================
-   PROVIDER VERIFICATION REVIEW
-========================================================= */
-
-.provider-verification-review {
-  display: flex;
-  flex-direction: column;
-
-  gap: 20px;
-}
-
-.provider-verification-review__header {
-  padding-bottom: 20px;
-
-  border-bottom:
-    1px solid #e2e8f0;
-}
-
-.provider-verification-review__header h2 {
-  margin: 0 0 8px;
-
-  font-size: 22px;
-  font-weight: 700;
-
-  color: #1e293b;
-}
-
-.provider-verification-review__header p {
-  margin: 5px 0;
-
-  color: #64748b;
-
-  overflow-wrap: anywhere;
-}
-
-.provider-verification-review__section {
-  padding: 20px;
-
-  background: #f8fafc;
-
-  border:
-    1px solid #e2e8f0;
-
-  border-radius: 12px;
-}
-
-.provider-verification-review__section h3 {
-  margin: 0 0 10px;
-
-  font-size: 12px;
-  font-weight: 700;
-
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-
-  color: #64748b;
-}
-
-.provider-verification-review__section p {
-  margin: 0;
-
-  line-height: 1.6;
-
-  color: #334155;
-
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-
-/* Documents */
-
-.provider-verification-documents {
-  display: flex;
-  flex-direction: column;
-
-  gap: 10px;
-}
-
-.provider-verification-document {
-  display: inline-flex;
-  align-items: center;
-
-  width: fit-content;
-  max-width: 100%;
-
-  padding: 10px 14px;
-
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-
-  background: #eff6ff;
-
-  color: #2563eb;
+  padding: 12px 22px;
 
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
 
-  text-decoration: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
 
-  overflow-wrap: anywhere;
+  background: #ffffff;
+
+  color: #1e293b;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04);
+
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
 }
 
+.admin-list-card__actions .secondary-button:hover {
+  background: #0f766e;
+  border-color: #0f766e;
 
-/* Review actions */
+  color: #ffffff;
 
-.provider-verification-review__actions {
-  display: flex;
-  justify-content: flex-end;
-
-  gap: 12px;
-
-  padding-top: 8px;
+  transform: translateY(-1px);
 }
 
 
@@ -2287,56 +2253,42 @@ button {
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
 
-  .admin-list-card__details {
+  #adminProviderVerificationsContainer .admin-list-card {
     grid-template-columns:
-      repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 1000px) {
-
-  #adminProviderVerificationsContainer
-  .admin-list-card {
-    grid-template-columns:
-      1fr;
-
-    gap: 20px;
-  }
-
-  .admin-list-card__details {
-    gap: 20px;
+      minmax(190px, 0.8fr)
+      minmax(0, 1.8fr);
   }
 
   .admin-list-card__actions {
+    grid-column: 1 / -1;
+
     justify-content: flex-start;
+
+    padding-left: 0;
+    padding-top: 6px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
 
-  #adminProviderVerificationsContainer
-  .admin-list-card {
-    padding: 20px;
+  #adminProviderVerificationsContainer .admin-list-card {
+    grid-template-columns: 1fr;
+
+    gap: 24px;
+
+    padding: 24px;
   }
 
   .admin-list-card__details {
-    grid-template-columns:
-      1fr;
+    grid-template-columns: 1fr;
+
+    gap: 18px;
   }
 
   .admin-list-card__actions,
-  .admin-list-card__actions
-  .secondary-button {
-    width: 100%;
-  }
-
-  .provider-verification-review__actions {
-    flex-direction: column;
-  }
-
-  .provider-verification-review__actions button {
+  .admin-list-card__actions .secondary-button {
     width: 100%;
   }
 }

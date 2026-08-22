@@ -705,53 +705,61 @@ function renderProviderVerifications(
 
               <div class="admin-list-card__content">
 
-                <div>
-                  <h3>
-                    ${escapeHtml(
-                      verification.full_name ||
-                      "Provider"
-                    )}
-                  </h3>
+                <div class="admin-list-card__identity">
 
-                  <p>
-                    ${escapeHtml(
-                      verification.email || ""
-                    )}
-                  </p>
-                </div>
+  <span class="admin-list-card__identity-label">
+    Provider
+  </span>
 
-                <div class="admin-list-card__details">
+  <h3>
+    ${escapeHtml(
+      verification.full_name ||
+      "Provider"
+    )}
+  </h3>
 
-                  <span>
-                    <strong>Qualification</strong>
-                    ${escapeHtml(
-                      qualificationTitle
-                    )}
-                  </span>
+  <p>
+    ${escapeHtml(
+      verification.email || ""
+    )}
+  </p>
 
-                  <span>
-                    <strong>Institution</strong>
-                    ${escapeHtml(
-                      institution
-                    )}
-                  </span>
+</div>
 
-                  <span>
-                    <strong>Completed</strong>
-                    ${escapeHtml(
-                      year
-                    )}
-                  </span>
+               <div class="admin-list-card__details">
 
-                  <span>
-                    <strong>Experience</strong>
-                    ${escapeHtml(
-                      verification.portfolio_description ||
-                      "Not provided"
-                    )}
-                  </span>
+  <div class="verification-detail">
+    <strong>Qualification</strong>
+    <span>
+      ${escapeHtml(qualificationTitle)}
+    </span>
+  </div>
 
-                </div>
+  <div class="verification-detail">
+    <strong>Institution</strong>
+    <span>
+      ${escapeHtml(institution)}
+    </span>
+  </div>
+
+  <div class="verification-detail">
+    <strong>Completed</strong>
+    <span>
+      ${escapeHtml(year)}
+    </span>
+  </div>
+
+  <div class="verification-detail">
+    <strong>Experience</strong>
+    <span>
+      ${escapeHtml(
+        verification.portfolio_description ||
+        "Not provided"
+      )}
+    </span>
+  </div>
+
+</div>
 
               </div>
 
