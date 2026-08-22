@@ -1402,12 +1402,30 @@ function populateProviderProfile(
       provider.bio || "";
   }
 
-  if (
-    providerProfilePhoto
-  ) {
-    providerProfilePhoto.value =
-      provider.profilePhoto || "";
+if (
+  providerProfilePhotoPreviewImage &&
+  providerProfilePhotoPreview
+) {
+
+  if (provider.profilePhoto) {
+
+    providerProfilePhotoPreviewImage.src =
+      provider.profilePhoto;
+
+    providerProfilePhotoPreview.hidden =
+      false;
+
+  } else {
+
+    providerProfilePhotoPreviewImage.src =
+      "";
+
+    providerProfilePhotoPreview.hidden =
+      true;
+
   }
+
+}
 }
 
 providerProfileForm?.addEventListener(
