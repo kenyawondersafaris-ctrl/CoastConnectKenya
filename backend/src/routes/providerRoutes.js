@@ -33,9 +33,9 @@ const uploadVerificationDocument =
     "../middleware/uploadVerificationDocument"
   );
 
-  const uploadImage =
+const uploadImage =
   require(
-    "../middleware/uploadImage"
+    "../middleware/uploadMiddleware"
   );
 
 const {
