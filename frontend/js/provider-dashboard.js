@@ -2843,27 +2843,59 @@ function populateProfessionalVerification(
   const verification =
     data.verification || {};
 
-  if (qualificationSummary) {
-    qualificationSummary.value =
+  const qualificationParts =
+    (
       verification.qualification_summary ||
-      "";
+      ""
+    ).split(" | ");
+
+  const qualificationTitleValue =
+    qualificationParts[0] || "";
+
+  const institutionPart =
+    qualificationParts.find(
+      (part) =>
+        part.startsWith(
+          "Institution: "
+        )
+    );
+
+  const yearPart =
+    qualificationParts.find(
+      (part) =>
+        part.startsWith(
+          "Year completed: "
+        )
+    );
+
+  if (qualificationTitle) {
+    qualificationTitle.value =
+      qualificationTitleValue;
   }
 
-  if (portfolioDescription) {
-    portfolioDescription.value =
+  if (institutionName) {
+    institutionName.value =
+      institutionPart
+        ? institutionPart.replace(
+            "Institution: ",
+            ""
+          )
+        : "";
+  }
+
+  if (qualificationYear) {
+    qualificationYear.value =
+      yearPart
+        ? yearPart.replace(
+            "Year completed: ",
+            ""
+          )
+        : "";
+  }
+
+  if (professionalExperience) {
+    professionalExperience.value =
       verification.portfolio_description ||
-      "";
-  }
-
-  if (portfolioUrl) {
-    portfolioUrl.value =
-      verification.portfolio_url ||
-      "";
-  }
-
-  if (providerNotes) {
-    providerNotes.value =
-      verification.provider_notes ||
       "";
   }
 
@@ -2903,7 +2935,10 @@ function renderVerificationDocuments(
     return;
   }
 
-  if (documents.length === 0) {
+  if (
+    !documents ||
+    documents.length === 0
+  ) {
 
     verificationDocumentsList.innerHTML =
       `
@@ -2918,51 +2953,65 @@ function renderVerificationDocuments(
   verificationDocumentsList.innerHTML =
     documents
       .map(
-        (document) => `
-          <div
-            class="verification-document-item"
-          >
+        (document) => {
 
-            <div>
-              <strong>
-                ${escapeHtml(
-                  document.fileName ||
-                  "Verification document"
-                )}
-              </strong>
-            </div>
+          const documentName =
+            document.document_name ||
+            document.documentName ||
+            "Verification document";
 
+          const documentUrl =
+            document.document_url ||
+            document.documentUrl ||
+            "";
+
+          return `
             <div
-              class="verification-document-actions"
+              class="verification-document-item"
             >
 
-              ${
-                document.fileUrl
-                  ? `
-                    <a
-                      href="${escapeHtml(
-                        document.fileUrl
-                      )}"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View
-                    </a>
-                  `
-                  : ""
-              }
+              <div>
 
-              <button
-                type="button"
-                onclick="deleteVerificationDocument('${document.id}')"
+                <strong>
+                  ${escapeHtml(
+                    documentName
+                  )}
+                </strong>
+
+              </div>
+
+              <div
+                class="verification-document-actions"
               >
-                Remove
-              </button>
+
+                ${
+                  documentUrl
+                    ? `
+                      <a
+                        href="${escapeHtml(
+                          documentUrl
+                        )}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View
+                      </a>
+                    `
+                    : ""
+                }
+
+                <button
+                  type="button"
+                  onclick="deleteVerificationDocument('${document.id}')"
+                >
+                  Remove
+                </button>
+
+              </div>
 
             </div>
-
-          </div>
-        `
+          `;
+        }
       )
       .join("");
 }
@@ -3315,14 +3364,12 @@ async function submitProfessionalVerification() {
       );
     }
 
-   await loadProfessionalVerification();
-
-setMessage(
-  professionalVerificationMessage,
-  data.message ||
-    "Verification submitted successfully and is now awaiting review.",
-  "success"
-);
+    setMessage(
+      professionalVerificationMessage,
+      data.message ||
+        "Verification submitted successfully and is now awaiting review.",
+      "success"
+    );
 
     await loadProfessionalVerification();
 
@@ -3341,7 +3388,6 @@ setMessage(
     );
   }
 }
-
 
 professionalVerificationForm?.addEventListener(
   "submit",

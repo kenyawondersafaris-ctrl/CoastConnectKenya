@@ -540,19 +540,11 @@ const existingVerificationResult =
     [providerProfile.id]
   );
 
-const provider = {
-  provider_id:
-    providerProfile.id,
+const verificationId =
+  existingVerificationResult.rows[0]?.id ||
+  null;
 
-  verification_status:
-    providerProfile.verification_status,
-
-  verification_id:
-    existingVerificationResult.rows[0]?.id ||
-    null,
-};
-
-    if (!provider.verification_id) {
+   if (!verificationId) {
       return response.status(400).json({
         success: false,
         message:
@@ -568,7 +560,7 @@ const provider = {
             provider_verification_documents
           WHERE verification_id = $1
         `,
-        [provider.verification_id]
+        [verificationId]
       );
 
     const documentCount =
@@ -601,7 +593,7 @@ const provider = {
             submitted_at,
             updated_at
         `,
-        [provider.verification_id]
+       [verificationId]
       );
 
     return response.json({
