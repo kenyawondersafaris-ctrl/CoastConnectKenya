@@ -1348,6 +1348,12 @@ button {
   white-space: pre-wrap;
 }
 
+.required-mark {
+  color: #dc2626;
+  margin-left: 3px;
+  font-weight: 700;
+}
+
 @media (max-width: 700px) {
   .provider-verification-panel .panel-heading {
     flex-direction: column;
