@@ -172,19 +172,19 @@ async function saveMyVerification(
 
     const qualificationSummary =
       [
-        qualificationTitle,
-        institutionName
-          ? `Institution: ${institutionName}`
+        qualificationTitle?.trim(),
+        institutionName?.trim()
+          ? `Institution: ${institutionName.trim()}`
           : null,
         qualificationYear
           ? `Year completed: ${qualificationYear}`
           : null,
       ]
         .filter(Boolean)
-        .join(" | ") || null;
+        .join(" | ");
 
     const portfolioDescription =
-      professionalExperience || null;
+      professionalExperience?.trim() || null;
 
     const verificationResult =
       await pool.query(
@@ -211,8 +211,23 @@ async function saveMyVerification(
             portfolio_description =
               EXCLUDED.portfolio_description,
 
+            status =
+              CASE
+                WHEN provider_verifications.status = 'SUBMITTED'
+                  THEN 'DRAFT'
+                ELSE provider_verifications.status
+              END,
+
+            submitted_at =
+              CASE
+                WHEN provider_verifications.status = 'SUBMITTED'
+                  THEN NULL
+                ELSE provider_verifications.submitted_at
+              END,
+
             updated_at =
               CURRENT_TIMESTAMP
+
           RETURNING
             id,
             status,
@@ -228,17 +243,15 @@ async function saveMyVerification(
         `,
         [
           provider.id,
-          qualificationSummary,
+          qualificationSummary || null,
           portfolioDescription,
         ]
       );
 
     return response.json({
       success: true,
-
       message:
         "Verification information saved successfully.",
-
       verification:
         verificationResult.rows[0],
     });
