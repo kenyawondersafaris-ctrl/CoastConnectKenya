@@ -159,16 +159,32 @@ async function saveMyVerification(
 ) {
   try {
     const {
-      qualificationSummary,
-      portfolioDescription,
-      portfolioUrl,
-      providerNotes,
+      qualificationTitle,
+      institutionName,
+      qualificationYear,
+      professionalExperience,
     } = request.body;
 
-   const provider =
-await getOrCreateProviderProfile(
-  request.user.userId
-);
+    const provider =
+      await getOrCreateProviderProfile(
+        request.user.userId
+      );
+
+    const qualificationSummary =
+      [
+        qualificationTitle,
+        institutionName
+          ? `Institution: ${institutionName}`
+          : null,
+        qualificationYear
+          ? `Year completed: ${qualificationYear}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" | ") || null;
+
+    const portfolioDescription =
+      professionalExperience || null;
 
     const verificationResult =
       await pool.query(
@@ -177,8 +193,6 @@ await getOrCreateProviderProfile(
             provider_id,
             qualification_summary,
             portfolio_description,
-            portfolio_url,
-            provider_notes,
             status,
             updated_at
           )
@@ -186,8 +200,6 @@ await getOrCreateProviderProfile(
             $1,
             $2,
             $3,
-            $4,
-            $5,
             'DRAFT',
             CURRENT_TIMESTAMP
           )
@@ -198,12 +210,6 @@ await getOrCreateProviderProfile(
 
             portfolio_description =
               EXCLUDED.portfolio_description,
-
-            portfolio_url =
-              EXCLUDED.portfolio_url,
-
-            provider_notes =
-              EXCLUDED.provider_notes,
 
             updated_at =
               CURRENT_TIMESTAMP
@@ -222,14 +228,8 @@ await getOrCreateProviderProfile(
         `,
         [
           provider.id,
-          qualificationSummary ||
-            null,
-          portfolioDescription ||
-            null,
-          portfolioUrl ||
-            null,
-          providerNotes ||
-            null,
+          qualificationSummary,
+          portfolioDescription,
         ]
       );
 
@@ -242,6 +242,7 @@ await getOrCreateProviderProfile(
       verification:
         verificationResult.rows[0],
     });
+
   } catch (error) {
     next(error);
   }
