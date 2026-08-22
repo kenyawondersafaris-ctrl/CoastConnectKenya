@@ -682,24 +682,24 @@ const professionalVerificationStatus =
     "professionalVerificationStatus"
   );
 
-const qualificationSummary =
+const qualificationTitle =
   document.getElementById(
-    "qualificationSummary"
+    "qualificationTitle"
   );
 
-const portfolioDescription =
+const institutionName =
   document.getElementById(
-    "portfolioDescription"
+    "institutionName"
   );
 
-const portfolioUrl =
+const qualificationYear =
   document.getElementById(
-    "portfolioUrl"
+    "qualificationYear"
   );
 
-const providerNotes =
+const professionalExperience =
   document.getElementById(
-    "providerNotes"
+    "professionalExperience"
   );
 
 const verificationDocumentType =
@@ -2979,18 +2979,22 @@ async function saveProfessionalVerification(
   );
 
   const payload = {
-  qualificationSummary:
-    qualificationSummary?.value.trim() || "",
+    qualificationTitle:
+      qualificationTitle?.value.trim() || "",
 
-  portfolioDescription:
-    portfolioDescription?.value.trim() || "",
+    institutionName:
+      institutionName?.value.trim() || "",
 
-  portfolioUrl:
-    portfolioUrl?.value.trim() || "",
+    qualificationYear:
+      qualificationYear?.value
+        ? Number(
+            qualificationYear.value
+          )
+        : null,
 
-  providerNotes:
-    providerNotes?.value.trim() || "",
-};
+    professionalExperience:
+      professionalExperience?.value.trim() || "",
+  };
 
   try {
 
