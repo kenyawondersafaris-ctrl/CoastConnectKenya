@@ -1526,8 +1526,9 @@ async function saveProviderProfile(
       providerBio?.value.trim() ||
       "",
 
-    profilePhoto:
-      "",
+   profilePhoto:
+  providerProfilePhotoPreviewImage?.src ||
+  "",
   };
 
   if (!payload.serviceArea) {
@@ -1575,9 +1576,13 @@ async function saveProviderProfile(
     | Upload Profile Photo To Cloudinary
     |--------------------------------------------------
     */
+const uploadedProfilePhoto =
+  await uploadProviderProfilePhoto();
 
-    payload.profilePhoto =
-      await uploadProviderProfilePhoto();
+if (uploadedProfilePhoto) {
+  payload.profilePhoto =
+    uploadedProfilePhoto;
+}
 
     /*
     |--------------------------------------------------
