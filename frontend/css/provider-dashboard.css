@@ -1354,6 +1354,38 @@ button {
   font-weight: 700;
 }
 
+.professional-verification-message {
+  display: none;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px solid transparent;
+  border-left-width: 4px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.professional-verification-message:not(:empty) {
+  display: flex;
+}
+
+.professional-verification-message.success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  border-left-color: #16a34a;
+  color: #166534;
+}
+
+.professional-verification-message.error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  border-left-color: #dc2626;
+  color: #991b1b;
+}
+
 @media (max-width: 700px) {
   .provider-verification-panel .panel-heading {
     flex-direction: column;
