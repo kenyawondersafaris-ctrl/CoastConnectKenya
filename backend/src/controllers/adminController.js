@@ -1091,7 +1091,7 @@ async function getProviderVerificationDetails(
           SELECT
             id,
             verification_id,
-            file_name,
+            document_name,
             file_url,
             created_at
 
