@@ -661,10 +661,59 @@ const providerProfilePhoto =
     "providerProfilePhoto"
   );
 
+const providerProfilePhotoUrl =
+  document.getElementById(
+    "providerProfilePhotoUrl"
+  );
+
+const providerProfilePhotoPreview =
+  document.getElementById(
+    "providerProfilePhotoPreview"
+  );
+
+const providerProfilePhotoPreviewImage =
+  document.getElementById(
+    "providerProfilePhotoPreviewImage"
+  );
+
 const providerLogoutButton =
   document.getElementById(
     "providerLogoutButton"
   );
+
+
+  if (providerProfilePhoto) {
+  providerProfilePhoto.addEventListener(
+    "change",
+    function () {
+
+      const file =
+        providerProfilePhoto.files?.[0];
+
+      if (!file) {
+
+        providerProfilePhotoPreview.hidden =
+          true;
+
+        providerProfilePhotoPreviewImage.src =
+          "";
+
+        return;
+      }
+
+      const previewUrl =
+        URL.createObjectURL(file);
+
+      providerProfilePhotoPreviewImage.src =
+        previewUrl;
+
+      providerProfilePhotoPreview.hidden =
+        false;
+    }
+  );
+}
+
+
 
   /*
 |--------------------------------------------------------------------------
@@ -1366,6 +1415,75 @@ providerProfileForm?.addEventListener(
   saveProviderProfile
 );
 
+async function uploadProviderProfilePhoto() {
+
+  const file =
+    providerProfilePhoto?.files?.[0];
+
+  if (!file) {
+    return (
+      providerProfilePhotoUrl?.value || ""
+    );
+  }
+
+  const formData =
+    new FormData();
+
+  formData.append(
+    "profilePhoto",
+    file
+  );
+
+  const response =
+    await fetch(
+      `${API_BASE_URL}/providers/me/profile-photo`,
+      {
+        method: "POST",
+
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+
+        body: formData,
+      }
+    );
+
+  if (
+    handleUnauthorized(response)
+  ) {
+    throw new Error(
+      "Your session has expired."
+    );
+  }
+
+  const data =
+    await readJsonResponse(
+      response
+    );
+
+  if (
+    !response.ok ||
+    !data.success
+  ) {
+    throw new Error(
+      data.message ||
+      "Unable to upload profile photo."
+    );
+  }
+
+  if (!data.profilePhoto) {
+    throw new Error(
+      "Profile photo upload did not return an image URL."
+    );
+  }
+
+  providerProfilePhotoUrl.value =
+    data.profilePhoto;
+
+  return data.profilePhoto;
+}
+
 async function saveProviderProfile(
   event
 ) {
@@ -1391,7 +1509,6 @@ async function saveProviderProfile(
       "",
 
     profilePhoto:
-      providerProfilePhoto?.value.trim() ||
       "",
   };
 
@@ -1434,6 +1551,22 @@ async function saveProviderProfile(
   }
 
   try {
+
+    /*
+    |--------------------------------------------------
+    | Upload Profile Photo To Cloudinary
+    |--------------------------------------------------
+    */
+
+    payload.profilePhoto =
+      await uploadProviderProfilePhoto();
+
+    /*
+    |--------------------------------------------------
+    | Save Provider Profile
+    |--------------------------------------------------
+    */
+
     const response =
       await fetch(
         `${API_BASE_URL}/providers/me`,
@@ -1491,7 +1624,9 @@ async function saveProviderProfile(
         "Provider profile saved successfully.",
       "success"
     );
+
   } catch (error) {
+
     console.error(
       "Save provider profile error:",
       error
@@ -1503,7 +1638,9 @@ async function saveProviderProfile(
         "Unable to save provider profile.",
       "error"
     );
+
   } finally {
+
     if (
       saveProviderProfileButton
     ) {

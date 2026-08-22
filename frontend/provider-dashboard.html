@@ -228,17 +228,47 @@
           ></textarea>
         </div>
 
-        <div class="form-group form-group-full">
-          <label for="providerProfilePhoto">
-            Profile photo URL
-          </label>
+       <div
+  class="form-group form-group-full"
+>
+  <label for="providerProfilePhoto">
+    Profile photo
+  </label>
 
-          <input
-            type="url"
-            id="providerProfilePhoto"
-            placeholder="https://..."
-          >
-        </div>
+  <div class="provider-profile-photo-upload">
+
+    <div
+      id="providerProfilePhotoPreview"
+      class="provider-profile-photo-preview"
+      hidden
+    >
+      <img
+        id="providerProfilePhotoPreviewImage"
+        src=""
+        alt="Profile photo preview"
+      >
+    </div>
+
+    <input
+      type="file"
+      id="providerProfilePhoto"
+      name="profilePhoto"
+      accept=".jpg,.jpeg,.png,.webp"
+    >
+
+    <small>
+      Upload a clear profile photo. JPG, PNG or WebP only,
+      maximum 5MB.
+    </small>
+
+    <input
+      type="hidden"
+      id="providerProfilePhotoUrl"
+      value=""
+    >
+
+  </div>
+</div>
 
       </div>
 

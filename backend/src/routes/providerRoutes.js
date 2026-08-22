@@ -22,10 +22,20 @@ const {
   "../controllers/providerVerificationController"
 );
 
+const {
+  uploadMyProfilePhoto,
+} = require(
+  "../controllers/providerProfilePhotoController"
+);
 
 const uploadVerificationDocument =
   require(
     "../middleware/uploadVerificationDocument"
+  );
+
+  const uploadImage =
+  require(
+    "../middleware/uploadImage"
   );
 
 const {
@@ -67,6 +77,16 @@ router.get(
   getMyProviderProfile
 );
 
+
+router.post(
+  "/me/profile-photo",
+  authenticate,
+  requireRole("PROVIDER"),
+  uploadImage.single(
+    "profilePhoto"
+  ),
+  uploadMyProfilePhoto
+);
 router.post(
   "/me",
   authenticate,
