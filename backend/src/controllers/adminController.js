@@ -966,38 +966,44 @@ async function getPendingProviderVerifications(
   try {
 
     const result =
-  await pool.query(
-    `
-      SELECT
-        pv.id AS verification_id,
-        pv.provider_id,
-        pv.status,
-        pv.submitted_at,
+      await pool.query(
+        `
+          SELECT
+            pv.id AS verification_id,
+            pv.provider_id,
+            pv.status,
+            pv.submitted_at,
 
-        pp.user_id,
+            pp.user_id,
 
-        u.full_name,
-        u.email,
-        u.phone,
+            u.full_name,
+            u.email,
+            u.phone,
 
-        pv.qualification_summary,
-        pv.portfolio_description,
-        pv.portfolio_url
+            pv.qualification_summary,
+            pv.qualification_summary
+              AS qualification_title,
 
-      FROM provider_verifications pv
+            pv.portfolio_description,
+            pv.portfolio_description
+              AS portfolio,
 
-      INNER JOIN provider_profiles pp
-        ON pp.id = pv.provider_id
+            pv.portfolio_url
 
-      INNER JOIN users u
-        ON u.id = pp.user_id
+          FROM provider_verifications pv
 
-      WHERE pv.status = 'SUBMITTED'
+          INNER JOIN provider_profiles pp
+            ON pp.id = pv.provider_id
 
-      ORDER BY
-        pv.submitted_at ASC
-    `
-  );
+          INNER JOIN users u
+            ON u.id = pp.user_id
+
+          WHERE pv.status = 'SUBMITTED'
+
+          ORDER BY
+            pv.submitted_at ASC
+        `
+      );
 
     return res.json({
       success: true,
@@ -1019,7 +1025,6 @@ async function getPendingProviderVerifications(
     });
   }
 }
-
 
 async function getProviderVerificationDetails(
   req,
