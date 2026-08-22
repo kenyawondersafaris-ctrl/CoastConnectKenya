@@ -222,6 +222,38 @@ async function createMyProviderService(
       });
     }
 
+        const verificationResult =
+      await client.query(
+        `
+          SELECT
+            verification_status
+          FROM provider_profiles
+          WHERE id = $1::uuid
+          LIMIT 1
+        `,
+        [
+          providerId,
+        ]
+      );
+
+    const verificationStatus =
+      verificationResult.rows[0]
+        ?.verification_status;
+
+    if (
+      verificationStatus !== "APPROVED"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "Your professional verification must be approved before you can add services.",
+      });
+    }
+
     const categoryResult =
       await client.query(
         `
