@@ -1386,6 +1386,53 @@ button {
   color: #991b1b;
 }
 
+/* =========================================
+   PROVIDER PROFILE PHOTO UPLOAD
+========================================= */
+
+.provider-profile-photo-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.provider-profile-photo-upload input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.provider-profile-photo-upload
+input[type="file"]:hover {
+  border-color: #2563eb;
+  background: #f0f7ff;
+}
+
+.provider-profile-photo-preview {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.provider-profile-photo-preview img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.provider-profile-photo-upload small {
+  color: #64748b;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 @media (max-width: 700px) {
   .provider-verification-panel .panel-heading {
     flex-direction: column;
