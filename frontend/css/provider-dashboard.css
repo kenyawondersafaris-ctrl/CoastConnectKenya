@@ -1296,6 +1296,58 @@ button {
   resize: vertical;
 }
 
+/* =========================================================
+   VERIFICATION REVIEW FEEDBACK
+========================================================= */
+
+.verification-review-feedback {
+  margin: 20px 0;
+  padding: 18px 20px;
+  border: 1px solid #f0c36d;
+  border-left: 4px solid #d97706;
+  border-radius: 12px;
+  background: #fffbeb;
+}
+
+.verification-review-feedback[hidden] {
+  display: none;
+}
+
+.verification-review-feedback__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.verification-review-feedback__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.verification-review-feedback__status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.verification-review-feedback__text {
+  margin: 0;
+  color: #78350f;
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
 @media (max-width: 700px) {
   .provider-verification-panel .panel-heading {
     flex-direction: column;

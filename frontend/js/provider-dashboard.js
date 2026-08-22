@@ -707,6 +707,21 @@ const professionalExperience =
     "providerNotes"
   );
 
+  const verificationReviewFeedback =
+  document.getElementById(
+    "verificationReviewFeedback"
+  );
+
+const verificationReviewFeedbackStatus =
+  document.getElementById(
+    "verificationReviewFeedbackStatus"
+  );
+
+const verificationReviewFeedbackText =
+  document.getElementById(
+    "verificationReviewFeedbackText"
+  );
+
 const verificationDocumentType =
   document.getElementById(
     "verificationDocumentType"
@@ -2927,6 +2942,40 @@ function populateProfessionalVerification(
     professionalVerificationStatus.className =
       `verification-status-badge ${status.toLowerCase()}`;
   }
+
+  if (
+  verificationReviewFeedback
+) {
+
+  const adminNotes =
+    verification.admin_notes?.trim();
+
+  const showFeedback =
+    status === "REJECTED" &&
+    adminNotes;
+
+  verificationReviewFeedback.hidden =
+    !showFeedback;
+
+  if (
+    showFeedback
+  ) {
+
+    if (
+      verificationReviewFeedbackStatus
+    ) {
+      verificationReviewFeedbackStatus.textContent =
+        "Action Required";
+    }
+
+    if (
+      verificationReviewFeedbackText
+    ) {
+      verificationReviewFeedbackText.textContent =
+        adminNotes;
+    }
+  }
+}
 
   renderVerificationDocuments(
     Array.isArray(data.documents)
