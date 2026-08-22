@@ -3195,7 +3195,10 @@ async function saveProfessionalVerification(
       "success"
     );
 
-    await loadProfessionalVerification();
+   await Promise.all([
+  loadProfessionalVerification(),
+  loadProviderProfile(),
+]);
 
   } catch (error) {
 
