@@ -157,8 +157,7 @@ async function saveMyVerification(
   response,
   next
 ) {
-  const client =
-    await pool.connect();
+  let client;
 
   try {
 
@@ -175,6 +174,79 @@ async function saveMyVerification(
       providerNotes,
     } = request.body;
 
+    const qualificationTitleValue =
+      String(
+        qualificationTitle || ""
+      ).trim();
+
+    const institutionNameValue =
+      String(
+        institutionName || ""
+      ).trim();
+
+    const professionalExperienceValue =
+      String(
+        professionalExperience || ""
+      ).trim();
+
+    const providerNotesValue =
+      String(
+        providerNotes || ""
+      ).trim();
+
+    const qualificationYearValue =
+      Number(qualificationYear);
+
+    const currentYear =
+      new Date().getFullYear();
+
+    const missingFields = [];
+
+    if (!qualificationTitleValue) {
+      missingFields.push(
+        "Professional Qualification"
+      );
+    }
+
+    if (!institutionNameValue) {
+      missingFields.push(
+        "Institution Name"
+      );
+    }
+
+    if (
+      !qualificationYear ||
+      !Number.isInteger(
+        qualificationYearValue
+      ) ||
+      qualificationYearValue < 1900 ||
+      qualificationYearValue > currentYear
+    ) {
+      missingFields.push(
+        "a valid Year Completed"
+      );
+    }
+
+    if (!professionalExperienceValue) {
+      missingFields.push(
+        "Professional Experience"
+      );
+    }
+
+    if (!providerNotesValue) {
+      missingFields.push(
+        "Provider Notes"
+      );
+    }
+
+    if (missingFields.length > 0) {
+      return response.status(400).json({
+        success: false,
+        message:
+          `Please complete: ${missingFields.join(", ")}.`,
+      });
+    }
+
     const provider =
       await getOrCreateProviderProfile(
         request.user.userId
@@ -182,24 +254,17 @@ async function saveMyVerification(
 
     const qualificationSummary =
       [
-        qualificationTitle?.trim(),
-
-        institutionName?.trim()
-          ? `Institution: ${institutionName.trim()}`
-          : null,
-
-        qualificationYear
-          ? `Year completed: ${qualificationYear}`
-          : null,
+        qualificationTitleValue,
+        `Institution: ${institutionNameValue}`,
+        `Year completed: ${qualificationYearValue}`,
       ]
-        .filter(Boolean)
         .join(" | ");
 
     const portfolioDescription =
-      professionalExperience?.trim() || null;
+      professionalExperienceValue;
 
-    const providerNotesValue =
-      providerNotes?.trim() || null;
+    client =
+      await pool.connect();
 
     await client.query(
       "BEGIN"
@@ -355,7 +420,7 @@ async function saveMyVerification(
         `,
         [
           provider.id,
-          qualificationSummary || null,
+          qualificationSummary,
           portfolioDescription,
           providerNotesValue,
         ]
@@ -397,19 +462,23 @@ async function saveMyVerification(
 
   } catch (error) {
 
-    try {
-      await client.query(
-        "ROLLBACK"
-      );
-    } catch (rollbackError) {
-      // Ignore rollback failure.
+    if (client) {
+      try {
+        await client.query(
+          "ROLLBACK"
+        );
+      } catch (rollbackError) {
+        // Ignore rollback failure.
+      }
     }
 
     next(error);
 
   } finally {
 
-    client.release();
+    if (client) {
+      client.release();
+    }
 
   }
 }
