@@ -654,63 +654,124 @@ function renderProviderVerifications(
   adminProviderVerificationsContainer.innerHTML =
     verifications
       .map(
-        (verification) => `
-          <article class="admin-list-card">
+        (verification) => {
 
-            <div class="admin-list-card__content">
+          const qualificationParts =
+            (
+              verification.qualification_summary ||
+              ""
+            )
+              .split(" | ")
+              .filter(Boolean);
 
-              <div>
-                <h3>
-                  ${escapeHtml(
-                    verification.full_name || "Provider"
-                  )}
-                </h3>
+          const qualificationTitle =
+            qualificationParts[0] ||
+            "Not provided";
 
-                <p>
-                  ${escapeHtml(
-                    verification.email || ""
-                  )}
-                </p>
+          const institutionPart =
+            qualificationParts.find(
+              (part) =>
+                part.startsWith(
+                  "Institution: "
+                )
+            );
+
+          const yearPart =
+            qualificationParts.find(
+              (part) =>
+                part.startsWith(
+                  "Year completed: "
+                )
+            );
+
+          const institution =
+            institutionPart
+              ? institutionPart.replace(
+                  "Institution: ",
+                  ""
+                )
+              : "Not provided";
+
+          const year =
+            yearPart
+              ? yearPart.replace(
+                  "Year completed: ",
+                  ""
+                )
+              : "Not provided";
+
+          return `
+            <article class="admin-list-card">
+
+              <div class="admin-list-card__content">
+
+                <div>
+                  <h3>
+                    ${escapeHtml(
+                      verification.full_name ||
+                      "Provider"
+                    )}
+                  </h3>
+
+                  <p>
+                    ${escapeHtml(
+                      verification.email || ""
+                    )}
+                  </p>
+                </div>
+
+                <div class="admin-list-card__details">
+
+                  <span>
+                    <strong>Qualification</strong>
+                    ${escapeHtml(
+                      qualificationTitle
+                    )}
+                  </span>
+
+                  <span>
+                    <strong>Institution</strong>
+                    ${escapeHtml(
+                      institution
+                    )}
+                  </span>
+
+                  <span>
+                    <strong>Completed</strong>
+                    ${escapeHtml(
+                      year
+                    )}
+                  </span>
+
+                  <span>
+                    <strong>Experience</strong>
+                    ${escapeHtml(
+                      verification.portfolio_description ||
+                      "Not provided"
+                    )}
+                  </span>
+
+                </div>
+
               </div>
 
-              <div class="admin-list-card__details">
+              <div class="admin-list-card__actions">
 
-  <span>
-    <strong>Qualification:</strong>
-    ${escapeHtml(
-      verification.qualification_summary ||
-      "Not provided"
-    )}
-  </span>
+                <button
+                  type="button"
+                  class="secondary-button"
+                  onclick="reviewProviderVerification(
+                    '${verification.provider_id}'
+                  )"
+                >
+                  Review
+                </button>
 
-  <span>
-    <strong>Portfolio:</strong>
-    ${escapeHtml(
-      verification.portfolio_description ||
-      "Not provided"
-    )}
-  </span>
+              </div>
 
-</div>
-
-            </div>
-
-            <div class="admin-list-card__actions">
-
-              <button
-                type="button"
-                class="secondary-button"
-                onclick="reviewProviderVerification(
-                  '${verification.provider_id}'
-                )"
-              >
-                Review
-              </button>
-
-            </div>
-
-          </article>
-        `
+            </article>
+          `;
+        }
       )
       .join("");
 }
