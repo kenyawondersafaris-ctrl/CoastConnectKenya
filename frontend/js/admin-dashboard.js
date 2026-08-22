@@ -1683,22 +1683,49 @@ function renderProviderVerificationDetails(
     documents.length > 0
       ? documents
           .map(
-            (document) => `
-              <a
-                href="${escapeHtml(
-                  document.file_url
-                )}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="provider-verification-document"
-              >
-                View:
-                ${escapeHtml(
-                  document.file_name ||
-                  "Verification Document"
-                )}
-              </a>
-            `
+            (document) => {
+
+              const documentUrl =
+                document.document_url ||
+                document.file_url ||
+                "";
+
+              const documentName =
+                document.document_name ||
+                document.file_name ||
+                "Verification Document";
+
+              if (!documentUrl) {
+                return `
+                  <div
+                    class="provider-verification-document"
+                  >
+                    ${escapeHtml(
+                      documentName
+                    )}
+                    <span>
+                      Document unavailable
+                    </span>
+                  </div>
+                `;
+              }
+
+              return `
+                <a
+                  href="${escapeHtml(
+                    documentUrl
+                  )}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="provider-verification-document"
+                >
+                  View:
+                  ${escapeHtml(
+                    documentName
+                  )}
+                </a>
+              `;
+            }
           )
           .join("")
       : `
@@ -1710,7 +1737,9 @@ function renderProviderVerificationDetails(
   providerVerificationModalContent.innerHTML = `
     <div class="provider-verification-review">
 
-      <div class="provider-verification-review__header">
+      <div
+        class="provider-verification-review__header"
+      >
         <h2>
           ${escapeHtml(
             verification.full_name ||
@@ -1731,7 +1760,9 @@ function renderProviderVerificationDetails(
         </p>
       </div>
 
-      <div class="provider-verification-review__section">
+      <div
+        class="provider-verification-review__section"
+      >
         <h3>
           Professional Qualification
         </h3>
@@ -1744,9 +1775,11 @@ function renderProviderVerificationDetails(
         </p>
       </div>
 
-      <div class="provider-verification-review__section">
+      <div
+        class="provider-verification-review__section"
+      >
         <h3>
-          Portfolio
+          Professional Experience
         </h3>
 
         <p>
@@ -1755,10 +1788,18 @@ function renderProviderVerificationDetails(
             "Not provided"
           )}
         </p>
+      </div>
 
-        ${
-          verification.portfolio_url
-            ? `
+      ${
+        verification.portfolio_url
+          ? `
+            <div
+              class="provider-verification-review__section"
+            >
+              <h3>
+                Portfolio Link
+              </h3>
+
               <a
                 href="${escapeHtml(
                   verification.portfolio_url
@@ -1766,14 +1807,16 @@ function renderProviderVerificationDetails(
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Open Portfolio
+                View Portfolio
               </a>
-            `
-            : ""
-        }
-      </div>
+            </div>
+          `
+          : ""
+      }
 
-      <div class="provider-verification-review__section">
+      <div
+        class="provider-verification-review__section"
+      >
         <h3>
           Provider Notes
         </h3>
@@ -1786,12 +1829,16 @@ function renderProviderVerificationDetails(
         </p>
       </div>
 
-      <div class="provider-verification-review__section">
+      <div
+        class="provider-verification-review__section"
+      >
         <h3>
           Supporting Documents
         </h3>
 
-        <div class="provider-verification-documents">
+        <div
+          class="provider-verification-documents"
+        >
           ${documentHtml}
         </div>
       </div>
@@ -1799,7 +1846,6 @@ function renderProviderVerificationDetails(
       <div
         class="provider-verification-review__actions"
       >
-
         <button
           type="button"
           class="primary-button"
@@ -1819,7 +1865,6 @@ function renderProviderVerificationDetails(
         >
           Reject Verification
         </button>
-
       </div>
 
     </div>

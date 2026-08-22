@@ -702,6 +702,11 @@ const professionalExperience =
     "professionalExperience"
   );
 
+  const providerNotes =
+  document.getElementById(
+    "providerNotes"
+  );
+
 const verificationDocumentType =
   document.getElementById(
     "verificationDocumentType"
@@ -2899,6 +2904,12 @@ function populateProfessionalVerification(
       "";
   }
 
+  if (providerNotes) {
+    providerNotes.value =
+      verification.provider_notes ||
+      "";
+  }
+
   const status =
     String(
       verification.status ||
@@ -3022,7 +3033,8 @@ async function saveProfessionalVerification(
 ) {
 
   event.preventDefault();
- console.log(
+
+  console.log(
     "VERIFICATION INPUT DEBUG:",
     {
       qualificationTitleElement:
@@ -3048,8 +3060,15 @@ async function saveProfessionalVerification(
 
       professionalExperienceValue:
         professionalExperience?.value,
+
+      providerNotesElement:
+        providerNotes,
+
+      providerNotesValue:
+        providerNotes?.value,
     }
   );
+
   setMessage(
     professionalVerificationMessage
   );
@@ -3070,6 +3089,9 @@ async function saveProfessionalVerification(
 
     professionalExperience:
       professionalExperience?.value.trim() || "",
+
+    providerNotes:
+      providerNotes?.value.trim() || "",
   };
 
   try {

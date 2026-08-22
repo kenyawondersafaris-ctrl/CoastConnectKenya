@@ -160,14 +160,16 @@ async function saveMyVerification(
   try {
 
     console.log(
-  "SAVE VERIFICATION BODY:",
-  request.body
-);
+      "SAVE VERIFICATION BODY:",
+      request.body
+    );
+
     const {
       qualificationTitle,
       institutionName,
       qualificationYear,
       professionalExperience,
+      providerNotes,
     } = request.body;
 
     const provider =
@@ -178,9 +180,11 @@ async function saveMyVerification(
     const qualificationSummary =
       [
         qualificationTitle?.trim(),
+
         institutionName?.trim()
           ? `Institution: ${institutionName.trim()}`
           : null,
+
         qualificationYear
           ? `Year completed: ${qualificationYear}`
           : null,
@@ -191,6 +195,9 @@ async function saveMyVerification(
     const portfolioDescription =
       professionalExperience?.trim() || null;
 
+    const providerNotesValue =
+      providerNotes?.trim() || null;
+
     const verificationResult =
       await pool.query(
         `
@@ -198,6 +205,7 @@ async function saveMyVerification(
             provider_id,
             qualification_summary,
             portfolio_description,
+            provider_notes,
             status,
             updated_at
           )
@@ -205,6 +213,7 @@ async function saveMyVerification(
             $1,
             $2,
             $3,
+            $4,
             'DRAFT',
             CURRENT_TIMESTAMP
           )
@@ -215,6 +224,9 @@ async function saveMyVerification(
 
             portfolio_description =
               EXCLUDED.portfolio_description,
+
+            provider_notes =
+              EXCLUDED.provider_notes,
 
             status =
               CASE
@@ -250,13 +262,16 @@ async function saveMyVerification(
           provider.id,
           qualificationSummary || null,
           portfolioDescription,
+          providerNotesValue,
         ]
       );
 
     return response.json({
       success: true,
+
       message:
         "Verification information saved successfully.",
+
       verification:
         verificationResult.rows[0],
     });
