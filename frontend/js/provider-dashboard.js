@@ -3022,7 +3022,34 @@ async function saveProfessionalVerification(
 ) {
 
   event.preventDefault();
+ console.log(
+    "VERIFICATION INPUT DEBUG:",
+    {
+      qualificationTitleElement:
+        qualificationTitle,
 
+      qualificationTitleValue:
+        qualificationTitle?.value,
+
+      institutionNameElement:
+        institutionName,
+
+      institutionNameValue:
+        institutionName?.value,
+
+      qualificationYearElement:
+        qualificationYear,
+
+      qualificationYearValue:
+        qualificationYear?.value,
+
+      professionalExperienceElement:
+        professionalExperience,
+
+      professionalExperienceValue:
+        professionalExperience?.value,
+    }
+  );
   setMessage(
     professionalVerificationMessage
   );
