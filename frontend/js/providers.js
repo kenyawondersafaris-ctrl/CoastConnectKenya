@@ -200,25 +200,30 @@ function renderServiceCategories() {
     }
   );
 
-  if (requestedCategory) {
+ if (requestedCategory) {
 
-    const matchedCategory =
-      serviceCategories.find(
-        (category) =>
-          String(
-            category.name || ""
-          )
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, "-") ===
-          requestedCategory
-      );
+  const normalizeCategory =
+    (value) =>
+      String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
 
-    if (matchedCategory) {
-      categoryFilter.value =
-        matchedCategory.id;
-    }
+  const matchedCategory =
+    serviceCategories.find(
+      (category) =>
+        normalizeCategory(
+          category.name
+        ) === requestedCategory
+    );
+
+  if (matchedCategory) {
+    categoryFilter.value =
+      matchedCategory.id;
   }
+}
 }
 
 async function loadProviders() {
