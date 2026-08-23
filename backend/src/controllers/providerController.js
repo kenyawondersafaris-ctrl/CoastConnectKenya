@@ -552,6 +552,11 @@ async function getProviders(
         req.query.categoryId || ""
       ).trim();
 
+      const location =
+  String(
+    req.query.location || ""
+  ).trim();
+
     const values = [];
     const where = [
   `pp.availability_status = 'AVAILABLE'`,
@@ -578,6 +583,16 @@ async function getProviders(
         `ps.category_id = $${values.length}::uuid`
       );
     }
+
+    if (location) {
+  values.push(
+    `%${location}%`
+  );
+
+  where.push(
+    `pp.service_area ILIKE $${values.length}`
+  );
+}
 
     const result =
       await pool.query(
