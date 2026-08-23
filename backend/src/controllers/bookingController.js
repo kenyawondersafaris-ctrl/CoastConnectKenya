@@ -950,6 +950,23 @@ async function createBooking(
       });
     }
 
+    if (
+  String(
+    service.verification_status
+  ).toUpperCase() !==
+  "APPROVED"
+) {
+  await client.query(
+    "ROLLBACK"
+  );
+
+  return res.status(403).json({
+    success: false,
+    message:
+      "This provider is not approved to receive bookings.",
+  });
+}
+
     const duplicateResult =
       await client.query(
         `

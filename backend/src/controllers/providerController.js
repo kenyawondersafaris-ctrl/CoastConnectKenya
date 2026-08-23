@@ -554,9 +554,10 @@ async function getProviders(
 
     const values = [];
     const where = [
-      `pp.availability_status = 'AVAILABLE'`,
-      `ps.is_active = TRUE`
-    ];
+  `pp.availability_status = 'AVAILABLE'`,
+  `pp.verification_status = 'APPROVED'`,
+  `ps.is_active = TRUE`
+];
 
     if (search) {
       values.push(
@@ -679,7 +680,10 @@ async function getProviderDetails(
             ON u.id = pp.user_id
 
           WHERE pp.id =
-            $1::uuid
+          $1::uuid
+
+          AND pp.verification_status =
+            'APPROVED'
 
           LIMIT 1
         `,
