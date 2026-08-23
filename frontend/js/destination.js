@@ -234,8 +234,127 @@ async function loadDestinationRestaurants() {
   }
 }
 
+function renderDestinationRestaurants(
+  restaurants
+) {
 
+  if (!restaurants.length) {
 
+    destinationRestaurantsGrid.innerHTML =
+      `
+        <div class="restaurants-empty-state">
+          <h3>
+            No restaurants available
+          </h3>
+
+          <p>
+            There are currently no approved
+            restaurants in
+            ${escapeHtml(
+              formatLocationName(
+                requestedLocation
+              )
+            )}.
+          </p>
+        </div>
+      `;
+
+    return;
+  }
+
+  destinationRestaurantsGrid.innerHTML =
+    restaurants
+      .map(
+        (restaurant) => `
+          <article class="restaurant-card">
+
+            <div class="destination-restaurant-card-image">
+
+              ${
+                restaurant.coverImage
+                  ? `
+                    <img
+                      src="${escapeHtml(
+                        restaurant.coverImage
+                      )}"
+                      alt="${escapeHtml(
+                        restaurant.name
+                      )}"
+                    >
+                  `
+                  : `
+                    <div class="restaurant-image-placeholder">
+                      🍽️
+                    </div>
+                  `
+              }
+
+            </div>
+
+            <div class="destination-restaurant-card-content">
+
+              <div class="destination-restaurant-card-header">
+
+                <h3>
+                  ${escapeHtml(
+                    restaurant.name
+                  )}
+                </h3>
+
+                <span>
+                  ${Number(
+                    restaurant.rating ||
+                    0
+                  ).toFixed(1)}
+                  ★
+                </span>
+
+              </div>
+
+              <p>
+                ${escapeHtml(
+                  restaurant.shortDescription ||
+                  "Discover food and dining in this destination."
+                )}
+              </p>
+
+              <div class="destination-restaurant-meta">
+
+                <span>
+                  ${escapeHtml(
+                    restaurant.locationName ||
+                    formatLocationName(
+                      requestedLocation
+                    )
+                  )}
+                </span>
+
+                <span>
+                  ${
+                    restaurant.isOpen
+                      ? "Open now"
+                      : "Closed"
+                  }
+                </span>
+
+              </div>
+
+              <a
+                href="restaurant-details.html?restaurantId=${encodeURIComponent(
+                  restaurant.id
+                )}"
+                class="destination-restaurant-view-button"
+              >
+                View Restaurant
+              </a>
+
+            </div>
+
+          </article>
+        `
+      )
+      .join("");
+}
 
 
 if (
