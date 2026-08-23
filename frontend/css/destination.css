@@ -611,35 +611,18 @@
     );
 }
 
-.restaurant-card-image {
-  position:
-    relative;
-
-  width:
-    100%;
-
-  height:
-    210px;
-
-  overflow:
-    hidden;
-
-  background:
-    #edf2f7;
+.destination-restaurant-card-image {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: #edf2f7;
 }
 
-.restaurant-card-image img {
-  width:
-    100%;
-
-  height:
-    100%;
-
-  object-fit:
-    cover;
-
-  transition:
-    transform 0.35s ease;
+.destination-restaurant-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .restaurant-card:hover
@@ -680,7 +663,7 @@
     22px;
 }
 
-.restaurant-card-header {
+.destination-restaurant-card-header {
   display:
     flex;
 
@@ -751,7 +734,7 @@
     1.65;
 }
 
-.restaurant-meta {
+.destination-restaurant-meta {
   display:
     flex;
 
@@ -791,7 +774,7 @@
     700;
 }
 
-.restaurant-view-button {
+.destination-restaurant-view-button {
   display:
     inline-flex;
 
@@ -992,7 +975,7 @@
       18px;
   }
 
-  .provider-view-button {
+  .destination-provider-view-button {
     width:
       100%;
   }

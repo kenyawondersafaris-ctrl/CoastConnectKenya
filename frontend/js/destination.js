@@ -269,7 +269,7 @@ function renderDestinationRestaurants(
         (restaurant) => `
           <article class="restaurant-card">
 
-            <div class="restaurant-card-image">
+           class="destination-restaurant-card-image">
 
               ${
                 restaurant.coverImage
@@ -292,9 +292,9 @@ function renderDestinationRestaurants(
 
             </div>
 
-            <div class="restaurant-card-content">
+            class="destination-restaurant-card-content">
 
-              <div class="restaurant-card-header">
+              class="destination-restaurant-card-header">
 
                 <h3>
                   ${escapeHtml(
@@ -319,7 +319,7 @@ function renderDestinationRestaurants(
                 )}
               </p>
 
-              <div class="restaurant-meta">
+             class="destination-restaurant-meta">
 
                 <span>
                   ${escapeHtml(
@@ -350,7 +350,7 @@ function renderDestinationRestaurants(
                 href="restaurant-details.html?restaurantId=${encodeURIComponent(
                   restaurant.id
                 )}"
-                class="restaurant-view-button"
+                class="destination-restaurant-view-button"
               >
                 View Restaurant
               </a>
@@ -639,7 +639,7 @@ function renderDestinationProviders(
                 )}&serviceId=${encodeURIComponent(
                   provider.service_id
                 )}"
-                class="provider-view-button"
+               class="destination-provider-view-button"
               >
                 View Service
               </a>
