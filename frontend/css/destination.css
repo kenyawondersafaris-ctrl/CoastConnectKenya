@@ -986,3 +986,66 @@
   }
 
 }
+
+
+/* Destination card actions */
+
+.destination-provider-view-button,
+.destination-restaurant-view-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 44px;
+  padding: 0 18px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: var(
+    --primary-color,
+    #0f766e
+  );
+
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+
+  text-decoration: none;
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.destination-provider-view-button:hover,
+.destination-restaurant-view-button:hover {
+  color: #ffffff;
+  text-decoration: none;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 18px
+    rgba(15, 118, 110, 0.18);
+}
+
+.destination-provider-view-button:focus-visible,
+.destination-restaurant-view-button:focus-visible {
+  outline: 3px solid
+    rgba(15, 118, 110, 0.25);
+
+  outline-offset: 3px;
+}
+
+.destination-provider-view-button {
+  white-space: nowrap;
+}
+
+.destination-restaurant-view-button {
+  width: 100%;
+  margin-top: auto;
+}

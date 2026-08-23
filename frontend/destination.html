@@ -27,6 +27,8 @@
 
 <body>
 
+ <body>
+
   <header class="site-header">
 
     <div class="container header-container">
@@ -34,12 +36,32 @@
       <a
         href="index.html"
         class="brand"
+        aria-label="Coast Connect Kenya homepage"
       >
-        Coast Connect Kenya
+        <span class="brand-icon">CC</span>
+
+        <span class="brand-text">
+          <strong>Coast Connect</strong>
+          <small>Kenya</small>
+        </span>
       </a>
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+        id="mobileMenuButton"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="mainNavigation"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
       <nav
         class="main-navigation"
+        id="mainNavigation"
         aria-label="Main navigation"
       >
         <a href="index.html">
@@ -60,6 +82,62 @@
         >
           Destinations
         </a>
+
+        <a href="about.html">
+          About
+        </a>
+
+        <div class="mobile-auth-actions">
+
+          <a
+            href="login.html"
+            id="mobileLoginLink"
+            class="mobile-login-link"
+          >
+            Log in
+          </a>
+
+          <a
+            href="join.html"
+            id="mobileJoinLink"
+            class="mobile-join-link"
+          >
+            Join Coast Connect
+          </a>
+
+        </div>
+
+        <div
+          class="mobile-account-actions"
+          id="mobileAccountActions"
+          hidden
+        >
+
+          <a
+            href="customer-bookings.html"
+            id="mobileCustomerAccountLink"
+            class="mobile-account-link"
+          >
+            My Bookings
+          </a>
+
+          <a
+            href="customer-orders.html"
+            class="mobile-account-link"
+          >
+            My Orders
+          </a>
+
+          <button
+            type="button"
+            id="mobileLogoutButton"
+            class="mobile-logout-button"
+          >
+            Log out
+          </button>
+
+        </div>
+
       </nav>
 
       <div class="header-actions">
@@ -73,21 +151,97 @@
         </a>
 
         <a
-          href="register.html"
+          href="join.html"
           class="primary-button"
           id="joinLink"
         >
-          Get Started
+          Join Coast Connect
         </a>
 
         <a
-          href="customer-bookings.html"
+          href="#"
           class="primary-button"
           id="dashboardLink"
           hidden
         >
-          My Bookings
+          Dashboard
         </a>
+
+        <a
+          href="customer-orders.html"
+          id="accountOrdersLink"
+          hidden
+        >
+          My Orders
+        </a>
+
+        <div
+          class="account-menu"
+          id="accountMenu"
+          hidden
+        >
+
+          <button
+            type="button"
+            class="account-menu-button"
+            id="accountMenuButton"
+            aria-expanded="false"
+          >
+            <span
+              class="account-avatar"
+              id="accountAvatar"
+            >
+              U
+            </span>
+
+            <span
+              class="account-name"
+              id="accountName"
+            >
+              Account
+            </span>
+
+            <span class="account-chevron">
+              ▾
+            </span>
+          </button>
+
+          <div
+            class="account-dropdown"
+            id="accountDropdown"
+            hidden
+          >
+
+            <div class="account-dropdown-user">
+
+              <strong id="accountDropdownName">
+                User
+              </strong>
+
+              <span id="accountDropdownEmail">
+                user@example.com
+              </span>
+
+            </div>
+
+            <a
+              href="#"
+              id="accountDashboardLink"
+            >
+              Dashboard
+            </a>
+
+            <button
+              type="button"
+              id="logoutButton"
+              class="account-logout-button"
+            >
+              Log out
+            </button>
+
+          </div>
+
+        </div>
 
       </div>
 
