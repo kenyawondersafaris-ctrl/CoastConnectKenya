@@ -10,6 +10,10 @@ const requireRole = require(
   "../middleware/requireRole"
 );
 
+const requireActiveSubscription = require(
+  "../middleware/requireActiveSubscription"
+);
+
 const {
   getOwnerGallery,
   addGalleryImage,
@@ -32,6 +36,7 @@ router.post(
   "/",
   authMiddleware,
   requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
   addGalleryImage
 );
 
@@ -39,6 +44,7 @@ router.put(
   "/:imageId",
   authMiddleware,
   requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
   updateGalleryImage
 );
 
@@ -46,6 +52,7 @@ router.delete(
   "/:imageId",
   authMiddleware,
   requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
   deleteGalleryImage
 );
 

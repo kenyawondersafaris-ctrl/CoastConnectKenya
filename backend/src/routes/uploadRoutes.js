@@ -10,6 +10,10 @@ const requireRole = require(
   "../middleware/requireRole"
 );
 
+const requireActiveSubscription = require(
+  "../middleware/requireActiveSubscription"
+);
+
 const uploadImage = require(
   "../middleware/uploadMiddleware"
 );
@@ -29,6 +33,16 @@ router.post(
   "/menu-image",
   authenticate,
   requireRole("RESTAURANT_OWNER"),
+  uploadImage.single("image"),
+  validateUploadedImage,
+  uploadMenuImage
+);
+
+router.post(
+  "/menu-image",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
   uploadImage.single("image"),
   validateUploadedImage,
   uploadMenuImage

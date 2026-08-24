@@ -15,6 +15,8 @@ const {
 
 const authenticate = require("../middleware/authMiddleware");
 const requireRole = require("../middleware/requireRole");
+const requireActiveSubscription =
+  require("../middleware/requireActiveSubscription");
 
 const router = express.Router();
 
@@ -66,7 +68,7 @@ router.patch(
   "/owner/:orderId/status",
   authenticate,
   requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
   updateOwnerOrderStatus
 );
-
 module.exports = router;

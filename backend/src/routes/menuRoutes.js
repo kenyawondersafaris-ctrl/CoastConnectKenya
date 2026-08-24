@@ -5,6 +5,9 @@ const express = require("express");
 const authenticate = require("../middleware/authMiddleware");
 const requireRole = require("../middleware/requireRole");
 
+const requireActiveSubscription =
+  require("../middleware/requireActiveSubscription");
+
 const {
   getOwnerMenuItems,
   createMenuItem,
@@ -22,18 +25,21 @@ router.get(
   getOwnerMenuItems
 );
 
+
 router.post(
   "/restaurants/:restaurantId/menu",
+  requireActiveSubscription,
   createMenuItem
 );
-
-router.put(
- "/:restaurantId/menu/:menuItemId",
-  updateMenuItem
+router.post(
+  "/restaurants/:restaurantId/menu",
+  requireActiveSubscription,
+  createMenuItem
 );
 
 router.delete(
   "/:restaurantId/menu/:menuItemId",
+  requireActiveSubscription,
   deleteMenuItem
 );
 

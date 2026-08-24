@@ -23,6 +23,7 @@ const {
 
 const authenticate = require("../middleware/authMiddleware");
 const requireRole = require("../middleware/requireRole");
+const requireActiveSubscription = require("../middleware/requireActiveSubscription");
 
 const router = express.Router();
 
@@ -51,6 +52,14 @@ router.put(
   updateOwnerRestaurant
 );
 
+router.put(
+  "/owner/profile",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
+  updateOwnerRestaurant
+);
+
 router.get(
   "/owner/opening-hours",
   authenticate,
@@ -64,6 +73,15 @@ router.put(
   requireRole("RESTAURANT_OWNER"),
   updateOwnerOpeningHours
 );
+
+router.put(
+  "/owner/opening-hours",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
+  updateOwnerOpeningHours
+);
+
 
 router.get(
   "/owner/reviews",
@@ -83,6 +101,14 @@ router.put(
   "/owner/order-availability",
   authenticate,
   requireRole("RESTAURANT_OWNER"),
+  updateOwnerOrderAvailability
+);
+
+router.put(
+  "/owner/order-availability",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
   updateOwnerOrderAvailability
 );
 

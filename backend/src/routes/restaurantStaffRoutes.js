@@ -4,6 +4,8 @@ const express = require("express");
 
 const authenticate = require("../middleware/authMiddleware");
 const requireRole = require("../middleware/requireRole");
+const requireActiveSubscription =
+  require("../middleware/requireActiveSubscription");
 
 const {
   getOwnerRestaurantStaff,
@@ -43,6 +45,7 @@ router.post(
   "/owner/staff",
   authenticate,
   requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
   createOwnerRestaurantStaff
 );
 
