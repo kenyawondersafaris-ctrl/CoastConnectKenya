@@ -253,6 +253,20 @@ function verifyPaystackWebhookSignature(
   const secretKey =
     getPaystackSecretKey();
 
+  /*
+  |--------------------------------------------------------------------------
+  | Paystack signs the exact raw request body.
+  |--------------------------------------------------------------------------
+  */
+
+  const payloadToSign =
+    Buffer.isBuffer(payload)
+      ? payload
+      : Buffer.from(
+          JSON.stringify(payload || {}),
+          "utf8"
+        );
+
   const expectedSignature =
     crypto
       .createHmac(
@@ -260,7 +274,7 @@ function verifyPaystackWebhookSignature(
         secretKey
       )
       .update(
-        JSON.stringify(payload)
+        payloadToSign
       )
       .digest("hex");
 

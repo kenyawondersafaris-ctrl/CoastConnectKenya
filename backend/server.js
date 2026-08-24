@@ -35,6 +35,8 @@ const contactRoutes =require("./src/routes/contactRoutes");
 const errorHandler =require("./src/middleware/errorHandler");
 const validateEnvironment =require("./src/config/validateEnvironment");
 const {verifyEmailTransport,} = require("./src/services/emailService");
+const subscriptionRoutes =require("./src/routes/subscriptionRoutes");
+const { handleSubscriptionPaymentWebhook,} = require(  "./src/controllers/subscriptionController");
 
 
 validateEnvironment();
@@ -187,12 +189,29 @@ app.use(
   apiLimiter
 );
 
+/*
+|--------------------------------------------------------------------------
+| Paystack Subscription Webhook
+|--------------------------------------------------------------------------
+|
+| This endpoint must receive the original raw body so that
+| the Paystack signature can be verified safely.
+|
+*/
+
+app.post(
+  "/api/subscriptions/webhook",
+  express.raw({
+    type: "application/json",
+  }),
+  handleSubscriptionPaymentWebhook
+);
+
 app.use(
   express.json({
     limit: "1mb",
   })
 );
-
 app.use(
   express.urlencoded({
     extended: true,
@@ -243,6 +262,11 @@ app.use(
 app.use(
   "/api/users",
   userRoutes
+);
+
+app.use(
+  "/api/subscriptions",
+  subscriptionRoutes
 );
 
 app.use(

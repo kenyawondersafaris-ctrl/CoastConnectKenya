@@ -950,6 +950,16 @@ const restaurantDropdownEmail =
   document.getElementById(
     "restaurantDashboardLink"
   );
+
+  const subscriptionStatusContainer =
+  document.getElementById(
+    "subscriptionStatusContainer"
+  );
+
+const subscriptionPlansContainer =
+  document.getElementById(
+    "subscriptionPlansContainer"
+  );
   let restaurantStaff = [];
 let ownerDeliveryZones = [];
 let ownerReviews = [];
@@ -964,6 +974,8 @@ let currentPauseReason = null;
 let ownerNotifications = [];
 let unreadOwnerNotifications = 0;
 let ownerPromotions = [];
+let currentSubscription = null;
+let subscriptionPlans = [];
 
 const sectionTitles = {
   overview: "Overview",
@@ -976,6 +988,7 @@ const sectionTitles = {
   staff: "Staff Management",
   hours: "Opening Hours",
   analytics: "Analytics",
+  subscription: "Subscription",
   settings: "Settings",
   "delivery-zones":
   "Delivery Zones",
@@ -1422,6 +1435,108 @@ document.addEventListener(
   }
 );
 
+subscriptionPlansContainer?.addEventListener(
+  "click",
+  async (event) => {
+    const button = event.target.closest(
+      ".subscription-action-button"
+    );
+
+    if (!button) {
+      return;
+    }
+
+    const planId =
+      button.dataset.planId;
+
+    if (!planId) {
+      showMessage(
+        "Unable to identify the selected subscription plan."
+      );
+
+      return;
+    }
+
+    button.disabled = true;
+
+    const originalText =
+      button.textContent;
+
+    button.textContent =
+      "Preparing payment...";
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/subscriptions/initialize`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            planId,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        logout();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to initialize subscription payment."
+        );
+      }
+
+      if (!data.authorizationUrl) {
+        throw new Error(
+          "Payment authorization URL was not returned."
+        );
+      }
+
+      window.location.href =
+        data.authorizationUrl;
+
+    } catch (error) {
+      console.error(
+        "Initialize subscription error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+        "Unable to start subscription payment."
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
+
 function getInitials(name) {
   if (!name) {
     return "RO";
@@ -1433,6 +1548,315 @@ function getInitials(name) {
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
+}
+
+async function loadCurrentSubscription() {
+  if (!subscriptionStatusContainer) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/subscriptions/me`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      logout();
+      return;
+    }
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message ||
+        "Unable to load subscription."
+      );
+    }
+
+    currentSubscription =
+      data.subscription || null;
+      renderCurrentSubscription();
+
+    } catch (error) {
+    console.error(
+      "Load subscription error:",
+      error
+    );
+
+    currentSubscription = null;
+
+    subscriptionStatusContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          ⚠️
+        </div>
+
+        <h3>
+          Unable to load subscription
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            error.message ||
+            "Please try again later."
+          )}
+        </p>
+      </div>
+    `;
+  }
+}
+
+async function loadSubscriptionPlans() {
+  if (!subscriptionPlansContainer) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/subscriptions/plans`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      logout();
+      return;
+    }
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message ||
+        "Unable to load subscription plans."
+      );
+    }
+
+    subscriptionPlans = data.plans || [];
+    renderSubscriptionPlans();
+
+  } catch (error) {
+    console.error(
+      "Load subscription plans error:",
+      error
+    );
+
+    subscriptionPlans = [];
+
+    subscriptionPlansContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          ⚠️
+        </div>
+
+        <h3>
+          Unable to load plans
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            error.message ||
+            "Please try again later."
+          )}
+        </p>
+      </div>
+    `;
+  }
+}
+
+function renderCurrentSubscription() {
+  if (!subscriptionStatusContainer) {
+    return;
+  }
+
+  if (!currentSubscription) {
+    subscriptionStatusContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          📋
+        </div>
+
+        <h3>
+          No active subscription
+        </h3>
+
+        <p>
+          Choose a subscription plan below to get started.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+  const status =
+    String(
+      currentSubscription.status || "PENDING"
+    ).toUpperCase();
+
+  subscriptionStatusContainer.innerHTML = `
+    <div class="subscription-status-card">
+      <div class="subscription-status-header">
+        <div>
+          <span class="section-eyebrow">
+            Current subscription
+          </span>
+
+          <h3>
+            ${escapeHtml(
+              currentSubscription.plan_name ||
+              "Subscription"
+            )}
+          </h3>
+        </div>
+
+        <span class="subscription-status-badge">
+          ${escapeHtml(status)}
+        </span>
+      </div>
+
+      <div class="subscription-status-details">
+        <div>
+          <span>Billing</span>
+
+          <strong>
+            ${escapeHtml(
+              currentSubscription.billing_period ||
+              "-"
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>Amount</span>
+
+          <strong>
+            KES ${Number(
+              currentSubscription.amount_kes || 0
+            ).toLocaleString("en-KE")}
+          </strong>
+        </div>
+
+        <div>
+          <span>Duration</span>
+
+          <strong>
+            ${escapeHtml(
+              String(
+                currentSubscription.duration_days || 0
+              )
+            )} days
+          </strong>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSubscriptionPlans() {
+  if (!subscriptionPlansContainer) {
+    return;
+  }
+
+  if (subscriptionPlans.length === 0) {
+    subscriptionPlansContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          📋
+        </div>
+
+        <h3>
+          No subscription plans available
+        </h3>
+
+        <p>
+          Please check again later.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+  subscriptionPlansContainer.innerHTML =
+    subscriptionPlans
+      .map((plan) => {
+        const planName =
+          plan.name ||
+          plan.plan_name ||
+          "Subscription Plan";
+
+        const amount =
+          Number(
+            plan.amount_kes ??
+            plan.amount ??
+            0
+          );
+
+        const billingPeriod =
+          plan.billing_period ||
+          plan.billingPeriod ||
+          "MONTHLY";
+
+        const durationDays =
+          plan.duration_days ||
+          plan.durationDays ||
+          30;
+
+        return `
+          <article class="subscription-plan-card">
+            <div class="subscription-plan-card-header">
+              <h3>
+                ${escapeHtml(planName)}
+              </h3>
+
+              <strong>
+                KES ${amount.toLocaleString("en-KE")}
+              </strong>
+            </div>
+
+            <p>
+              ${escapeHtml(
+                String(billingPeriod)
+              )}
+              ·
+              ${escapeHtml(
+                String(durationDays)
+              )} days
+            </p>
+
+            <button
+              type="button"
+              class="primary-button subscription-action-button"
+              data-plan-id="${escapeHtml(
+                String(plan.id || "")
+              )}"
+            >
+              ${currentSubscription ? "Renew" : "Subscribe"}
+            </button>
+          </article>
+        `;
+      })
+      .join("");
 }
 
 function showMessage(message, type = "error") {
@@ -5339,6 +5763,8 @@ await Promise.allSettled([
   loadOwnerNotifications(),
   loadOwnerPromotions(),
   loadOwnerDeliveryZones(),
+  loadCurrentSubscription(),
+  loadSubscriptionPlans(),
 ]);
 
 
