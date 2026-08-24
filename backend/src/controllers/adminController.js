@@ -251,10 +251,12 @@ async function getPendingRestaurants(
           u.email,
           u.phone
 
-        FROM restaurants r
+               FROM restaurants r
 
         INNER JOIN users u
-         ON u.id = r.owner_id
+          ON u.id = r.owner_id
+
+        WHERE r.approval_status = 'PENDING'
 
         ORDER BY
           r.created_at DESC
