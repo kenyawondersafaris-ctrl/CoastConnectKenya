@@ -7817,6 +7817,94 @@ const initialSection =
 
 showSection(initialSection, false);
 
+async function handleSubscriptionPaymentReturn() {
+  const url =
+    new URL(window.location.href);
+
+  const reference =
+    url.searchParams.get(
+      "subscription_reference"
+    );
+
+  if (!reference) {
+    return;
+  }
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/subscriptions/verify/${encodeURIComponent(
+          reference
+        )}`,
+        {
+          method: "GET",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      logout();
+      return;
+    }
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to verify subscription payment."
+      );
+    }
+
+    url.searchParams.delete(
+      "subscription_reference"
+    );
+
+    window.history.replaceState(
+      {},
+      document.title,
+      url.toString()
+    );
+
+    showMessage(
+      "Payment successful. Your subscription is now active.",
+      "success"
+    );
+
+    await Promise.allSettled([
+      loadCurrentSubscription(),
+      loadSubscriptionPlans(),
+    ]);
+  } catch (error) {
+    console.error(
+      "Verify subscription payment error:",
+      error
+    );
+
+    showMessage(
+      error.message ||
+      "Unable to verify your payment.",
+      "error"
+    );
+  }
+}
+
+handleSubscriptionPaymentReturn();
+
 loadOwnerRestaurant();
 
 socket.on(
