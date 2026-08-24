@@ -915,6 +915,14 @@ async function getOwnerRestaurant(req, res) {
       [ownerId]
     );
 
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Restaurant profile not found for this account.",
+      });
+    }
+
     return res.status(200).json({
       success: true,
       restaurant: mapOwnerRestaurant(
