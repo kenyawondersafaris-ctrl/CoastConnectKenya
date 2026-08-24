@@ -408,6 +408,10 @@ async function initializeSubscriptionPayment(
         ),
         reference:
           paymentReference,
+          callbackUrl:
+  `${process.env.FRONTEND_URL}/restaurant-owner-dashboard.html?subscription_reference=${encodeURIComponent(
+    paymentReference
+  )}`,
 
         metadata: {
           payment_type:

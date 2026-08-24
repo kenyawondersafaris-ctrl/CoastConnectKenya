@@ -1651,7 +1651,10 @@ async function loadSubscriptionPlans() {
       );
     }
 
-    subscriptionPlans = data.plans || [];
+    subscriptionPlans = (data.plans || []).filter(
+  (plan) =>
+    plan.business_type === "RESTAURANT"
+);
     renderSubscriptionPlans();
 
   } catch (error) {
