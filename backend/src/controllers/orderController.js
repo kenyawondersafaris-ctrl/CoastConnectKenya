@@ -616,12 +616,21 @@ async function getOwnerOrders(
   try {
     const ownerId =
       req.user.userId;
+      console.log(
+  "GET OWNER ORDERS - TOKEN USER ID:",
+  ownerId
+);
 
     const restaurant =
       await findOwnerRestaurant(
         pool,
         ownerId
       );
+
+      console.log(
+  "GET OWNER ORDERS - RESTAURANT:",
+  restaurant
+);
 
     if (!restaurant) {
       return res.status(404).json({
