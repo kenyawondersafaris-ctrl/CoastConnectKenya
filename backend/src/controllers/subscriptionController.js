@@ -805,7 +805,7 @@ if (
       UPDATE subscription_payments
       SET
         status = 'SUCCESS',
-        provider_transaction_id = $1,
+        paystack_transaction_id = $1,
         paid_at = NOW(),
         updated_at = NOW()
       WHERE id = $2
