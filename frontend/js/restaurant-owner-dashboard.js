@@ -5764,46 +5764,81 @@ async function loadOwnerRestaurant() {
       return;
     }
 
-    if (!response.ok) {
-      throw new Error(
-        data.message ||
-        "Unable to load restaurant profile."
+    // Restaurant owner has not created a profile yet.
+    if (response.status === 404) {
+      ownerRestaurant = null;
+
+      resetRestaurantOverview();
+
+      populateRestaurantForm();
+
+      showMessage(
+        "Welcome! Please complete and save your restaurant profile to continue."
       );
+
+      return;
     }
 
-ownerRestaurant =
-  data.restaurant || null;
+  if (response.status === 404) {
+  ownerRestaurant = null;
 
-showRestaurantApprovalNotice();
+  resetRestaurantOverview();
 
-isRestaurantAcceptingOrders =
-  ownerRestaurant?.isAcceptingOrders !== false;
+  showMessage(
+    "Welcome! Please create your restaurant profile to start setting up your restaurant.",
+    "info"
+  );
 
-currentPauseReason =
-  ownerRestaurant?.temporaryClosedReason ||
-  null;
+  populateRestaurantForm();
 
-renderOrderAvailability();
+  await Promise.allSettled([
+    loadCurrentSubscription(),
+    loadSubscriptionPlans(),
+  ]);
 
-joinOwnerRestaurantRoom();
+  return;
+}
 
-populateRestaurantForm();
-updateRestaurantOverview();
-await Promise.allSettled([
-  loadOwnerMenuItems(),
-  loadOwnerGallery(),
-  loadOwnerOpeningHours(),
-  loadOwnerOrders(),
-  loadOwnerReviews(),
-  loadRestaurantAnalytics(),
-  loadRestaurantStaff(),
-  loadOwnerNotifications(),
-  loadOwnerPromotions(),
-  loadOwnerDeliveryZones(),
-  loadCurrentSubscription(),
-  loadSubscriptionPlans(),
-]);
+if (!response.ok) {
+  throw new Error(
+    data.message ||
+    "Unable to load restaurant profile."
+  );
+}
 
+    ownerRestaurant =
+      data.restaurant || null;
+
+    showRestaurantApprovalNotice();
+
+    isRestaurantAcceptingOrders =
+      ownerRestaurant?.isAcceptingOrders !== false;
+
+    currentPauseReason =
+      ownerRestaurant?.temporaryClosedReason ||
+      null;
+
+    renderOrderAvailability();
+
+    joinOwnerRestaurantRoom();
+
+    populateRestaurantForm();
+    updateRestaurantOverview();
+
+    await Promise.allSettled([
+      loadOwnerMenuItems(),
+      loadOwnerGallery(),
+      loadOwnerOpeningHours(),
+      loadOwnerOrders(),
+      loadOwnerReviews(),
+      loadRestaurantAnalytics(),
+      loadRestaurantStaff(),
+      loadOwnerNotifications(),
+      loadOwnerPromotions(),
+      loadOwnerDeliveryZones(),
+      loadCurrentSubscription(),
+      loadSubscriptionPlans(),
+    ]);
 
   } catch (error) {
     console.error(
