@@ -5708,6 +5708,38 @@ function renderOrderAvailability() {
 
 }
 
+function showRestaurantApprovalNotice() {
+  if (!ownerRestaurant) {
+    return;
+  }
+
+  const approvalStatus =
+    String(
+      ownerRestaurant.approvalStatus || "PENDING"
+    ).toUpperCase();
+
+  if (approvalStatus === "PENDING") {
+    showMessage(
+      "Your restaurant profile has been submitted successfully and is waiting for admin approval. Some restaurant features will become available after approval.",
+      "info"
+    );
+  }
+
+  if (approvalStatus === "REJECTED") {
+    showMessage(
+      "Your restaurant profile was not approved. Please review your restaurant details and update them before submitting again.",
+      "error"
+    );
+  }
+
+  if (approvalStatus === "APPROVED") {
+    showMessage(
+      "Your restaurant has been approved and is now available on Coast Connect.",
+      "success"
+    );
+  }
+}
+
 async function loadOwnerRestaurant() {
   try {
     const response = await fetch(
@@ -5739,10 +5771,12 @@ async function loadOwnerRestaurant() {
       );
     }
 
- ownerRestaurant =
+ownerRestaurant =
   data.restaurant || null;
 
-  isRestaurantAcceptingOrders =
+showRestaurantApprovalNotice();
+
+isRestaurantAcceptingOrders =
   ownerRestaurant?.isAcceptingOrders !== false;
 
 currentPauseReason =
