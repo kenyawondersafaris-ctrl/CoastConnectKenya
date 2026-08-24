@@ -25,16 +25,16 @@ router.get(
   getOwnerMenuItems
 );
 
-
 router.post(
   "/restaurants/:restaurantId/menu",
   requireActiveSubscription,
   createMenuItem
 );
-router.post(
-  "/restaurants/:restaurantId/menu",
+
+router.put(
+  "/:restaurantId/menu/:menuItemId",
   requireActiveSubscription,
-  createMenuItem
+  updateMenuItem
 );
 
 router.delete(
