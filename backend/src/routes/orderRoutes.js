@@ -54,6 +54,7 @@ router.patch(
   "/staff/:orderId/status",
   authenticate,
   requireRole("RESTAURANT_STAFF"),
+  requireActiveSubscription,
   updateStaffOrderStatus
 );
 
