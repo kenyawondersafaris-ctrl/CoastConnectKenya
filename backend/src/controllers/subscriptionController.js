@@ -279,7 +279,7 @@ async function initializeSubscriptionPayment(
               $1::uuid
 
               AND verification_status =
-                'APPROVED'
+              'VERIFIED'
 
             LIMIT 1
           `,
