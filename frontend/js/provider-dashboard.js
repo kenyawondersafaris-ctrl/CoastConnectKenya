@@ -463,109 +463,7 @@ function renderSubscriptionPlans() {
       .join("");
 }
 
-providerSubscriptionPlansContainer?.addEventListener(
-  "click",
-  async (event) => {
-    const button = event.target.closest(
-      ".provider-subscription-action-button"
-    );
 
-    if (!button) {
-      return;
-    }
-
-    const planId =
-      button.dataset.planId;
-
-    if (!planId) {
-      setMessage(
-        providerDashboardMessage,
-        "Unable to identify the selected subscription plan."
-      );
-
-      return;
-    }
-
-    button.disabled = true;
-
-    const originalText =
-      button.textContent;
-
-    button.textContent =
-      "Processing...";
-
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/subscriptions/initialize`,
-        {
-          method: "POST",
-
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-
-            "Content-Type":
-              "application/json",
-
-            Accept:
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            planId,
-          }),
-        }
-      );
-
-      const data =
-        await response.json();
-
-      if (
-        response.status === 401 ||
-        response.status === 403
-      ) {
-        logout();
-        return;
-      }
-
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-        throw new Error(
-          data.message ||
-          "Unable to initialize subscription payment."
-        );
-      }
-
-      if (!data.authorizationUrl) {
-        throw new Error(
-          "Payment authorization URL was not returned."
-        );
-      }
-
-      window.location.href =
-        data.authorizationUrl;
-
-    } catch (error) {
-      console.error(
-        "Initialize provider subscription error:",
-        error
-      );
-
-      setMessage(
-        providerDashboardMessage,
-        error.message ||
-          "Unable to start subscription payment."
-      );
-
-      button.disabled = false;
-
-      button.textContent =
-        originalText;
-    }
-  }
-);
 
 async function loadProviderBookings() {
   if (!providerBookingsGrid) {
@@ -1108,6 +1006,110 @@ const providerSubscriptionPlansContainer =
   document.getElementById(
     "providerSubscriptionPlansContainer"
   );
+
+  providerSubscriptionPlansContainer?.addEventListener(
+  "click",
+  async (event) => {
+    const button = event.target.closest(
+      ".provider-subscription-action-button"
+    );
+
+    if (!button) {
+      return;
+    }
+
+    const planId =
+      button.dataset.planId;
+
+    if (!planId) {
+      setMessage(
+        providerDashboardMessage,
+        "Unable to identify the selected subscription plan."
+      );
+
+      return;
+    }
+
+    button.disabled = true;
+
+    const originalText =
+      button.textContent;
+
+    button.textContent =
+      "Processing...";
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/subscriptions/initialize`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            planId,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        logout();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to initialize subscription payment."
+        );
+      }
+
+      if (!data.authorizationUrl) {
+        throw new Error(
+          "Payment authorization URL was not returned."
+        );
+      }
+
+      window.location.href =
+        data.authorizationUrl;
+
+    } catch (error) {
+      console.error(
+        "Initialize provider subscription error:",
+        error
+      );
+
+      setMessage(
+        providerDashboardMessage,
+        error.message ||
+          "Unable to start subscription payment."
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
 
 
   if (providerProfilePhoto) {
