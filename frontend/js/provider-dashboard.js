@@ -149,6 +149,424 @@ function formatProviderBookingTime(
   return `${displayHour}:${minuteValue || "00"} ${suffix}`;
 }
 
+async function loadCurrentSubscription() {
+  if (!providerSubscriptionStatusContainer) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/subscriptions/me`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      logout();
+      return;
+    }
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message ||
+        "Unable to load subscription."
+      );
+    }
+
+    currentSubscription =
+      data.subscription || null;
+
+    renderCurrentSubscription();
+  } catch (error) {
+    console.error(
+      "Load subscription error:",
+      error
+    );
+
+    currentSubscription = null;
+
+    providerSubscriptionStatusContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          ⚠️
+        </div>
+
+        <h3>
+          Unable to load subscription
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            error.message ||
+            "Please try again later."
+          )}
+        </p>
+      </div>
+    `;
+  }
+}
+
+function renderCurrentSubscription() {
+  if (!providerSubscriptionStatusContainer) {
+    return;
+  }
+
+  if (!currentSubscription) {
+    providerSubscriptionStatusContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          📋
+        </div>
+
+        <h3>
+          No active subscription
+        </h3>
+
+        <p>
+          Choose a subscription plan below to get
+          started.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+  const status =
+    String(
+      currentSubscription.status || "PENDING"
+    ).toUpperCase();
+
+  providerSubscriptionStatusContainer.innerHTML = `
+    <div class="subscription-status-card">
+      <div class="subscription-status-header">
+        <div>
+          <span class="provider-label">
+            Current subscription
+          </span>
+
+          <h3>
+            ${escapeHtml(
+              currentSubscription.plan_name ||
+              "Subscription"
+            )}
+          </h3>
+        </div>
+
+        <span class="subscription-status-badge">
+          ${escapeHtml(status)}
+        </span>
+      </div>
+
+      <div class="subscription-status-details">
+        <div>
+          <span>Billing</span>
+
+          <strong>
+            ${escapeHtml(
+              currentSubscription.billing_period ||
+              "-"
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>Amount</span>
+
+          <strong>
+            KES ${Number(
+              currentSubscription.amount_kes || 0
+            ).toLocaleString("en-KE")}
+          </strong>
+        </div>
+
+        <div>
+          <span>Duration</span>
+
+          <strong>
+            ${escapeHtml(
+              String(
+                currentSubscription.duration_days || 0
+              )
+            )} days
+          </strong>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function loadSubscriptionPlans() {
+  if (!providerSubscriptionPlansContainer) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/subscriptions/plans`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      logout();
+      return;
+    }
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message ||
+        "Unable to load subscription plans."
+      );
+    }
+
+    subscriptionPlans =
+      (data.plans || []).filter(
+        (plan) =>
+          plan.business_type === "PROVIDER"
+      );
+
+    renderSubscriptionPlans();
+  } catch (error) {
+    console.error(
+      "Load subscription plans error:",
+      error
+    );
+
+    subscriptionPlans = [];
+
+    providerSubscriptionPlansContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          ⚠️
+        </div>
+
+        <h3>
+          Unable to load subscription plans
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            error.message ||
+            "Please try again later."
+          )}
+        </p>
+      </div>
+    `;
+  }
+}
+
+function renderSubscriptionPlans() {
+  if (!providerSubscriptionPlansContainer) {
+    return;
+  }
+
+  if (subscriptionPlans.length === 0) {
+    providerSubscriptionPlansContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          📋
+        </div>
+
+        <h3>
+          No subscription plans available
+        </h3>
+
+        <p>
+          Please check again later.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+  providerSubscriptionPlansContainer.innerHTML =
+    subscriptionPlans
+      .map((plan) => {
+        const planName =
+          plan.name ||
+          plan.plan_name ||
+          "Subscription Plan";
+
+        const amount =
+          Number(
+            plan.amount_kes ??
+            plan.amount ??
+            0
+          );
+
+        const billingPeriod =
+          plan.billing_period ||
+          plan.billingPeriod ||
+          "MONTHLY";
+
+        const durationDays =
+          plan.duration_days ||
+          plan.durationDays ||
+          30;
+
+        return `
+          <article class="subscription-plan-card">
+            <div class="subscription-plan-card-header">
+              <h3>
+                ${escapeHtml(planName)}
+              </h3>
+
+              <strong>
+                KES ${amount.toLocaleString("en-KE")}
+              </strong>
+            </div>
+
+            <p>
+              ${escapeHtml(
+                String(billingPeriod)
+              )}
+              ·
+              ${escapeHtml(
+                String(durationDays)
+              )} days
+            </p>
+
+            <button
+              type="button"
+              class="primary-button provider-subscription-action-button"
+              data-plan-id="${escapeHtml(
+                String(plan.id || "")
+              )}"
+            >
+              ${currentSubscription ? "Renew" : "Subscribe"}
+            </button>
+          </article>
+        `;
+      })
+      .join("");
+}
+
+providerSubscriptionPlansContainer?.addEventListener(
+  "click",
+  async (event) => {
+    const button = event.target.closest(
+      ".provider-subscription-action-button"
+    );
+
+    if (!button) {
+      return;
+    }
+
+    const planId =
+      button.dataset.planId;
+
+    if (!planId) {
+      setMessage(
+        providerDashboardMessage,
+        "Unable to identify the selected subscription plan."
+      );
+
+      return;
+    }
+
+    button.disabled = true;
+
+    const originalText =
+      button.textContent;
+
+    button.textContent =
+      "Processing...";
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/subscriptions/initialize`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            planId,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        logout();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to initialize subscription payment."
+        );
+      }
+
+      if (!data.authorizationUrl) {
+        throw new Error(
+          "Payment authorization URL was not returned."
+        );
+      }
+
+      window.location.href =
+        data.authorizationUrl;
+
+    } catch (error) {
+      console.error(
+        "Initialize provider subscription error:",
+        error
+      );
+
+      setMessage(
+        providerDashboardMessage,
+        error.message ||
+          "Unable to start subscription payment."
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
+
 async function loadProviderBookings() {
   if (!providerBookingsGrid) {
     return;
@@ -681,6 +1099,16 @@ const providerLogoutButton =
     "providerLogoutButton"
   );
 
+  const providerSubscriptionStatusContainer =
+  document.getElementById(
+    "providerSubscriptionStatusContainer"
+  );
+
+const providerSubscriptionPlansContainer =
+  document.getElementById(
+    "providerSubscriptionPlansContainer"
+  );
+
 
   if (providerProfilePhoto) {
   providerProfilePhoto.addEventListener(
@@ -973,6 +1401,9 @@ let providerServices = [];
 let providerCategories = [];
 let providerProfileExists = false;
 
+let currentSubscription = null;
+let subscriptionPlans = [];
+
 /*
 |--------------------------------------------------------------------------
 | Initial display
@@ -1086,8 +1517,11 @@ async function initializeProviderDashboard() {
     loadProviderProfile(),
     loadServiceCategories(),
     loadProfessionalVerification(),
-
+    loadCurrentSubscription(),
+    loadSubscriptionPlans(),
   ]);
+
+  await handleProviderSubscriptionPaymentReturn();
 
   await loadProviderServices();
   initializeBookingSocket();
@@ -1990,7 +2424,7 @@ function renderProviderServices() {
       .join("");
 }
 
-function openCreateServiceForm() {
+async function openCreateServiceForm() {
   if (!providerProfileExists) {
     setMessage(
       providerServicesMessage,
@@ -2007,6 +2441,25 @@ function openCreateServiceForm() {
 
     return;
   }
+
+  if (
+  !currentSubscription ||
+  String(
+    currentSubscription.status || ""
+  ).toUpperCase() !== "ACTIVE"
+) {
+  showMessage(
+    "An active subscription is required before adding services.",
+    "error"
+  );
+
+  providerDashboardMessage?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+
+  return;
+}
 
   resetProviderServiceForm();
 
@@ -4008,4 +4461,94 @@ function showStartPinModal() {
       });
     });
   });
+}
+
+
+async function handleProviderSubscriptionPaymentReturn() {
+  const url =
+    new URL(window.location.href);
+
+  const reference =
+    url.searchParams.get(
+      "subscription_reference"
+    );
+
+  if (!reference) {
+    return;
+  }
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/subscriptions/verify/${encodeURIComponent(
+          reference
+        )}`,
+        {
+          method: "GET",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      logout();
+      return;
+    }
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to verify subscription payment."
+      );
+    }
+
+    url.searchParams.delete(
+      "subscription_reference"
+    );
+
+    window.history.replaceState(
+      {},
+      document.title,
+      url.toString()
+    );
+
+    setMessage(
+      providerDashboardMessage,
+      "Payment successful. Your subscription is now active.",
+      "success"
+    );
+
+    await Promise.allSettled([
+      loadCurrentSubscription(),
+      loadSubscriptionPlans(),
+    ]);
+
+  } catch (error) {
+    console.error(
+      "Verify provider subscription payment error:",
+      error
+    );
+
+    setMessage(
+      providerDashboardMessage,
+      error.message ||
+        "Unable to verify your payment.",
+      "error"
+    );
+  }
 }
