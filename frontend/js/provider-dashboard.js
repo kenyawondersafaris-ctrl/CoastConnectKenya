@@ -168,13 +168,10 @@ async function loadCurrentSubscription() {
 
     const data = await response.json();
 
-    if (
-      response.status === 401 ||
-      response.status === 403
-    ) {
-      logout();
-      return;
-    }
+    if (response.status === 401) {
+  clearSessionAndRedirect();
+  return;
+}
 
     if (!response.ok || !data.success) {
       throw new Error(
@@ -325,13 +322,10 @@ async function loadSubscriptionPlans() {
 
     const data = await response.json();
 
-    if (
-      response.status === 401 ||
-      response.status === 403
-    ) {
-      logout();
-      return;
-    }
+   if (response.status === 401) {
+  clearSessionAndRedirect();
+  return;
+}
 
     if (!response.ok || !data.success) {
       throw new Error(
@@ -1064,14 +1058,10 @@ const providerSubscriptionPlansContainer =
       const data =
         await response.json();
 
-      if (
-        response.status === 401 ||
-        response.status === 403
-      ) {
-        logout();
-        return;
-      }
-
+     if (response.status === 401) {
+  clearSessionAndRedirect();
+  return;
+}
       if (
         !response.ok ||
         !data.success
