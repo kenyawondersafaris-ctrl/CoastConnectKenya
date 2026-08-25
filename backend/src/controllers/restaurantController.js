@@ -261,9 +261,22 @@ async function getRestaurants(req, res) {
       ALLOWED_SORTS[sort] ||
       ALLOWED_SORTS.recommended;
 
-    const conditions = [
-      "r.approval_status = 'APPROVED'",
-    ];
+   const conditions = [
+  "r.approval_status = 'APPROVED'",
+
+  `EXISTS (
+    SELECT 1
+    FROM business_subscriptions bs
+
+    WHERE bs.user_id = r.owner_id
+      AND bs.business_type = 'RESTAURANT'
+      AND bs.status = 'ACTIVE'
+      AND (
+        bs.expires_at IS NULL
+        OR bs.expires_at > CURRENT_TIMESTAMP
+      )
+  )`,
+];
 
     const values = [];
 
@@ -613,15 +626,28 @@ END AS is_open
       LEFT JOIN locations l
         ON l.id = r.location_id
 
-      WHERE
-        r.approval_status = 'APPROVED'
+     WHERE
+  r.approval_status = 'APPROVED'
 
-        AND (
-          LOWER(COALESCE(r.slug, '')) =
-            LOWER($1)
+  AND EXISTS (
+    SELECT 1
+    FROM business_subscriptions bs
 
-          OR r.id::TEXT = $1
-        )
+    WHERE bs.user_id = r.owner_id
+      AND bs.business_type = 'RESTAURANT'
+      AND bs.status = 'ACTIVE'
+      AND (
+        bs.expires_at IS NULL
+        OR bs.expires_at > CURRENT_TIMESTAMP
+      )
+  )
+
+  AND (
+    LOWER(COALESCE(r.slug, '')) =
+      LOWER($1)
+
+    OR r.id::TEXT = $1
+  )
 
       LIMIT 1
     `;

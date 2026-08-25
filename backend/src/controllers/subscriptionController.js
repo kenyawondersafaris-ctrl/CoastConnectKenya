@@ -256,6 +256,70 @@ async function initializeSubscriptionPayment(
 
     }
 
+          /*
+    |--------------------------------------------------------------------------
+    | Ensure business profile has been approved
+    |--------------------------------------------------------------------------
+    */
+
+    let approvalResult;
+
+    if (
+      businessType === "PROVIDER"
+    ) {
+      approvalResult =
+        await client.query(
+          `
+            SELECT
+              id
+
+            FROM provider_profiles
+
+            WHERE user_id =
+              $1::uuid
+
+              AND verification_status =
+                'APPROVED'
+
+            LIMIT 1
+          `,
+          [
+            userId,
+          ]
+        );
+    } else {
+      approvalResult =
+        await client.query(
+          `
+            SELECT
+              id
+
+            FROM restaurants
+
+            WHERE owner_id =
+              $1::uuid
+
+              AND approval_status =
+                'APPROVED'
+
+            LIMIT 1
+          `,
+          [
+            userId,
+          ]
+        );
+    }
+
+    if (
+      approvalResult.rows.length === 0
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Your business must be approved before you can purchase a subscription.",
+      });
+    }
+
 
     /*
     |--------------------------------------------------------------------------

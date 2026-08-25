@@ -1476,7 +1476,22 @@ const restaurantResult =
 
       WHERE r.id = $1::uuid
 
-      LIMIT 1
+  AND r.approval_status = 'APPROVED'
+
+  AND EXISTS (
+    SELECT 1
+    FROM business_subscriptions bs
+
+    WHERE bs.user_id = r.owner_id
+      AND bs.business_type = 'RESTAURANT'
+      AND bs.status = 'ACTIVE'
+      AND (
+        bs.expires_at IS NULL
+        OR bs.expires_at > CURRENT_TIMESTAMP
+      )
+  )
+
+LIMIT 1
     `,
     [
       restaurantId,
