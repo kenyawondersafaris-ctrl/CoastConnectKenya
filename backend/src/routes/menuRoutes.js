@@ -26,7 +26,7 @@ router.get(
 );
 
 router.post(
-  "/restaurants/:restaurantId/menu",
+  "/:restaurantId/menu",
   requireActiveSubscription,
   createMenuItem
 );
