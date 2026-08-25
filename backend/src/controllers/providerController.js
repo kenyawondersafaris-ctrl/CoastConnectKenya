@@ -561,7 +561,20 @@ async function getProviders(
     const where = [
   `pp.availability_status = 'AVAILABLE'`,
   `pp.verification_status = 'APPROVED'`,
-  `ps.is_active = TRUE`
+  `ps.is_active = TRUE`,
+  `
+    EXISTS (
+      SELECT 1
+      FROM business_subscriptions bs
+      WHERE bs.user_id = pp.user_id
+        AND bs.business_type = 'PROVIDER'
+        AND UPPER(bs.status) = 'ACTIVE'
+        AND (
+          bs.expires_at IS NULL
+          OR bs.expires_at > CURRENT_TIMESTAMP
+        )
+    )
+  `
 ];
 
     if (search) {
@@ -694,13 +707,28 @@ async function getProviderDetails(
           INNER JOIN users u
             ON u.id = pp.user_id
 
-          WHERE pp.id =
-          $1::uuid
+         WHERE pp.id =
+  $1::uuid
 
-          AND pp.verification_status =
-            'APPROVED'
+AND pp.verification_status =
+  'APPROVED'
 
-          LIMIT 1
+AND pp.availability_status =
+  'AVAILABLE'
+
+AND EXISTS (
+  SELECT 1
+  FROM business_subscriptions bs
+  WHERE bs.user_id = pp.user_id
+    AND bs.business_type = 'PROVIDER'
+    AND UPPER(bs.status) = 'ACTIVE'
+    AND (
+      bs.expires_at IS NULL
+      OR bs.expires_at > CURRENT_TIMESTAMP
+    )
+)
+
+LIMIT 1
         `,
         [providerId]
       );

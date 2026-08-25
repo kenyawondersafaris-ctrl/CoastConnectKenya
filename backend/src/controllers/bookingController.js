@@ -1010,19 +1010,19 @@ async function createBooking(
       );
 
     if (
-      subscriptionResult.rows.length ===
-      0
-    ) {
-      await client.query(
-        "ROLLBACK"
-      );
+  subscriptionResult.rows.length ===
+  0
+) {
+  await client.query(
+    "ROLLBACK"
+  );
 
-      return res.status(409).json({
-        success: false,
-        message:
-          "This provider does not currently have an active subscription and cannot receive new bookings.",
-      });
-    }
+  return res.status(409).json({
+    success: false,
+    message:
+      "This provider is currently unavailable for new bookings.",
+  });
+}
     const duplicateResult =
       await client.query(
         `
