@@ -967,6 +967,62 @@ async function createBooking(
   });
 }
 
+    const subscriptionResult =
+      await client.query(
+        `
+          SELECT
+            id
+
+          FROM business_subscriptions
+
+          WHERE user_id =
+            (
+              SELECT user_id
+
+              FROM provider_profiles
+
+              WHERE id =
+                $1::uuid
+
+              LIMIT 1
+            )
+
+            AND business_type =
+              'PROVIDER'
+
+            AND status =
+              'ACTIVE'
+
+            AND (
+              expires_at IS NULL
+              OR expires_at >
+                CURRENT_TIMESTAMP
+            )
+
+          ORDER BY
+            created_at DESC
+
+          LIMIT 1
+        `,
+        [
+          providerId,
+        ]
+      );
+
+    if (
+      subscriptionResult.rows.length ===
+      0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "This provider does not currently have an active subscription and cannot receive new bookings.",
+      });
+    }
     const duplicateResult =
       await client.query(
         `
