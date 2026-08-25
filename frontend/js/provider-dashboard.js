@@ -4501,13 +4501,17 @@ async function handleProviderSubscriptionPaymentReturn() {
     const data =
       await response.json();
 
-    if (
-      response.status === 401 ||
-      response.status === 403
-    ) {
-      logout();
-      return;
-    }
+   if (response.status === 401) {
+  window.location.href = "login.html";
+  return;
+}
+
+if (response.status === 403) {
+  throw new Error(
+    data.message ||
+    "Your account is not allowed to purchase this subscription yet."
+  );
+}
 
     if (
       !response.ok ||
