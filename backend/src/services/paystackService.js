@@ -88,7 +88,7 @@ async function initializePaystackTransaction({
 
   if (!normalizedEmail) {
     throw new Error(
-      "Customer email is required for card payment."
+      "Customer email is required for payment."
     );
   }
 
@@ -113,19 +113,6 @@ async function initializePaystackTransaction({
     reference:
       normalizedReference,
 
-    /*
-    |--------------------------------------------------------------------------
-    | Restrict this integration to card
-    |--------------------------------------------------------------------------
-    |
-    | Coast Connect already uses Safaricom Daraja directly for M-Pesa.
-    | We therefore do not ask Paystack to offer another M-Pesa channel here.
-    |
-    */
-
-    channels: [
-      "card",
-    ],
 
     metadata:
       metadata &&
