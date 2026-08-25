@@ -51,6 +51,11 @@ const authenticate =
 const requireRole =
   require("../middleware/requireRole");
 
+ const requireActiveProviderSubscription =
+  require(
+    "../middleware/requireActiveProviderSubscription"
+  );
+
 const router = express.Router();
 
 /*
@@ -98,6 +103,7 @@ router.patch(
   "/me/availability",
   authenticate,
   requireRole("PROVIDER"),
+  requireActiveProviderSubscription,
   updateMyAvailability
 );
 
@@ -112,9 +118,9 @@ router.patch(
   "/me/bookings/:bookingId/status",
   authenticate,
   requireRole("PROVIDER"),
+  requireActiveProviderSubscription,
   updateProviderBookingStatus
 );
-
 /*
 |--------------------------------------------------------------------------
 | Logged-in Provider Services
@@ -132,6 +138,7 @@ router.post(
   "/me/services",
   authenticate,
   requireRole("PROVIDER"),
+  requireActiveProviderSubscription,
   createMyProviderService
 );
 
@@ -139,6 +146,7 @@ router.patch(
   "/me/services/:serviceId",
   authenticate,
   requireRole("PROVIDER"),
+  requireActiveProviderSubscription,
   updateMyProviderService
 );
 
@@ -146,6 +154,7 @@ router.delete(
   "/me/services/:serviceId",
   authenticate,
   requireRole("PROVIDER"),
+  requireActiveProviderSubscription,
   deleteMyProviderService
 );
 
