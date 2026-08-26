@@ -397,7 +397,74 @@ if (io) {
         payment.payment_stage,
       ]
     );
+  
+
+      const io =
+      req.app.get("io");
+
+    if (io) {
+      const paymentStatus =
+        payment.payment_stage ===
+        "BALANCE"
+          ? "PARTIALLY_PAID"
+          : "UNPAID";
+
+      const message =
+        resultDesc ||
+        "The customer did not complete the M-Pesa payment.";
+
+      io.to(
+        `customer:${payment.customer_id}`
+      ).emit(
+        "provider-payment-failed",
+        {
+          bookingId:
+            payment.booking_id,
+
+          providerId:
+            payment.provider_id,
+
+          paymentReference:
+            externalReference,
+
+          paymentStage:
+            payment.payment_stage,
+
+          paymentStatus,
+
+          paymentResult:
+            "FAILED",
+
+          resultCode,
+
+          message,
+        }
+      );
+
+      io.to(
+        `provider:${payment.provider_id}`
+      ).emit(
+        "provider-booking-payment-updated",
+        {
+          bookingId:
+            payment.booking_id,
+
+          paymentStatus,
+
+          paymentStage:
+            payment.payment_stage,
+
+          paymentResult:
+            "FAILED",
+
+          resultCode,
+
+          message,
+        }
+           );
+    }
   }
+
 
 
 
