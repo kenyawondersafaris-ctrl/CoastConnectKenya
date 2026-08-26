@@ -794,6 +794,34 @@ function renderCustomerBookings() {
 
               </div>
 
+              ${
+  bookingStatus ===
+  "AWAITING_CUSTOMER_CONFIRMATION"
+    ? `
+      <div class="booking-completion-confirmation">
+        <strong>
+          Your provider has marked this job as completed.
+        </strong>
+
+        <p>
+          Please confirm that the service was completed
+          successfully before making the remaining payment.
+        </p>
+
+        <button
+          type="button"
+          class="confirm-booking-completion-button"
+          data-booking-id="${escapeHtml(
+            booking.id
+          )}"
+        >
+          Confirm Job Completed
+        </button>
+      </div>
+    `
+    : ""
+}
+
               <div class="booking-card-footer">
 
                 <div class="booking-price">
@@ -852,34 +880,6 @@ function renderCustomerBookings() {
             hidden
           ></div>
         </div>
-      </div>
-    `
-    : ""
-}
-
-${
-  bookingStatus ===
-  "AWAITING_CUSTOMER_CONFIRMATION"
-    ? `
-      <div class="booking-completion-confirmation">
-        <strong>
-          Your provider has marked this job as completed.
-        </strong>
-
-        <p>
-          Please confirm that the service was completed
-          successfully before making the remaining payment.
-        </p>
-
-        <button
-          type="button"
-          class="confirm-booking-completion-button"
-          data-booking-id="${escapeHtml(
-            booking.id
-          )}"
-        >
-          Confirm Job Completed
-        </button>
       </div>
     `
     : ""
