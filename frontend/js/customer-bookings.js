@@ -897,14 +897,10 @@ ${
                     )}
                     </span>
 
-                ${
+               ${
   (
     bookingStatus === "CONFIRMED" &&
     paymentStatus === "UNPAID"
-  ) ||
-  (
-    bookingStatus === "IN_PROGRESS" &&
-    paymentStatus === "PARTIALLY_PAID"
   ) ||
   (
     bookingStatus === "COMPLETED" &&
