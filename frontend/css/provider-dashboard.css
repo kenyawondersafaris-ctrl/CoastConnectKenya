@@ -1594,6 +1594,21 @@ input[type="file"]:hover {
   font-size: 1.8rem;
 }
 
+.status-in_progress {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-awaiting_customer_confirmation {
+  background: #fff7e6;
+  color: #b45309;
+}
+
+.status-completed {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
 @media (max-width: 900px) {
   .subscription-plans-container {
     grid-template-columns:
