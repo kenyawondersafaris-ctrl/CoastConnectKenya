@@ -1148,6 +1148,66 @@ main.container {
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Customer job completion confirmation */
+
+.booking-completion-confirmation {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 18px 20px;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #eff6ff;
+}
+
+.booking-completion-confirmation strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #1e3a5f;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.booking-completion-confirmation p {
+  margin: 0 0 16px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.confirm-booking-completion-button {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.confirm-booking-completion-button:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+.confirm-booking-completion-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .booking-completion-confirmation {
+    padding: 16px;
+    border-radius: 12px;
+  }
+}
 @media (max-width: 520px) {
     .payment-modal-card {
         padding: 24px 20px;
