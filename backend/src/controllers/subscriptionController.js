@@ -475,9 +475,13 @@ async function initializeSubscriptionPayment(
         reference:
           paymentReference,
           callbackUrl:
-  `${process.env.FRONTEND_URL}/restaurant-owner-dashboard.html?subscription_reference=${encodeURIComponent(
-    paymentReference
-  )}`,
+  businessType === "PROVIDER"
+    ? `${process.env.FRONTEND_URL}/provider-dashboard.html?subscription_reference=${encodeURIComponent(
+        paymentReference
+      )}`
+    : `${process.env.FRONTEND_URL}/restaurant-owner-dashboard.html?subscription_reference=${encodeURIComponent(
+        paymentReference
+      )}`,
 
         metadata: {
           payment_type:
