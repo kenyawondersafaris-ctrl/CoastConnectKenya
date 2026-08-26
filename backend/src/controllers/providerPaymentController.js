@@ -2320,37 +2320,30 @@ async function handleProviderMpesaCallback(
 
     if (io) {
       io.to(
-        `customer:${payment.customer_id}`
-      ).emit(
-        "provider-payment-failed",
-        {
-          bookingId:
-            payment.booking_id,
+  `provider:${payment.provider_id}`
+).emit(
+  "provider-booking-payment-updated",
+  {
+    bookingId:
+      payment.booking_id,
 
-          paymentReference:
-            payment.payment_reference,
+    paymentStatus:
+      payment.payment_stage ===
+        "BALANCE"
+        ? "PARTIALLY_PAID"
+        : "UNPAID",
 
-          message:
-            resultDescription ||
-            "M-Pesa payment was not completed.",
-        }
-      );
+    paymentStage:
+      payment.payment_stage,
 
-      io.to(
-        `provider:${payment.provider_id}`
-      ).emit(
-        "provider-booking-payment-updated",
-        {
-          bookingId:
-            payment.booking_id,
+    paymentResult:
+      "FAILED",
 
-          paymentStatus:
-  payment.payment_stage ===
-    "BALANCE"
-    ? "PARTIALLY_PAID"
-    : "UNPAID",
-        }
-      );
+    message:
+      resultDescription ||
+      "The customer did not complete the M-Pesa payment.",
+  }
+);
     }
 
     return {

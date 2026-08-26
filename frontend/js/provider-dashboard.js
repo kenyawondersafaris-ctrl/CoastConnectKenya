@@ -4171,24 +4171,38 @@ function initializeBookingSocket() {
     }
   );
 
-  socket.on(
-    "provider-booking-payment-updated",
-    async (payment) => {
-      console.log(
-        "Provider payment updated:",
-        payment
+ socket.on(
+  "provider-booking-payment-updated",
+  async (payment) => {
+    console.log(
+      "Provider payment updated:",
+      payment
+    );
+
+    await loadProviderBookings();
+
+    const paymentResult =
+      String(
+        payment.paymentResult || ""
+      ).toUpperCase();
+
+    const message =
+      payment.message ||
+      (
+        paymentResult === "FAILED"
+          ? "The customer did not complete the payment."
+          : "Booking payment received."
       );
 
-      await loadProviderBookings();
-
-      setMessage(
-        providerBookingsMessage,
-        "Booking payment updated.",
-        "success"
-      );
-    }
-  );
-
+    setMessage(
+      providerBookingsMessage,
+      message,
+      paymentResult === "FAILED"
+        ? "error"
+        : "success"
+    );
+  }
+);
   // IMPORTANT:
   // Socket may already be connected before
   // initializeBookingSocket() is called.
