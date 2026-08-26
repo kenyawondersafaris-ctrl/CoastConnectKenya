@@ -143,7 +143,7 @@ async function approveProvider(
         UPDATE provider_profiles
 
         SET
-          verification_status='VERIFIED',
+          verification_status='APPROVED',
           availability_status='AVAILABLE',
           updated_at=NOW()
 
