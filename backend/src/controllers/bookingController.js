@@ -1743,6 +1743,171 @@ async function createBookingReview(
   }
 }
 
+async function confirmBookingCompletion(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const userId =
+      req.user.userId;
+
+    const bookingId =
+      cleanText(
+        req.params.bookingId
+      );
+
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        bookingId
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid booking ID.",
+      });
+    }
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const bookingResult =
+      await client.query(
+        `
+          SELECT
+            id,
+            customer_id,
+            provider_id,
+            booking_status,
+            payment_status
+          FROM bookings
+          WHERE id = $1::uuid
+          LIMIT 1
+          FOR UPDATE
+        `,
+        [bookingId]
+      );
+
+    const booking =
+      bookingResult.rows[0];
+
+    if (!booking) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Booking not found.",
+      });
+    }
+
+    if (
+      booking.customer_id !==
+      userId
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "You are not authorized to confirm this booking.",
+      });
+    }
+
+    if (
+      booking.booking_status !==
+      "AWAITING_CUSTOMER_CONFIRMATION"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(400).json({
+        success: false,
+        message:
+          "This booking is not awaiting customer confirmation.",
+      });
+    }
+
+    const updateResult =
+      await client.query(
+        `
+          UPDATE bookings
+          SET
+            booking_status = 'COMPLETED',
+            updated_at = NOW()
+          WHERE id = $1::uuid
+          RETURNING
+            id,
+            customer_id,
+            provider_id,
+            booking_status,
+            payment_status,
+            updated_at
+        `,
+        [bookingId]
+      );
+
+    await client.query(
+      "COMMIT"
+    );
+
+    const updatedBooking =
+      updateResult.rows[0];
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Job completion confirmed successfully.",
+      booking: {
+        id:
+          updatedBooking.id,
+
+        bookingStatus:
+          updatedBooking.booking_status,
+
+        paymentStatus:
+          updatedBooking.payment_status,
+
+        updatedAt:
+          updatedBooking.updated_at,
+      },
+    });
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (rollbackError) {
+      console.error(
+        "Confirm completion rollback error:",
+        rollbackError
+      );
+    }
+
+    console.error(
+      "Confirm booking completion error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to confirm job completion.",
+    });
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   createBooking,
   getMyBookings,
@@ -1750,4 +1915,5 @@ module.exports = {
   generateBookingStartPin,
   verifyBookingStartPin,
   requestBookingStart,
+  confirmBookingCompletion,
 };

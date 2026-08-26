@@ -9,6 +9,7 @@ const {
   generateBookingStartPin,
   verifyBookingStartPin,
   requestBookingStart,
+  confirmBookingCompletion,
 } = require("../controllers/bookingController");
 
 const authenticate =
@@ -46,6 +47,13 @@ router.post(
   authenticate,
   requireRole("PROVIDER"),
   verifyBookingStartPin
+);
+
+router.post(
+  "/:bookingId/confirm-completion",
+  authenticate,
+  requireRole("CUSTOMER"),
+  confirmBookingCompletion
 );
 
 router.post(

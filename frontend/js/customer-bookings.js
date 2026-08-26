@@ -857,6 +857,34 @@ function renderCustomerBookings() {
     : ""
 }
 
+${
+  bookingStatus ===
+  "AWAITING_CUSTOMER_CONFIRMATION"
+    ? `
+      <div class="booking-completion-confirmation">
+        <strong>
+          Your provider has marked this job as completed.
+        </strong>
+
+        <p>
+          Please confirm that the service was completed
+          successfully before making the remaining payment.
+        </p>
+
+        <button
+          type="button"
+          class="confirm-booking-completion-button"
+          data-booking-id="${escapeHtml(
+            booking.id
+          )}"
+        >
+          Confirm Job Completed
+        </button>
+      </div>
+    `
+    : ""
+}
+
                     <span
                     class="payment-status-badge payment-${escapeHtml(
                         paymentStatus.toLowerCase()
@@ -869,16 +897,17 @@ function renderCustomerBookings() {
                     )}
                     </span>
 
-                 ${
+                ${
   (
     bookingStatus === "CONFIRMED" &&
     paymentStatus === "UNPAID"
   ) ||
   (
-    (
-      bookingStatus === "IN_PROGRESS" ||
-      bookingStatus === "COMPLETED"
-    ) &&
+    bookingStatus === "IN_PROGRESS" &&
+    paymentStatus === "PARTIALLY_PAID"
+  ) ||
+  (
+    bookingStatus === "COMPLETED" &&
     paymentStatus === "PARTIALLY_PAID"
   )
     ? `
@@ -1500,6 +1529,111 @@ customerBookingsGrid?.addEventListener(
 
       button.textContent =
         "Submit Review";
+    }
+  }
+);
+
+customerBookingsGrid?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".confirm-booking-completion-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const bookingId =
+      button.dataset.bookingId;
+
+    if (!bookingId) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Confirm that the provider has completed the service successfully?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const originalText =
+      button.textContent;
+
+    button.disabled = true;
+
+    button.textContent =
+      "Confirming...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/bookings/${encodeURIComponent(
+            bookingId
+          )}/confirm-completion`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401
+      ) {
+        clearSessionAndRedirect();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to confirm job completion."
+        );
+      }
+
+      showMessage(
+        "Job completion confirmed successfully. You can now make the remaining payment.",
+        "success"
+      );
+
+      await loadCustomerBookings();
+
+    } catch (error) {
+      console.error(
+        "Confirm booking completion error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+          "Unable to confirm job completion.",
+        "error"
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        originalText;
     }
   }
 );
