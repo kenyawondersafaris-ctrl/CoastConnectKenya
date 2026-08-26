@@ -350,6 +350,11 @@ main.container {
   color: var(--info);
 }
 
+.status-awaiting_customer_confirmation {
+  background: #fff7e6;
+  color: #b45309;
+}
+
 .status-completed {
   background: var(--success-light);
   color: var(--success);
