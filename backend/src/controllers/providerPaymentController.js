@@ -2193,6 +2193,21 @@ async function handleProviderMpesaCallback(
   const payment =
     paymentResult.rows[0];
 
+    console.log(
+  "Provider payment callback details:",
+  {
+    bookingId: payment.booking_id,
+    paymentReference:
+      payment.payment_reference,
+    paymentStage:
+      payment.payment_stage,
+    currentPaymentStatus:
+      payment.payment_status,
+    resultCode,
+    checkoutRequestId,
+  }
+);
+
   console.log(
     "Provider payment callback detected:",
     payment.payment_reference
