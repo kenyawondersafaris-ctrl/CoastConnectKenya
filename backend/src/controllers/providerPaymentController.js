@@ -2318,6 +2318,15 @@ async function handleProviderMpesaCallback(
   ]
 );
 
+const paymentWasCancelled =
+  resultCode === 1032;
+
+const providerPaymentMessage =
+  paymentWasCancelled
+    ? "The customer cancelled the M-Pesa payment."
+    : resultDescription ||
+      "The customer did not complete the M-Pesa payment.";
+
     if (io) {
       io.to(
   `provider:${payment.provider_id}`
@@ -2336,12 +2345,13 @@ async function handleProviderMpesaCallback(
     paymentStage:
       payment.payment_stage,
 
-    paymentResult:
-      "FAILED",
+   paymentResult:
+  paymentWasCancelled
+    ? "CANCELLED"
+    : "FAILED",
 
-    message:
-      resultDescription ||
-      "The customer did not complete the M-Pesa payment.",
+message:
+  providerPaymentMessage,
   }
 );
     }

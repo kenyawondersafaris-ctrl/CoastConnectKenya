@@ -4189,17 +4189,22 @@ function initializeBookingSocket() {
     const message =
       payment.message ||
       (
-        paymentResult === "FAILED"
-          ? "The customer did not complete the payment."
-          : "Booking payment received."
+        paymentResult === "CANCELLED"
+  ? "The customer cancelled the M-Pesa payment."
+  : paymentResult === "FAILED"
+    ? "The customer did not complete the payment."
+    : "Booking payment received."
       );
 
     setMessage(
       providerBookingsMessage,
       message,
-      paymentResult === "FAILED"
-        ? "error"
-        : "success"
+      (
+  paymentResult === "FAILED" ||
+  paymentResult === "CANCELLED"
+)
+  ? "error"
+  : "success"
     );
   }
 );
