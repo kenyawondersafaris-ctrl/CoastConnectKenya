@@ -3359,8 +3359,8 @@ providerBookingsGrid?.addEventListener(
         return;
       }
 
-      nextStatus =
-        "COMPLETED";
+     nextStatus =
+  "AWAITING_CUSTOMER_CONFIRMATION";
     }
 
     if (!nextStatus) {

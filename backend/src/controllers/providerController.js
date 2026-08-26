@@ -1013,9 +1013,11 @@ async function getMyProviderBookings(
                 THEN 2
               WHEN b.booking_status = 'IN_PROGRESS'
                 THEN 3
-              WHEN b.booking_status = 'COMPLETED'
+              WHEN b.booking_status = 'AWAITING_CUSTOMER_CONFIRMATION'
                 THEN 4
-              ELSE 5
+              WHEN b.booking_status = 'COMPLETED'
+                THEN 5
+              ELSE 6
             END,
             b.booking_date ASC,
             b.start_time ASC
