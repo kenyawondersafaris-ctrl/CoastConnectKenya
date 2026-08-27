@@ -634,8 +634,7 @@ function updateSummaryCounts() {
 
 function renderCustomerBookings() {
   if (
-    customerBookings.length ===
-    0
+    customerBookings.length === 0
   ) {
     customerBookingsGrid.innerHTML =
       `
@@ -665,6 +664,13 @@ function renderCustomerBookings() {
           const paymentStatus =
             normalizeStatus(
               booking.payment_status
+            );
+
+          const canOpenDispute =
+            bookingStatus === "COMPLETED" &&
+            (
+              paymentStatus === "PAID" ||
+              paymentStatus === "PARTIALLY_PAID"
             );
 
           return `
@@ -795,213 +801,271 @@ function renderCustomerBookings() {
               </div>
 
               ${
-  bookingStatus ===
-  "AWAITING_CUSTOMER_CONFIRMATION"
-    ? `
-      <div class="booking-completion-confirmation">
-        <strong>
-          Your provider has marked this job as completed.
-        </strong>
+                bookingStatus ===
+                "AWAITING_CUSTOMER_CONFIRMATION"
+                  ? `
+                    <div class="booking-completion-confirmation">
 
-        <p>
-          Please confirm that the service was completed
-          successfully before making the remaining payment.
-        </p>
+                      <strong>
+                        Your provider has marked this job as completed.
+                      </strong>
 
-        <button
-          type="button"
-          class="confirm-booking-completion-button"
-          data-booking-id="${escapeHtml(
-            booking.id
-          )}"
-        >
-          Confirm Job Completed
-        </button>
-      </div>
-    `
-    : ""
-}
+                      <p>
+                        Please confirm that the service was completed
+                        successfully before making the remaining payment.
+                      </p>
+
+                      <button
+                        type="button"
+                        class="confirm-booking-completion-button"
+                        data-booking-id="${escapeHtml(
+                          booking.id
+                        )}"
+                      >
+                        Confirm Job Completed
+                      </button>
+
+                    </div>
+                  `
+                  : ""
+              }
 
               <div class="booking-card-footer">
 
                 <div class="booking-price">
-                    <span>
-                    Estimated price
-                    </span>
 
-                    <strong>
+                  <span>
+                    Estimated price
+                  </span>
+
+                  <strong>
                     ${formatMoney(
-                        booking.estimated_price
+                      booking.estimated_price
                     )}
-                    </strong>
+                  </strong>
+
                 </div>
 
                 <div class="booking-payment-actions">
 
+                  ${
+                    bookingStatus === "CONFIRMED" &&
+                    paymentStatus === "PARTIALLY_PAID"
+                      ? `
+                        <div class="service-start-pin-card">
 
- ${
-  bookingStatus === "CONFIRMED" &&
-  paymentStatus === "PARTIALLY_PAID"
-    ? `
-      <div class="service-start-pin-card">
-        <div class="service-start-pin-card__icon">
-          🔐
-        </div>
+                          <div class="service-start-pin-card__icon">
+                            🔐
+                          </div>
 
-        <div class="service-start-pin-card__content">
-          <span class="service-start-pin-card__eyebrow">
-            SERVICE SECURITY
-          </span>
+                          <div class="service-start-pin-card__content">
 
-          <strong class="service-start-pin-card__title">
-            Generate Start PIN
-          </strong>
+                            <span class="service-start-pin-card__eyebrow">
+                              SERVICE SECURITY
+                            </span>
 
-          <p class="service-start-pin-card__text">
-            Generate a one-time PIN and give it to your provider
-            when they arrive to start the service.
-          </p>
+                            <strong class="service-start-pin-card__title">
+                              Generate Start PIN
+                            </strong>
 
-          <button
-            type="button"
-            class="generate-start-pin-button"
-            data-booking-id="${escapeHtml(
-              booking.id
-            )}"
-          >
-            Generate Start PIN
-          </button>
+                            <p class="service-start-pin-card__text">
+                              Generate a one-time PIN and give it to your
+                              provider when they arrive to start the service.
+                            </p>
 
-          <div
-            class="service-start-pin-result"
-            data-start-pin-result="${escapeHtml(
-              booking.id
-            )}"
-            hidden
-          ></div>
-        </div>
-      </div>
-    `
-    : ""
-}
+                            <button
+                              type="button"
+                              class="generate-start-pin-button"
+                              data-booking-id="${escapeHtml(
+                                booking.id
+                              )}"
+                            >
+                              Generate Start PIN
+                            </button>
 
-                    <span
+                            <div
+                              class="service-start-pin-result"
+                              data-start-pin-result="${escapeHtml(
+                                booking.id
+                              )}"
+                              hidden
+                            ></div>
+
+                          </div>
+
+                        </div>
+                      `
+                      : ""
+                  }
+
+                  <span
                     class="payment-status-badge payment-${escapeHtml(
-                        paymentStatus.toLowerCase()
+                      paymentStatus.toLowerCase()
                     )}"
-                    >
+                  >
                     ${escapeHtml(
-                        formatStatus(
+                      formatStatus(
                         paymentStatus
-                        )
+                      )
                     )}
-                    </span>
+                  </span>
 
-               ${
-  (
-    bookingStatus === "CONFIRMED" &&
-    paymentStatus === "UNPAID"
-  ) ||
-  (
-    bookingStatus === "COMPLETED" &&
-    paymentStatus === "PARTIALLY_PAID"
-  )
-    ? `
-
-      <button
-        type="button"
-        class="pay-provider-booking-button"
-        data-booking-id="${escapeHtml(
-          booking.id
-        )}"
-        data-provider-name="${escapeHtml(
-          booking.provider_name || ""
-        )}"
-      >
-        ${
-          paymentStatus === "PARTIALLY_PAID"
-            ? "Pay Remaining 50%"
-            : "Pay 50% Deposit"
-        }
-      </button>
-    `
-    : ""
-}
-
-                </div>
+                  ${
+                    (
+                      bookingStatus === "CONFIRMED" &&
+                      paymentStatus === "UNPAID"
+                    ) ||
+                    (
+                      bookingStatus === "COMPLETED" &&
+                      paymentStatus === "PARTIALLY_PAID"
+                    )
+                      ? `
+                        <button
+                          type="button"
+                          class="pay-provider-booking-button"
+                          data-booking-id="${escapeHtml(
+                            booking.id
+                          )}"
+                          data-provider-name="${escapeHtml(
+                            booking.provider_name || ""
+                          )}"
+                        >
+                          ${
+                            paymentStatus ===
+                            "PARTIALLY_PAID"
+                              ? "Pay Remaining 50%"
+                              : "Pay 50% Deposit"
+                          }
+                        </button>
+                      `
+                      : ""
+                  }
 
                 </div>
-${
-  bookingStatus === "COMPLETED"
-    ? `
-      <div
-        class="booking-review-section"
-        data-booking-id="${escapeHtml(
-          booking.id
-        )}"
-      >
 
-        <h4>
-          Leave a Review
-        </h4>
+              </div>
 
-       <div class="review-rating-group">
+              ${
+                canOpenDispute
+                  ? `
+                    <div
+                      class="booking-dispute-section"
+                      data-booking-id="${escapeHtml(
+                        booking.id
+                      )}"
+                    >
 
-    <label>
-        Rate your experience
-    </label>
+                      <div class="booking-dispute-section__content">
 
-    <div
-        class="star-rating"
-        data-booking-id="${escapeHtml(
-            booking.id
-        )}"
-    >
+                        <span class="booking-dispute-section__eyebrow">
+                          PAYMENT PROTECTION
+                        </span>
 
-        <span data-rating="1">★</span>
-        <span data-rating="2">★</span>
-        <span data-rating="3">★</span>
-        <span data-rating="4">★</span>
-        <span data-rating="5">★</span>
+                        <h4>
+                          Have an issue with this service?
+                        </h4>
 
-    </div>
+                        <p>
+                          If there is a problem with the completed service
+                          or payment, you can open a dispute for admin review.
+                        </p>
 
-</div>
+                      </div>
 
-        <textarea
-          class="review-comment-input"
-          data-booking-id="${escapeHtml(
-            booking.id
-          )}"
-          rows="4"
-          maxlength="2000"
-          placeholder="Share your experience with this provider..."
-        ></textarea>
+                      <button
+                        type="button"
+                        class="open-payment-dispute-button"
+                        data-booking-id="${escapeHtml(
+                          booking.id
+                          
+                        )}"
+                        data-provider-name="${escapeHtml(
+                          booking.provider_name || ""
+                        )}"
 
-        <button
-          type="button"
-          class="submit-review-button"
-          data-booking-id="${escapeHtml(
-            booking.id
-          )}"
-        >
-          Submit Review
-        </button>
+                        data-payment-id="${escapeHtml(
+                        booking.payment_id || ""
+                      )}"
+                      >
+                        Open Dispute
+                      </button>
 
-        <div
-          class="review-message"
-          data-review-message="${escapeHtml(
-            booking.id
-          )}"
-        ></div>
+                    </div>
+                  `
+                  : ""
+              }
 
-      </div>
-    `
-    : ""
-}
+              ${
+                bookingStatus === "COMPLETED"
+                  ? `
+                    <div
+                      class="booking-review-section"
+                      data-booking-id="${escapeHtml(
+                        booking.id
+                      )}"
+                    >
 
-</article>
-`;
+                      <h4>
+                        Leave a Review
+                      </h4>
+
+                      <div class="review-rating-group">
+
+                        <label>
+                          Rate your experience
+                        </label>
+
+                        <div
+                          class="star-rating"
+                          data-booking-id="${escapeHtml(
+                            booking.id
+                          )}"
+                        >
+
+                          <span data-rating="1">★</span>
+                          <span data-rating="2">★</span>
+                          <span data-rating="3">★</span>
+                          <span data-rating="4">★</span>
+                          <span data-rating="5">★</span>
+
+                        </div>
+
+                      </div>
+
+                      <textarea
+                        class="review-comment-input"
+                        data-booking-id="${escapeHtml(
+                          booking.id
+                        )}"
+                        rows="4"
+                        maxlength="2000"
+                        placeholder="Share your experience with this provider..."
+                      ></textarea>
+
+                      <button
+                        type="button"
+                        class="submit-review-button"
+                        data-booking-id="${escapeHtml(
+                          booking.id
+                        )}"
+                      >
+                        Submit Review
+                      </button>
+
+                      <div
+                        class="review-message"
+                        data-review-message="${escapeHtml(
+                          booking.id
+                        )}"
+                      ></div>
+
+                    </div>
+                  `
+                  : ""
+              }
+
+            </article>
+          `;
         }
       )
       .join("");
@@ -1382,6 +1446,141 @@ if (booking) {
   }
 );
 }
+
+customerBookingsGrid?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".open-payment-dispute-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const paymentId =
+      button.dataset.paymentId;
+
+    if (!paymentId) {
+      showMessage(
+        "Payment information could not be found.",
+        "error"
+      );
+
+      return;
+    }
+
+    const reason =
+      window.prompt(
+        "Briefly state the reason for this dispute:"
+      );
+
+    if (
+      !reason ||
+      !reason.trim()
+    ) {
+      return;
+    }
+
+    const description =
+      window.prompt(
+        "Please provide more details about the dispute:"
+      );
+
+    if (
+      !description ||
+      !description.trim()
+    ) {
+      return;
+    }
+
+    const originalText =
+      button.textContent;
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Opening Dispute...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/provider-payments/disputes`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                paymentId,
+                reason:
+                  reason.trim(),
+                description:
+                  description.trim(),
+              }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401
+      ) {
+        clearSessionAndRedirect();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to open the dispute."
+        );
+      }
+
+      showMessage(
+        data.message ||
+          "Payment dispute opened successfully.",
+        "success"
+      );
+
+      await loadCustomerBookings();
+
+    } catch (error) {
+      console.error(
+        "Open payment dispute error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+          "Unable to open the dispute.",
+        "error"
+      );
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
 customerBookingsGrid?.addEventListener(
   "click",
   async (event) => {

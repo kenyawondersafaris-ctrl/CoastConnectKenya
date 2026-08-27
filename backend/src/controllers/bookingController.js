@@ -1331,6 +1331,15 @@ async function getMyBookings(
           b.payment_status,
           b.created_at,
 
+          (
+  SELECT pp.id
+  FROM provider_payments pp
+  WHERE pp.booking_id =
+    b.id
+  ORDER BY pp.created_at DESC
+  LIMIT 1
+) AS payment_id,
+
           ps.title,
 
           u.full_name
