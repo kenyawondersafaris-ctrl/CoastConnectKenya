@@ -2248,6 +2248,88 @@ button {
   transform: translateY(-1px);
 }
 
+/* ========================================
+   ADMIN REFUNDS
+======================================== */
+
+.admin-refund-card {
+  align-items: center;
+}
+
+.admin-refund-card > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-refund-card h3 {
+  margin: 0;
+}
+
+.admin-refund-card p {
+  margin: 0;
+  color: #667085;
+  font-size: 0.9rem;
+}
+
+.admin-refund-card .admin-card-actions {
+  min-width: 170px;
+}
+
+.admin-refund-card .admin-card-actions strong {
+  font-size: 1.05rem;
+  color: #101828;
+  white-space: nowrap;
+}
+
+.admin-refund-button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: #d92d20;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.admin-refund-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.admin-refund-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.admin-refund-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (
+  max-width: 700px
+) {
+
+  .admin-refund-card {
+    align-items: stretch;
+  }
+
+  .admin-refund-card .admin-card-actions {
+    min-width: 0;
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  .admin-refund-button {
+    width: 100%;
+  }
+
+}
+
 
 /* =========================================================
    RESPONSIVE

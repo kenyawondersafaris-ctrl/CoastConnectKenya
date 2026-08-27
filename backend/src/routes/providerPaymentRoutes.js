@@ -6,7 +6,13 @@ const express =
 const {
   createProviderPaymentAttempt,
   createProviderPayout,
-} = require("../controllers/providerPaymentController");
+  createPaymentDispute,
+  respondToPaymentDispute,
+  submitDisputeEvidence,
+  resolvePaymentDispute,
+  markPaymentRefunded,
+} =
+require("../controllers/providerPaymentController");
 
 const authenticate =
   require("../middleware/authMiddleware");
@@ -24,6 +30,40 @@ router.post(
   createProviderPaymentAttempt
 );
 
+
+router.post(
+  "/disputes",
+  authenticate,
+  requireRole("CUSTOMER"),
+  createPaymentDispute
+);
+
+router.post(
+  "/disputes/:disputeId/respond",
+  authenticate,
+  requireRole("PROVIDER"),
+  respondToPaymentDispute
+);
+
+router.post(
+  "/disputes/:disputeId/evidence",
+  authenticate,
+  submitDisputeEvidence
+);
+
+router.post(
+  "/disputes/:disputeId/resolve",
+  authenticate,
+  requireRole("ADMIN"),
+  resolvePaymentDispute
+);
+
+router.post(
+  "/payments/:paymentId/mark-refunded",
+  authenticate,
+  requireRole("ADMIN"),
+  markPaymentRefunded
+);
 
 router.post(
   "/payout",

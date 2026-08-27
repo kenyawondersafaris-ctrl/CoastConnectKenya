@@ -39,7 +39,8 @@ const {
   getPendingProviderVerifications,
   getProviderVerificationDetails,
   approveProviderVerification,
-  rejectProviderVerification
+  rejectProviderVerification,
+   getRefundablePayments
 
 } = require("../controllers/adminController");
 
@@ -205,6 +206,13 @@ router.patch(
   authenticate,
   requireRole("ADMIN"),
   saveAdminNotes
+);
+
+router.get(
+  "/refunds",
+  authenticate,
+  requireRole("ADMIN"),
+  getRefundablePayments
 );
 
 

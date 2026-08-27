@@ -2813,11 +2813,992 @@ providerShareAmount:
   };
 }
 
+async function createPaymentDispute(
+  req,
+  res
+) {
+
+    const client =
+    await pool.connect();
+  try {
+
+        await client.query(
+      "BEGIN"
+    );
+    const customerId =
+  req.user.userId;
+
+    const {
+      paymentId,
+      reason,
+      description,
+    } = req.body;
+
+    if (
+      !paymentId ||
+      !reason ||
+      !description
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Payment, dispute reason and description are required.",
+      });
+    }
+
+    const paymentResult =
+      await client.query(
+        `
+          SELECT
+            id,
+            booking_id,
+            provider_id,
+            customer_id,
+            amount,
+            status,
+            refund_status,
+            settlement_status
+          FROM provider_payments
+          WHERE
+            id = $1::uuid
+            AND customer_id = $2::uuid
+          LIMIT 1
+        `,
+        [
+          paymentId,
+          customerId,
+        ]
+      );
+
+    if (
+      paymentResult.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Payment not found.",
+      });
+    }
+
+    const payment =
+      paymentResult.rows[0];
+
+    if (
+      payment.status !== "PAID"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Only completed payments can be disputed.",
+      });
+    }
+
+    const existingDispute =
+      await client.query(
+        `
+          SELECT id
+          FROM payment_disputes
+          WHERE
+  payment_id =
+    $1::uuid
+            AND status IN (
+              'OPEN',
+              'UNDER_REVIEW'
+            )
+          LIMIT 1
+        `,
+        [
+          payment.id,
+        ]
+      );
+
+    if (
+      existingDispute.rows.length > 0
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "This payment already has an active dispute.",
+      });
+    }
+
+    const disputeResult =
+      await client.query(
+        `
+          INSERT INTO payment_disputes (
+            booking_id,
+            payment_id,
+            customer_id,
+            provider_id,
+            opened_by,
+            dispute_reason,
+            description,
+            status,
+            opened_at,
+            created_at,
+            updated_at
+          )
+          VALUES (
+            $1::uuid,
+            $2::uuid,
+            $3::uuid,
+            $4::uuid,
+            $5::uuid,
+            $6,
+            $7,
+            'OPEN',
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+          )
+          RETURNING *
+        `,
+        [
+          payment.booking_id,
+          payment.id,
+          payment.customer_id,
+          payment.provider_id,
+          customerId,
+          String(reason).trim(),
+          String(description).trim(),
+        ]
+      );
+
+   await client.query(
+      `
+        UPDATE provider_payments
+        SET
+          settlement_status =
+            'ON_HOLD',
+          updated_at =
+            CURRENT_TIMESTAMP
+        WHERE
+          id = $1::uuid
+      `,
+      [
+        payment.id,
+      ]
+    );
+
+        await client.query(
+      "COMMIT"
+    );
+
+    const dispute =
+      disputeResult.rows[0];
+
+    const io =
+      req.app.get("io");
+
+    if (io) {
+      io.to(
+        `provider:${payment.provider_id}`
+      ).emit(
+        "payment-dispute-opened",
+        {
+          disputeId:
+            dispute.id,
+
+          paymentId:
+            payment.id,
+
+          bookingId:
+            payment.booking_id,
+
+          reason:
+            dispute.dispute_reason,
+        }
+      );
+
+      io.to(
+        `customer:${payment.customer_id}`
+      ).emit(
+        "payment-dispute-created",
+        {
+          disputeId:
+            dispute.id,
+
+          paymentId:
+            payment.id,
+
+          bookingId:
+            payment.booking_id,
+        }
+      );
+    }
+
+    return res.status(201).json({
+      success: true,
+      message:
+        "Payment dispute opened successfully.",
+      dispute,
+    });
+  } catch (error) {
+
+        try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (rollbackError) {
+      console.error(
+        "Payment dispute rollback error:",
+        rollbackError
+      );
+    }
+
+    console.error(
+      "Create payment dispute error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to create the payment dispute.",
+    });
+  }  finally {
+    client.release();
+  }
+}
+
+async function respondToPaymentDispute(
+  req,
+  res
+) {
+  try {
+    const userId =
+  req.user.userId;
+
+    const disputeId =
+      req.params.disputeId;
+
+    const {
+      response,
+    } = req.body;
+
+    if (
+      !disputeId ||
+      !response ||
+      !String(response).trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "A dispute response is required.",
+      });
+    }
+
+    const disputeResult =
+      await pool.query(
+        `
+          SELECT
+            d.id,
+            d.booking_id,
+            d.payment_id,
+            d.customer_id,
+            d.provider_id,
+            d.status,
+            p.user_id AS provider_user_id
+          FROM payment_disputes d
+          INNER JOIN provider_profiles p
+            ON p.id = d.provider_id
+          WHERE
+            d.id = $1::uuid
+          LIMIT 1
+        `,
+        [
+          disputeId,
+        ]
+      );
+
+    if (
+      disputeResult.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Dispute not found.",
+      });
+    }
+
+    const dispute =
+      disputeResult.rows[0];
+
+    if (
+      dispute.provider_user_id !==
+      userId
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You are not allowed to respond to this dispute.",
+      });
+    }
+
+    if (
+      dispute.status !== "OPEN"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This dispute cannot be responded to at its current stage.",
+      });
+    }
+
+    const updatedResult =
+      await pool.query(
+        `
+          UPDATE payment_disputes
+          SET
+            status =
+              'UNDER_REVIEW',
+
+            resolution_notes =
+              $1,
+
+            responded_at =
+              CURRENT_TIMESTAMP,
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE
+            id = $2::uuid
+
+          RETURNING *
+        `,
+        [
+          String(response).trim(),
+          dispute.id,
+        ]
+      );
+
+    const updatedDispute =
+      updatedResult.rows[0];
+
+    const io =
+      req.app.get("io");
+
+    if (io) {
+      io.to(
+        `customer:${dispute.customer_id}`
+      ).emit(
+        "payment-dispute-responded",
+        {
+          disputeId:
+            dispute.id,
+
+          bookingId:
+            dispute.booking_id,
+
+          paymentId:
+            dispute.payment_id,
+
+          status:
+            updatedDispute.status,
+        }
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Your dispute response has been submitted.",
+      dispute:
+        updatedDispute,
+    });
+  } catch (error) {
+    console.error(
+      "Respond to payment dispute error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to submit the dispute response.",
+    });
+  }
+}
+
+async function submitDisputeEvidence(
+  req,
+  res
+) {
+  try {
+   const userId =
+  req.user.userId;
+
+    const disputeId =
+      req.params.disputeId;
+
+    const {
+      evidenceType,
+      description,
+      fileUrl,
+    } = req.body;
+
+    if (
+      !disputeId ||
+      !evidenceType
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Evidence type is required.",
+      });
+    }
+
+    if (
+      !description &&
+      !fileUrl
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Provide an evidence description or file.",
+      });
+    }
+
+    const disputeResult =
+      await pool.query(
+        `
+          SELECT
+            d.id,
+            d.booking_id,
+            d.payment_id,
+            d.customer_id,
+            d.provider_id,
+            d.status,
+            p.user_id AS provider_user_id
+          FROM payment_disputes d
+          INNER JOIN provider_profiles p
+            ON p.id = d.provider_id
+          WHERE
+            d.id = $1::uuid
+          LIMIT 1
+        `,
+        [
+          disputeId,
+        ]
+      );
+
+    if (
+      disputeResult.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Dispute not found.",
+      });
+    }
+
+    const dispute =
+      disputeResult.rows[0];
+
+    if (
+      dispute.provider_user_id !==
+      userId
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You are not allowed to submit evidence for this dispute.",
+      });
+    }
+
+    if (
+      ![
+        "OPEN",
+        "UNDER_REVIEW",
+      ].includes(
+        dispute.status
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Evidence cannot be submitted for a resolved dispute.",
+      });
+    }
+
+    const evidenceResult =
+      await pool.query(
+        `
+          INSERT INTO dispute_evidence (
+            dispute_id,
+            submitted_by,
+            submitted_role,
+            evidence_type,
+            description,
+            file_url
+          )
+          VALUES (
+            $1::uuid,
+            $2::uuid,
+            'PROVIDER',
+            $3,
+            $4,
+            $5
+          )
+          RETURNING *
+        `,
+        [
+          dispute.id,
+          userId,
+          String(
+            evidenceType
+          ).trim(),
+          description
+            ? String(
+                description
+              ).trim()
+            : null,
+          fileUrl
+            ? String(
+                fileUrl
+              ).trim()
+            : null,
+        ]
+      );
+
+    const evidence =
+      evidenceResult.rows[0];
+
+    const io =
+      req.app.get("io");
+
+    if (io) {
+      io.to(
+        `customer:${dispute.customer_id}`
+      ).emit(
+        "payment-dispute-evidence-added",
+        {
+          disputeId:
+            dispute.id,
+
+          bookingId:
+            dispute.booking_id,
+
+          evidenceId:
+            evidence.id,
+        }
+      );
+    }
+
+    return res.status(201).json({
+      success: true,
+      message:
+        "Dispute evidence submitted successfully.",
+      evidence,
+    });
+  } catch (error) {
+    console.error(
+      "Submit dispute evidence error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to submit dispute evidence.",
+    });
+  }
+}
+
+async function resolvePaymentDispute(
+  req,
+  res
+) {
+  try {
+    const disputeId =
+      req.params.disputeId;
+
+    const {
+      decision,
+      resolutionNotes,
+    } = req.body;
+
+    if (
+      !decision ||
+      ![
+        "CUSTOMER_FAVORED",
+        "PROVIDER_FAVORED",
+      ].includes(decision)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "A valid dispute decision is required.",
+      });
+    }
+
+    const disputeResult =
+      await pool.query(
+        `
+          SELECT
+            d.id,
+            d.booking_id,
+            d.payment_id,
+            d.customer_id,
+            d.provider_id,
+            d.status,
+            p.status AS payment_status,
+            p.settlement_status,
+            p.refund_status
+          FROM payment_disputes d
+          INNER JOIN provider_payments p
+            ON p.id = d.payment_id
+          WHERE
+            d.id = $1::uuid
+          LIMIT 1
+        `,
+        [
+          disputeId,
+        ]
+      );
+
+    if (
+      disputeResult.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Dispute not found.",
+      });
+    }
+
+    const dispute =
+      disputeResult.rows[0];
+
+    if (
+      ![
+        "OPEN",
+        "UNDER_REVIEW",
+      ].includes(dispute.status)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This dispute has already been resolved.",
+      });
+    }
+
+    await pool.query(
+      "BEGIN"
+    );
+
+    try {
+      let newSettlementStatus;
+
+      if (
+        decision ===
+        "CUSTOMER_FAVORED"
+      ) {
+        newSettlementStatus =
+          "ON_HOLD";
+      } else {
+        newSettlementStatus =
+          "ELIGIBLE";
+      }
+
+      let newRefundStatus =
+        dispute.refund_status;
+
+      if (
+        decision ===
+        "CUSTOMER_FAVORED"
+      ) {
+        newRefundStatus =
+          "PENDING";
+      }
+
+      const disputeUpdate =
+        await pool.query(
+          `
+            UPDATE payment_disputes
+            SET
+              status = 'RESOLVED',
+
+              resolution_notes =
+                $1,
+
+              resolved_at =
+                CURRENT_TIMESTAMP,
+
+              updated_at =
+                CURRENT_TIMESTAMP
+
+            WHERE
+              id = $2::uuid
+
+            RETURNING *
+          `,
+          [
+            resolutionNotes
+              ? String(
+                  resolutionNotes
+                ).trim()
+              : null,
+            dispute.id,
+          ]
+        );
+
+      await pool.query(
+        `
+          UPDATE provider_payments
+          SET
+            settlement_status =
+              $1,
+
+            refund_status =
+              $2,
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE
+            id = $3::uuid
+        `,
+        [
+          newSettlementStatus,
+          newRefundStatus,
+          dispute.payment_id,
+        ]
+      );
+
+      await pool.query(
+        "COMMIT"
+      );
+
+      const resolvedDispute =
+        disputeUpdate.rows[0];
+
+      const io =
+        req.app.get("io");
+
+      if (io) {
+        io.to(
+          `customer:${dispute.customer_id}`
+        ).emit(
+          "payment-dispute-resolved",
+          {
+            disputeId:
+              dispute.id,
+
+            paymentId:
+              dispute.payment_id,
+
+            bookingId:
+              dispute.booking_id,
+
+            decision,
+          }
+        );
+
+        io.to(
+          `provider:${dispute.provider_id}`
+        ).emit(
+          "payment-dispute-resolved",
+          {
+            disputeId:
+              dispute.id,
+
+            paymentId:
+              dispute.payment_id,
+
+            bookingId:
+              dispute.booking_id,
+
+            decision,
+          }
+        );
+      }
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Payment dispute resolved successfully.",
+        decision,
+        dispute:
+          resolvedDispute,
+      });
+    } catch (transactionError) {
+      await pool.query(
+        "ROLLBACK"
+      );
+
+      throw transactionError;
+    }
+  } catch (error) {
+    console.error(
+      "Resolve payment dispute error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to resolve the payment dispute.",
+    });
+  }
+}
+
+async function markPaymentRefunded(
+  req,
+  res
+) {
+  try {
+    const paymentId =
+      req.params.paymentId;
+
+    if (
+      !isValidUuid(paymentId)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid payment ID.",
+      });
+    }
+
+    const paymentResult =
+      await pool.query(
+        `
+          SELECT
+            id,
+            booking_id,
+            customer_id,
+            provider_id,
+            status,
+            settlement_status,
+            refund_status
+          FROM provider_payments
+          WHERE id = $1::uuid
+          LIMIT 1
+        `,
+        [
+          paymentId,
+        ]
+      );
+
+    if (
+      paymentResult.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Provider payment not found.",
+      });
+    }
+
+    const payment =
+      paymentResult.rows[0];
+
+    if (
+      String(
+        payment.refund_status || ""
+      ).toUpperCase() !==
+      "PENDING"
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "This payment is not pending a refund.",
+      });
+    }
+
+    const updateResult =
+      await pool.query(
+        `
+          UPDATE provider_payments
+          SET
+            refund_status =
+              'REFUNDED',
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id = $1::uuid
+
+          RETURNING *
+        `,
+        [
+          payment.id,
+        ]
+      );
+
+    const refundedPayment =
+      updateResult.rows[0];
+
+    const io =
+      req.app.get("io");
+
+    if (io) {
+      io.to(
+        `customer:${payment.customer_id}`
+      ).emit(
+        "payment-refunded",
+        {
+          paymentId:
+            payment.id,
+
+          bookingId:
+            payment.booking_id,
+
+          refundStatus:
+            "REFUNDED",
+        }
+      );
+
+      io.to(
+        `provider:${payment.provider_id}`
+      ).emit(
+        "payment-refunded",
+        {
+          paymentId:
+            payment.id,
+
+          bookingId:
+            payment.booking_id,
+
+          refundStatus:
+            "REFUNDED",
+        }
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Payment marked as refunded successfully.",
+      payment:
+        refundedPayment,
+    });
+  } catch (error) {
+    console.error(
+      "Mark payment refunded error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to mark payment as refunded.",
+    });
+  }
+}
+
 module.exports = {
   createProviderPaymentAttempt,
   createProviderPayout,
   handleProviderB2CResult,
   handleProviderB2CTimeout,
   handleProviderMpesaCallback,
+  createPaymentDispute,
+  respondToPaymentDispute,
+  submitDisputeEvidence,
+  resolvePaymentDispute,
+  markPaymentRefunded,
   // keep any other existing exports here
 };

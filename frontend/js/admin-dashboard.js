@@ -202,6 +202,16 @@ const adminSidebarOverlay =
     "adminPayoutHistoryContainer"
   );
 
+  const adminRefundsContainer =
+  document.getElementById(
+    "adminRefundsContainer"
+  );
+
+  const adminPaymentDisputesContainer =
+  document.getElementById(
+    "adminPaymentDisputesContainer"
+  );
+
   const adminProviderVerificationsContainer =
   document.getElementById(
     "adminProviderVerificationsContainer"
@@ -1127,6 +1137,184 @@ async function loadProviderPayoutHistory() {
   }
 }
 
+async function loadRefunds() {
+
+  if (!adminRefundsContainer) {
+    return;
+  }
+
+  adminRefundsContainer.innerHTML = `
+    <p>
+      Loading refundable payments...
+    </p>
+  `;
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_BASE}/admin/refunds`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    if (
+      handleUnauthorizedResponse(
+        response
+      )
+    ) {
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to load refundable payments."
+      );
+    }
+
+    const payments =
+      Array.isArray(
+        data.payments
+      )
+        ? data.payments
+        : [];
+
+    if (
+      payments.length === 0
+    ) {
+      adminRefundsContainer.innerHTML = `
+        <div class="admin-list-card">
+          <h3>
+            No refundable payments
+          </h3>
+
+          <p>
+            Payments eligible for a customer refund
+            will appear here.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+    adminRefundsContainer.innerHTML =
+      payments
+        .map(
+          (payment) => `
+            <article
+              class="admin-list-card admin-refund-card"
+            >
+
+              <div>
+
+                <h3>
+                  ${escapeHtml(
+                    payment.customer_name ||
+                    "Customer"
+                  )}
+                </h3>
+
+                <p>
+                  Booking:
+                  ${escapeHtml(
+                    payment.booking_id ||
+                    "Not available"
+                  )}
+                </p>
+
+                <p>
+                  Provider:
+                  ${escapeHtml(
+                    payment.provider_name ||
+                    "Not available"
+                  )}
+                </p>
+
+                <p>
+                  Payment status:
+                  ${escapeHtml(
+                    payment.status ||
+                    payment.payment_status ||
+                    "PAID"
+                  )}
+                </p>
+
+              </div>
+
+              <div
+                class="admin-card-actions"
+              >
+
+                <strong>
+                  ${formatMoney(
+                    payment.amount,
+                    payment.currency ||
+                    "KES"
+                  )}
+                </strong>
+
+                <button
+                  type="button"
+                  class="admin-refund-button"
+                  data-payment-id="${escapeHtml(
+                    payment.id
+                  )}"
+                >
+                  Mark as Refunded
+                </button>
+
+              </div>
+
+            </article>
+          `
+        )
+        .join("");
+
+  } catch (error) {
+
+    console.error(
+      "Load refunds error:",
+      error
+    );
+
+    adminRefundsContainer.innerHTML = `
+      <div class="admin-list-card">
+        <h3>
+          Unable to load refunds
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            error.message ||
+            "Please try again."
+          )}
+        </p>
+      </div>
+    `;
+
+    showMessage(
+      error.message ||
+      "Unable to load refundable payments.",
+      "error"
+    );
+  }
+}
+
 async function loadRestaurants() {
   if (!adminRestaurantsContainer) {
     return;
@@ -2002,12 +2190,19 @@ if (
   loadProviderPayoutHistory();
 }
 
-        if (
-          sectionName ===
-          "restaurants"
-        ) {
-          loadRestaurants();
-        }
+if (
+  sectionName ===
+  "refunds"
+) {
+  loadRefunds();
+}
+
+if (
+  sectionName ===
+  "restaurants"
+) {
+  loadRestaurants();
+}
 
         if (
           sectionName ===

@@ -1397,6 +1397,82 @@ async function rejectProviderVerification(
   }
 }
 
+async function getRefundablePayments(
+  req,
+  res
+) {
+  try {
+
+    const result =
+      await pool.query(
+        `
+          SELECT
+            pp.id,
+            pp.booking_id,
+            pp.customer_id,
+            pp.provider_id,
+            pp.amount,
+            pp.currency,
+            pp.status,
+            pp.payment_stage,
+            pp.settlement_status,
+            pp.refund_status,
+            pp.created_at,
+
+            customer.full_name AS customer_name,
+            customer.email AS customer_email,
+
+            provider.full_name AS provider_name,
+            provider.email AS provider_email
+
+          FROM provider_payments pp
+
+          LEFT JOIN users customer
+            ON customer.id =
+              pp.customer_id
+
+          LEFT JOIN provider_profiles provider_profile
+            ON provider_profile.id =
+              pp.provider_id
+
+          LEFT JOIN users provider
+            ON provider.id =
+              provider_profile.user_id
+
+          WHERE
+            pp.status = 'PAID'
+
+            AND COALESCE(
+              pp.refund_status,
+              'NONE'
+            ) != 'REFUNDED'
+
+          ORDER BY
+            pp.created_at DESC
+        `
+      );
+
+    return res.json({
+      success: true,
+      payments:
+        result.rows,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "Get refundable payments error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load refundable payments.",
+    });
+  }
+}
+
 module.exports = {
   getAdminOverview,
   getPendingProviders,
@@ -1414,4 +1490,5 @@ module.exports = {
   getProviderVerificationDetails,
   approveProviderVerification,
   rejectProviderVerification,
+  getRefundablePayments,
 };

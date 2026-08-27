@@ -114,6 +114,22 @@
 <button
   type="button"
   class="admin-nav-link"
+  data-admin-section="refunds"
+>
+  Refunds
+</button>
+
+<button
+  type="button"
+  class="admin-nav-link"
+  data-admin-section="payment-disputes"
+>
+  Payment Disputes & Refunds
+</button>
+
+<button
+  type="button"
+  class="admin-nav-link"
   data-admin-section="support"
 >
   💬 Support Messages
@@ -359,6 +375,33 @@
 
       <section
   class="admin-section"
+  data-admin-panel="payment-disputes"
+  hidden
+>
+  <div class="admin-section-heading">
+    <div>
+      <h2>
+        Payment Disputes & Refunds
+      </h2>
+
+      <p>
+        Review customer payment disputes, record decisions and track manual refunds.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="adminPaymentDisputesContainer"
+    class="admin-list"
+  >
+    <p>
+      Loading payment disputes...
+    </p>
+  </div>
+</section>
+
+      <section
+  class="admin-section"
   data-admin-panel="provider-verifications"
   hidden
 >
@@ -465,6 +508,33 @@
   >
     <p>
       Loading provider payouts...
+    </p>
+  </div>
+</section>
+
+<section
+  class="admin-section"
+  data-admin-panel="refunds"
+  hidden
+>
+  <div class="admin-section-heading">
+    <div>
+      <h2>
+        Customer Refunds
+      </h2>
+
+      <p>
+        Record customer refunds that have been completed manually.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="adminRefundsContainer"
+    class="admin-list"
+  >
+    <p>
+      Loading refundable payments...
     </p>
   </div>
 </section>
