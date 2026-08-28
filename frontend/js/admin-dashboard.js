@@ -1258,13 +1258,25 @@ async function loadPaymentDisputes() {
 
               ${dispute.status === "OPEN"
   ? `
-    <button
-      type="button"
-      class="resolve-payment-dispute-button"
-      data-dispute-id="${escapeHtml(dispute.id)}"
-    >
-      Resolve Dispute
-    </button>
+    <div class="payment-dispute-actions">
+      <button
+        type="button"
+        class="resolve-payment-dispute-button"
+        data-dispute-id="${escapeHtml(dispute.id)}"
+        data-decision="CUSTOMER_FAVORED"
+      >
+        Favor Customer
+      </button>
+
+      <button
+        type="button"
+        class="resolve-payment-dispute-button"
+        data-dispute-id="${escapeHtml(dispute.id)}"
+        data-decision="PROVIDER_FAVORED"
+      >
+        Favor Provider
+      </button>
+    </div>
   `
   : ""
 }
@@ -2397,13 +2409,18 @@ adminPaymentDisputesContainer?.addEventListener(
     const disputeId =
       button.dataset.disputeId;
 
+      const decision =
+  button.dataset.decision;
+
     if (!disputeId) {
       return;
     }
 
     const confirmed =
       window.confirm(
-        "Are you sure you want to resolve this payment dispute?"
+        decision === "CUSTOMER_FAVORED"
+  ? "Resolve this dispute in favor of the customer?"
+  : "Resolve this dispute in favor of the provider?"
       );
 
     if (!confirmed) {
@@ -2437,8 +2454,10 @@ adminPaymentDisputesContainer?.addEventListener(
                 "application/json",
             },
 
-            body:
-              JSON.stringify({}),
+           body:
+  JSON.stringify({
+    decision,
+  }),
           }
         );
 
