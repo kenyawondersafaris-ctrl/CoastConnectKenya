@@ -5159,6 +5159,28 @@ ${
     `
     : ""
 }
+
+${
+  dispute.status === "RESOLVED"
+    ? `
+      <div class="provider-payment-dispute-resolution">
+        <strong>
+          Dispute Resolution
+        </strong>
+
+        <p>
+          ${
+            dispute.resolution_notes
+              ? escapeHtml(
+                  dispute.resolution_notes
+                )
+              : "This dispute has been resolved."
+          }
+        </p>
+      </div>
+    `
+    : ""
+}
             </div>
 
                        ${
