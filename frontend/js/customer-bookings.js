@@ -713,12 +713,12 @@ function renderCustomerBookings() {
       .map(
         (booking) => {
 
-          const bookingDispute =
+   const bookingDispute =
   customerPaymentDisputes.find(
     (dispute) =>
-      dispute.booking_id === booking.id
-  );
-          
+      dispute.booking_id === booking.id &&
+      dispute.status !== "RESOLVED"
+  );    
           const bookingStatus =
             normalizeStatus(
               booking.booking_status
