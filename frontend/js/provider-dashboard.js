@@ -5113,32 +5113,90 @@ async function loadProviderPaymentDisputes() {
                     "Not provided"
                 )}
               </p>
+
+              ${
+ dispute.status === "OPEN" ||
+dispute.status === "UNDER_REVIEW"
+    ? `
+      <div class="provider-payment-dispute-notice">
+        ${
+          dispute.resolution_notes &&
+          dispute.evidence
+            ? "Your response and evidence have been submitted. The dispute is awaiting administrator review."
+            : dispute.resolution_notes
+              ? "Your response has been submitted. You can still provide supporting evidence."
+              : dispute.evidence
+                ? "Your evidence has been submitted. You can still provide your response."
+                : "This dispute requires your review and response."
+        }
+      </div>
+    `
+    : ""
+}
+
+              ${
+  dispute.resolution_notes
+    ? `
+      <p>
+        <strong>Your Response:</strong>
+        ${escapeHtml(
+          dispute.resolution_notes
+        )}
+      </p>
+    `
+    : ""
+}
+
+${
+  dispute.evidence
+    ? `
+      <p>
+        <strong>Your Evidence:</strong>
+        ${escapeHtml(
+          dispute.evidence
+        )}
+      </p>
+    `
+    : ""
+}
             </div>
 
-            ${
+                       ${
               dispute.status === "OPEN"
                 ? `
-                 <div class="provider-payment-dispute-actions">
-  <button
-    type="button"
-    class="respond-payment-dispute-button"
-    data-dispute-id="${escapeHtml(
-      dispute.id
-    )}"
-  >
-    Respond to Dispute
-  </button>
+                  <div class="provider-payment-dispute-actions">
+                    ${
+                      !dispute.resolution_notes
+                        ? `
+                          <button
+                            type="button"
+                            class="respond-payment-dispute-button"
+                            data-dispute-id="${escapeHtml(
+                              dispute.id
+                            )}"
+                          >
+                            Respond to Dispute
+                          </button>
+                        `
+                        : ""
+                    }
 
-  <button
-    type="button"
-    class="submit-dispute-evidence-button"
-    data-dispute-id="${escapeHtml(
-      dispute.id
-    )}"
-  >
-    Submit Evidence
-  </button>
-</div>
+                    ${
+                      !dispute.evidence
+                        ? `
+                          <button
+                            type="button"
+                            class="submit-dispute-evidence-button"
+                            data-dispute-id="${escapeHtml(
+                              dispute.id
+                            )}"
+                          >
+                            Submit Evidence
+                          </button>
+                        `
+                        : ""
+                    }
+                  </div>
                 `
                 : ""
             }

@@ -1890,6 +1890,20 @@ input[type="file"]:hover {
   color: #ffffff;
 }
 
+.provider-payment-dispute-notice {
+  margin-top: 16px;
+  padding: 12px 14px;
+
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+
+  background: #eff6ff;
+  color: #1e40af;
+
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
 @media (max-width: 640px) {
   .provider-input-modal {
     align-items: flex-end;
