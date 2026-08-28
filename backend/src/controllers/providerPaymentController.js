@@ -3653,7 +3653,12 @@ async function getPaymentDisputes(
       await pool.query(
         `
           SELECT
-            pd.*,
+           pd.*,
+
+            COALESCE(
+              NULLIF(pd.reason, ''),
+              'General payment dispute'
+            ) AS dispute_reason,
 
             pp.amount,
             pp.currency,
@@ -3678,8 +3683,11 @@ async function getPaymentDisputes(
           LEFT JOIN users customer
             ON customer.id = pd.customer_id
 
-          LEFT JOIN users provider
-            ON provider.id = pd.provider_id
+          LEFT JOIN provider_profiles providerProfile
+          ON providerProfile.id = pd.provider_id
+
+        LEFT JOIN users provider
+          ON provider.id = providerProfile.user_id
 
           ORDER BY
             CASE

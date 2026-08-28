@@ -1235,6 +1235,7 @@ async function loadPaymentDisputes() {
               <p>
                 <strong>Reason:</strong>
                 ${escapeHtml(
+                 dispute.dispute_reason ||
                   dispute.reason ||
                   "Not provided"
                 )}
