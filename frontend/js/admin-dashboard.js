@@ -1255,6 +1255,19 @@ async function loadPaymentDisputes() {
                   `${dispute.currency || "KES"} ${dispute.amount || 0}`
                 )}
               </p>
+
+              ${dispute.status === "OPEN"
+  ? `
+    <button
+      type="button"
+      class="resolve-payment-dispute-button"
+      data-dispute-id="${escapeHtml(dispute.id)}"
+    >
+      Resolve Dispute
+    </button>
+  `
+  : ""
+}
             </article>
           `
         )
@@ -2366,6 +2379,112 @@ if (
 }
       }
     );
+  }
+);
+
+adminPaymentDisputesContainer?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".resolve-payment-dispute-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const disputeId =
+      button.dataset.disputeId;
+
+    if (!disputeId) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Are you sure you want to resolve this payment dispute?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const originalText =
+      button.textContent;
+
+    button.disabled = true;
+    button.textContent =
+      "Resolving...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE}/provider-payments/disputes/${encodeURIComponent(
+            disputeId
+          )}/resolve`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({}),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401
+      ) {
+        clearAdminSession();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to resolve payment dispute."
+        );
+      }
+
+      showMessage(
+        "Payment dispute resolved successfully.",
+        "success"
+      );
+
+      await loadPaymentDisputes();
+
+    } catch (error) {
+      console.error(
+        "Resolve payment dispute error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+          "Unable to resolve payment dispute.",
+        "error"
+      );
+
+      button.disabled = false;
+      button.textContent =
+        originalText;
+    }
   }
 );
 
