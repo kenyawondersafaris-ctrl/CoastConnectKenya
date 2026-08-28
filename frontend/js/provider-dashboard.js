@@ -5162,7 +5162,8 @@ ${
             </div>
 
                        ${
-              dispute.status === "OPEN"
+             dispute.status === "OPEN" ||
+              dispute.status === "UNDER_REVIEW"
                 ? `
                   <div class="provider-payment-dispute-actions">
                     ${
