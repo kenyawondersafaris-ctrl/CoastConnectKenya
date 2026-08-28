@@ -1293,6 +1293,74 @@ main.container {
   transform: none;
 }
 
+.customer-dispute-status-card {
+  margin-top: 18px;
+  padding: 20px;
+
+  border: 1px solid #fed7d7;
+  border-radius: 12px;
+
+  background: #fffafa;
+}
+
+.customer-dispute-status-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.customer-dispute-status-card__header span {
+  color: #dc2626;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.customer-dispute-status-card__header strong {
+  padding: 6px 10px;
+
+  border-radius: 999px;
+
+  background: #fef3c7;
+  color: #92400e;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.customer-dispute-status-card p {
+  margin: 10px 0;
+
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.customer-dispute-status-card p:last-child {
+  margin-bottom: 0;
+}
+
+.customer-dispute-status-card p strong {
+  color: #1f2937;
+}
+
+@media (max-width: 640px) {
+  .customer-dispute-status-card {
+    padding: 16px;
+  }
+
+  .customer-dispute-status-card__header {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 8px;
+  }
+}
+
 @media (max-width: 640px) {
   .booking-dispute-section {
     flex-direction: column;
