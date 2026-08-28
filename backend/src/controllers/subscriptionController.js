@@ -141,10 +141,11 @@ async function initializeSubscriptionPayment(
         .trim()
         .toUpperCase();
 
-    const {
-      planId,
-    } =
-      req.body;
+   const {
+  planId,
+  phoneNumber,
+} =
+  req.body;
 
 
     /*
@@ -360,14 +361,15 @@ async function initializeSubscriptionPayment(
     }
 
 
-   if (!user.phone) {
+  const paymentPhoneNumber =
+  String(phoneNumber || "").trim();
 
+if (!paymentPhoneNumber) {
   return res.status(400).json({
     success: false,
     message:
-      "Your account must have a phone number before making a payment.",
+      "Please enter the M-Pesa number you would like to use for this payment.",
   });
-
 }
 
 
@@ -478,7 +480,7 @@ async function initializeSubscriptionPayment(
 const payHeroResponse =
   await initiatePayHeroStkPush({
    phoneNumber:
-  user.phone,
+  paymentPhoneNumber,
 
     amount:
       Number(

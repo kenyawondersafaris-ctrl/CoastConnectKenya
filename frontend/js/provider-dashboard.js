@@ -1001,6 +1001,11 @@ const providerSubscriptionPlansContainer =
     "providerSubscriptionPlansContainer"
   );
 
+  const providerSubscriptionPhone =
+  document.getElementById(
+    "providerSubscriptionPhone"
+  );
+
   const providerPaymentDisputesContainer =
   document.getElementById(
     "providerPaymentDisputesContainer"
@@ -1025,6 +1030,20 @@ const providerSubscriptionPlansContainer =
         providerDashboardMessage,
         "Unable to identify the selected subscription plan."
       );
+
+      return;
+    }
+
+        const phoneNumber =
+      providerSubscriptionPhone?.value.trim();
+
+    if (!phoneNumber) {
+      setMessage(
+        providerDashboardMessage,
+        "Please enter the M-Pesa number you would like to use for this payment."
+      );
+
+      providerSubscriptionPhone?.focus();
 
       return;
     }
@@ -1054,9 +1073,10 @@ const providerSubscriptionPlansContainer =
               "application/json",
           },
 
-          body: JSON.stringify({
-            planId,
-          }),
+         body: JSON.stringify({
+  planId,
+  phoneNumber,
+}),
         }
       );
 
