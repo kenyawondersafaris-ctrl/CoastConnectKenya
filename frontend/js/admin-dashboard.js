@@ -1137,6 +1137,145 @@ async function loadProviderPayoutHistory() {
   }
 }
 
+async function loadPaymentDisputes() {
+  if (!adminPaymentDisputesContainer) {
+    return;
+  }
+
+  adminPaymentDisputesContainer.innerHTML =
+    "<p>Loading payment disputes...</p>";
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE}/provider-payments/disputes`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    if (
+      handleUnauthorizedResponse(
+        response
+      )
+    ) {
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to load payment disputes."
+      );
+    }
+
+    const disputes =
+      Array.isArray(
+        data.disputes
+      )
+        ? data.disputes
+        : [];
+
+    if (!disputes.length) {
+      adminPaymentDisputesContainer.innerHTML =
+        "<p>No payment disputes found.</p>";
+
+      return;
+    }
+
+    adminPaymentDisputesContainer.innerHTML =
+      disputes
+        .map(
+          (dispute) => `
+            <article
+              class="admin-payment-dispute-card"
+            >
+              <div
+                class="admin-payment-dispute-card__header"
+              >
+                <h3>
+                  Payment Dispute
+                </h3>
+
+                <span>
+                  ${escapeHtml(
+                    dispute.status ||
+                    "OPEN"
+                  )}
+                </span>
+              </div>
+
+              <p>
+                <strong>Customer:</strong>
+                ${escapeHtml(
+                  dispute.customer_name ||
+                  "Unknown"
+                )}
+              </p>
+
+              <p>
+                <strong>Provider:</strong>
+                ${escapeHtml(
+                  dispute.provider_name ||
+                  "Unknown"
+                )}
+              </p>
+
+              <p>
+                <strong>Reason:</strong>
+                ${escapeHtml(
+                  dispute.reason ||
+                  "Not provided"
+                )}
+              </p>
+
+              <p>
+                <strong>Description:</strong>
+                ${escapeHtml(
+                  dispute.description ||
+                  "Not provided"
+                )}
+              </p>
+
+              <p>
+                <strong>Amount:</strong>
+                ${escapeHtml(
+                  `${dispute.currency || "KES"} ${dispute.amount || 0}`
+                )}
+              </p>
+            </article>
+          `
+        )
+        .join("");
+
+  } catch (error) {
+    console.error(
+      "Load payment disputes error:",
+      error
+    );
+
+    adminPaymentDisputesContainer.innerHTML =
+      "<p>Unable to load payment disputes.</p>";
+
+    showMessage(
+      error.message ||
+      "Unable to load payment disputes.",
+      "error"
+    );
+  }
+}
+
 async function loadRefunds() {
 
   if (!adminRefundsContainer) {
@@ -2197,6 +2336,13 @@ if (
   loadRefunds();
 }
 
+
+if (
+  sectionName ===
+  "payment-disputes"
+) {
+  loadPaymentDisputes();
+}
 if (
   sectionName ===
   "restaurants"
