@@ -250,10 +250,12 @@ async function initializeCustomerBookings() {
     return;
   }
 
-  await Promise.all([
+await Promise.all([
   loadCustomerBookings(),
   loadCustomerPaymentDisputes(),
 ]);
+
+renderCustomerBookings();
 
 initializeCustomerBookingSocket();
 }
