@@ -3802,6 +3802,74 @@ async function getPaymentDisputes(
   }
 }
 
+async function getCustomerPaymentDisputes(
+  req,
+  res
+) {
+  try {
+    const customerId =
+      req.user.userId;
+
+    const disputesResult =
+      await pool.query(
+        `
+          SELECT
+            pd.*,
+
+            pp.amount,
+            pp.currency,
+            pp.payment_reference,
+            pp.payment_stage,
+            pp.status AS payment_status,
+
+            b.booking_status,
+
+            provider.full_name AS provider_name
+
+          FROM payment_disputes pd
+
+          INNER JOIN provider_payments pp
+            ON pp.id = pd.payment_id
+
+          LEFT JOIN bookings b
+            ON b.id = pd.booking_id
+
+          LEFT JOIN provider_profiles providerProfile
+            ON providerProfile.id = pd.provider_id
+
+          LEFT JOIN users provider
+            ON provider.id = providerProfile.user_id
+
+          WHERE
+            pd.customer_id = $1::uuid
+
+          ORDER BY
+            pd.created_at DESC
+        `,
+        [
+          customerId,
+        ]
+      );
+
+    return res.status(200).json({
+      success: true,
+      disputes:
+        disputesResult.rows,
+    });
+  } catch (error) {
+    console.error(
+      "Get customer payment disputes error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load payment disputes.",
+    });
+  }
+}
+
 async function markPaymentRefunded(
   req,
   res
@@ -3960,5 +4028,6 @@ module.exports = {
   getPaymentDisputes,
   markPaymentRefunded,
   getProviderPaymentDisputes,
+  getCustomerPaymentDisputes,
   // keep any other existing exports here
 };

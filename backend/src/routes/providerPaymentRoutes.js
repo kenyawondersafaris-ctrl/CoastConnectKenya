@@ -13,6 +13,7 @@ const {
   markPaymentRefunded,
   getPaymentDisputes,
   getProviderPaymentDisputes,
+  getCustomerPaymentDisputes,
 } =
 require("../controllers/providerPaymentController");
 
@@ -30,6 +31,13 @@ router.post(
   authenticate,
   requireRole("CUSTOMER"),
   createProviderPaymentAttempt
+);
+
+router.get(
+  "/customer/disputes",
+  authenticate,
+  requireRole("CUSTOMER"),
+  getCustomerPaymentDisputes
 );
 
 router.get(

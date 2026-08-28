@@ -216,6 +216,7 @@ let selectedPaymentBooking =
   null;
 
 let customerBookings = [];
+let customerPaymentDisputes = [];
 
 document.addEventListener(
   "DOMContentLoaded",
@@ -249,8 +250,12 @@ async function initializeCustomerBookings() {
     return;
   }
 
-  await loadCustomerBookings();
-  initializeCustomerBookingSocket();
+  await Promise.all([
+  loadCustomerBookings(),
+  loadCustomerPaymentDisputes(),
+]);
+
+initializeCustomerBookingSocket();
 }
 
 function getUserRoles() {
@@ -593,6 +598,57 @@ async function loadCustomerBookings() {
   }
 }
 
+async function loadCustomerPaymentDisputes() {
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/provider-payments/customer/disputes`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      response.status === 401
+    ) {
+      clearSessionAndRedirect();
+      return;
+    }
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to load payment disputes."
+      );
+    }
+
+    customerPaymentDisputes =
+      Array.isArray(data.disputes)
+        ? data.disputes
+        : [];
+
+  } catch (error) {
+    console.error(
+      "Load customer payment disputes error:",
+      error
+    );
+
+    customerPaymentDisputes = [];
+  }
+}
+
 function updateSummaryCounts() {
   const counts = {
     PENDING: 0,
@@ -656,6 +712,13 @@ function renderCustomerBookings() {
     customerBookings
       .map(
         (booking) => {
+
+          const bookingDispute =
+  customerPaymentDisputes.find(
+    (dispute) =>
+      dispute.booking_id === booking.id
+  );
+          
           const bookingStatus =
             normalizeStatus(
               booking.booking_status
@@ -667,6 +730,7 @@ function renderCustomerBookings() {
             );
 
           const canOpenDispute =
+           !bookingDispute &&
             bookingStatus === "COMPLETED" &&
             (
               paymentStatus === "PAID" ||
@@ -944,6 +1008,73 @@ function renderCustomerBookings() {
                 </div>
 
               </div>
+
+                            ${
+                bookingDispute
+                  ? `
+                    <div class="customer-dispute-status-card">
+
+                      <div class="customer-dispute-status-card__header">
+                        <span>
+                          PAYMENT DISPUTE
+                        </span>
+
+                        <strong>
+                          ${escapeHtml(
+                            formatStatus(
+                              bookingDispute.status ||
+                              "OPEN"
+                            )
+                          )}
+                        </strong>
+                      </div>
+
+                      <p>
+                        <strong>Reason:</strong>
+                        ${escapeHtml(
+                          bookingDispute.dispute_reason ||
+                          "Not provided"
+                        )}
+                      </p>
+
+                      <p>
+                        <strong>Your Description:</strong>
+                        ${escapeHtml(
+                          bookingDispute.description ||
+                          "Not provided"
+                        )}
+                      </p>
+
+                      ${
+                        bookingDispute.resolution_notes
+                          ? `
+                            <p>
+                              <strong>Provider Response:</strong>
+                              ${escapeHtml(
+                                bookingDispute.resolution_notes
+                              )}
+                            </p>
+                          `
+                          : ""
+                      }
+
+                      ${
+                        bookingDispute.evidence
+                          ? `
+                            <p>
+                              <strong>Provider Evidence:</strong>
+                              ${escapeHtml(
+                                bookingDispute.evidence
+                              )}
+                            </p>
+                          `
+                          : ""
+                      }
+
+                    </div>
+                  `
+                  : ""
+              }
 
               ${
                 canOpenDispute
@@ -1419,7 +1550,10 @@ if (booking) {
   renderCustomerBookings();
 }
 
-    await loadCustomerBookings();
+    await Promise.all([
+  loadCustomerBookings(),
+  loadCustomerPaymentDisputes(),
+]);
 
     if (
       payment.paymentStage ===
