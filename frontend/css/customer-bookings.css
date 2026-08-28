@@ -1208,6 +1208,90 @@ main.container {
   transform: none;
 }
 
+/* Customer payment dispute */
+
+.open-dispute-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.open-dispute-button:hover {
+  transform: translateY(-1px);
+}
+
+.open-dispute-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
+.payment-dispute-form {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fffafa;
+}
+
+.payment-dispute-form[hidden] {
+  display: none;
+}
+
+.payment-dispute-form label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.payment-dispute-form select,
+.payment-dispute-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: inherit;
+  font: inherit;
+}
+
+.payment-dispute-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.submit-dispute-button {
+  width: 100%;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit-dispute-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 @media (max-width: 600px) {
   .booking-completion-confirmation {
     padding: 16px;

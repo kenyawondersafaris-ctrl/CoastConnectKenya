@@ -2330,6 +2330,48 @@ button {
 
 }
 
+/* Payment dispute actions */
+
+.payment-dispute-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.resolve-payment-dispute-button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.resolve-payment-dispute-button:hover {
+  transform: translateY(-1px);
+}
+
+.resolve-payment-dispute-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
+.resolve-payment-dispute-button[data-decision="CUSTOMER_FAVORED"] {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.resolve-payment-dispute-button[data-decision="PROVIDER_FAVORED"] {
+  background: #16a34a;
+  color: #ffffff;
+}
+
 
 /* =========================================================
    RESPONSIVE

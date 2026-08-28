@@ -40,8 +40,7 @@ const {
   getProviderVerificationDetails,
   approveProviderVerification,
   rejectProviderVerification,
-   getRefundablePayments
-
+   getRefundablePayments,
 } = require("../controllers/adminController");
 
 const router =
