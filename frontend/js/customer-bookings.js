@@ -115,6 +115,204 @@ const customerBookingNotificationMessage =
     "customerBookingNotificationMessage"
   );
 
+  const paymentDisputeModal =
+  document.getElementById(
+    "paymentDisputeModal"
+  );
+
+const paymentDisputeForm =
+  document.getElementById(
+    "paymentDisputeForm"
+  );
+
+const paymentDisputePaymentId =
+  document.getElementById(
+    "paymentDisputePaymentId"
+  );
+
+const paymentDisputeReason =
+  document.getElementById(
+    "paymentDisputeReason"
+  );
+
+const paymentDisputeDescription =
+  document.getElementById(
+    "paymentDisputeDescription"
+  );
+
+
+
+  function openPaymentDisputeModal(
+  paymentId
+) {
+  if (
+    !paymentDisputeModal ||
+    !paymentDisputePaymentId ||
+    !paymentDisputeReason ||
+    !paymentDisputeDescription
+  ) {
+    return;
+  }
+
+  paymentDisputePaymentId.value =
+    paymentId;
+
+  paymentDisputeReason.value =
+    "";
+
+  paymentDisputeDescription.value =
+    "";
+
+  paymentDisputeModal.hidden =
+    false;
+
+  paymentDisputeReason.focus();
+}
+
+function closePaymentDisputeModal() {
+  if (!paymentDisputeModal) {
+    return;
+  }
+
+  paymentDisputeModal.hidden =
+    true;
+}
+
+
+
+document.addEventListener(
+  "click",
+  (event) => {
+    if (
+      event.target.closest(
+        ".payment-dispute-modal__close"
+      ) ||
+      event.target.closest(
+        ".payment-dispute-modal__cancel"
+      ) ||
+      event.target.classList.contains(
+        "payment-dispute-modal__backdrop"
+      )
+    ) {
+      closePaymentDisputeModal();
+    }
+  }
+);
+
+
+paymentDisputeForm?.addEventListener(
+  "submit",
+  async (event) => {
+    event.preventDefault();
+
+    const paymentId =
+      paymentDisputePaymentId?.value;
+
+    const reason =
+      paymentDisputeReason?.value.trim();
+
+    const description =
+      paymentDisputeDescription?.value.trim();
+
+    if (
+      !paymentId ||
+      !reason ||
+      !description
+    ) {
+      return;
+    }
+
+    const submitButton =
+      paymentDisputeForm.querySelector(
+        ".payment-dispute-modal__submit"
+      );
+
+    const originalText =
+      submitButton?.textContent;
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent =
+        "Submitting...";
+    }
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/provider-payments/disputes`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                paymentId,
+                reason,
+                description,
+              }),
+          }
+        );
+
+      if (
+        response.status === 401
+      ) {
+        clearSessionAndRedirect();
+        return;
+      }
+
+      const data =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+            "Unable to open the dispute."
+        );
+      }
+
+      closePaymentDisputeModal();
+
+      await Promise.all([
+        loadCustomerBookings(),
+        loadCustomerPaymentDisputes(),
+      ]);
+
+      renderCustomerBookings();
+
+    } catch (error) {
+      console.error(
+        "Open payment dispute error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+          "Unable to open the dispute.",
+        "error"
+      );
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent =
+          originalText ||
+          "Submit Dispute";
+      }
+    }
+  }
+);
 
   let customerBookingNotificationTimeout =
   null;
@@ -1628,17 +1826,11 @@ customerBookingsGrid?.addEventListener(
       return;
     }
 
-    const description =
-      window.prompt(
-        "Please provide more details about the dispute:"
-      );
+    openPaymentDisputeModal(
+  paymentId
+);
 
-    if (
-      !description ||
-      !description.trim()
-    ) {
-      return;
-    }
+return;
 
     const originalText =
       button.textContent;

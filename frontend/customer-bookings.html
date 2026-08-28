@@ -206,6 +206,100 @@ Loading bookings...
   </div>
 
 </div>
+
+<div
+  id="paymentDisputeModal"
+  class="payment-dispute-modal"
+  hidden
+>
+  <div
+    class="payment-dispute-modal__backdrop"
+  ></div>
+
+  <div
+    class="payment-dispute-modal__dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="paymentDisputeModalTitle"
+  >
+    <button
+      type="button"
+      class="payment-dispute-modal__close"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+    <h2 id="paymentDisputeModalTitle">
+      Open Payment Dispute
+    </h2>
+
+    <p>
+      Tell us what went wrong with this payment.
+    </p>
+
+    <form
+      id="paymentDisputeForm"
+    >
+      <input
+        type="hidden"
+        id="paymentDisputePaymentId"
+      />
+
+      <div
+        class="payment-dispute-modal__field"
+      >
+        <label
+          for="paymentDisputeReason"
+        >
+          Reason
+        </label>
+
+        <input
+          type="text"
+          id="paymentDisputeReason"
+          placeholder="Briefly state the reason"
+          required
+        />
+      </div>
+
+      <div
+        class="payment-dispute-modal__field"
+      >
+        <label
+          for="paymentDisputeDescription"
+        >
+          Description
+        </label>
+
+        <textarea
+          id="paymentDisputeDescription"
+          rows="5"
+          placeholder="Provide more details about the dispute"
+          required
+        ></textarea>
+      </div>
+
+      <div
+        class="payment-dispute-modal__actions"
+      >
+        <button
+          type="button"
+          class="payment-dispute-modal__cancel"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="payment-dispute-modal__submit"
+        >
+          Submit Dispute
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="js/customer-bookings.js"></script>
 
