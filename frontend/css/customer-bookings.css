@@ -1210,86 +1210,103 @@ main.container {
 
 /* Customer payment dispute */
 
-.open-dispute-button {
-  width: 100%;
-  margin-top: 12px;
-  padding: 11px 16px;
+.booking-dispute-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  margin-top: 18px;
+  padding: 20px;
+
+  border: 1px solid #fed7d7;
+  border-radius: 12px;
+
+  background: #fffafa;
+}
+
+.booking-dispute-section__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.booking-dispute-section__eyebrow {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #dc2626;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.booking-dispute-section h4 {
+  margin: 0 0 8px;
+
+  color: #1f2937;
+
+  font-size: 1rem;
+}
+
+.booking-dispute-section p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.open-payment-dispute-button {
+  flex-shrink: 0;
+
+  min-width: 140px;
+
+  padding: 11px 18px;
+
   border: none;
   border-radius: 8px;
+
   background: #dc2626;
   color: #ffffff;
+
   font: inherit;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
+
   cursor: pointer;
+
   transition:
     transform 0.2s ease,
     opacity 0.2s ease;
 }
 
-.open-dispute-button:hover {
+.open-payment-dispute-button:hover {
   transform: translateY(-1px);
 }
 
-.open-dispute-button:disabled {
+.open-payment-dispute-button:disabled {
   cursor: not-allowed;
   opacity: 0.65;
   transform: none;
 }
 
-.payment-dispute-form {
-  margin-top: 14px;
-  padding: 16px;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  background: #fffafa;
-}
+@media (max-width: 640px) {
+  .booking-dispute-section {
+    flex-direction: column;
+    align-items: stretch;
 
-.payment-dispute-form[hidden] {
-  display: none;
-}
+    gap: 16px;
 
-.payment-dispute-form label {
-  display: block;
-  margin-bottom: 7px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
+    padding: 16px;
+  }
 
-.payment-dispute-form select,
-.payment-dispute-form textarea {
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #ffffff;
-  color: inherit;
-  font: inherit;
-}
-
-.payment-dispute-form textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.submit-dispute-button {
-  width: 100%;
-  padding: 11px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #dc2626;
-  color: #ffffff;
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.submit-dispute-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.65;
+  .open-payment-dispute-button {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 @media (max-width: 600px) {
