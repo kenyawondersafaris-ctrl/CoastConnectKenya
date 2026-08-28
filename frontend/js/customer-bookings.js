@@ -1814,17 +1814,6 @@ customerBookingsGrid?.addEventListener(
       return;
     }
 
-    const reason =
-      window.prompt(
-        "Briefly state the reason for this dispute:"
-      );
-
-    if (
-      !reason ||
-      !reason.trim()
-    ) {
-      return;
-    }
 
     openPaymentDisputeModal(
   paymentId
