@@ -3684,7 +3684,7 @@ async function getPaymentDisputes(
             ON customer.id = pd.customer_id
 
           LEFT JOIN provider_profiles providerProfile
-          ON providerProfile.id = pd.provider_id
+            ON providerProfile.id = pp.provider_id
 
         LEFT JOIN users provider
           ON provider.id = providerProfile.user_id
