@@ -1460,6 +1460,53 @@ input[type="file"]:hover {
   margin-bottom: 24px;
 }
 
+
+.subscription-payment-phone {
+  max-width: 520px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.subscription-payment-phone label {
+  display: block;
+  margin-bottom: 8px;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.subscription-payment-phone input {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 1rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.subscription-payment-phone input:focus {
+  border-color: #1d4ed8;
+  box-shadow:
+    0 0 0 3px
+    rgba(29, 78, 216, 0.1);
+}
+
+.subscription-payment-phone p {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
 .subscription-status-card {
   padding: 24px;
   background: #f8fafc;
