@@ -715,13 +715,16 @@ function renderCustomerBookings() {
       .map(
         (booking) => {
 
-   const bookingDispute =
+  const bookingDispute =
   customerPaymentDisputes.find(
     (dispute) =>
       dispute.booking_id === booking.id &&
       dispute.status !== "RESOLVED"
-  );    
-          const bookingStatus =
+  ) ||
+  customerPaymentDisputes.find(
+    (dispute) =>
+      dispute.booking_id === booking.id
+  );   const bookingStatus =
             normalizeStatus(
               booking.booking_status
             );
@@ -1047,19 +1050,25 @@ function renderCustomerBookings() {
                         )}
                       </p>
 
-                      ${
-                        bookingDispute.resolution_notes
-                          ? `
-                            <p>
-                              <strong>Provider Response:</strong>
-                              ${escapeHtml(
-                                bookingDispute.resolution_notes
-                              )}
-                            </p>
-                          `
-                          : ""
-                      }
+                     ${
+  bookingDispute.resolution_notes
+    ? `
+      <p>
+        <strong>
+          ${
+            bookingDispute.status === "RESOLVED"
+              ? "Admin Resolution:"
+              : "Provider Response:"
+          }
+        </strong>
 
+        ${escapeHtml(
+          bookingDispute.resolution_notes
+        )}
+      </p>
+    `
+    : ""
+}
                       ${
                         bookingDispute.evidence
                           ? `
