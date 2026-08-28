@@ -1006,12 +1006,37 @@ const providerSubscriptionPlansContainer =
     "providerSubscriptionPhone"
   );
 
+  const providerSubscriptionPaymentModal =
+  document.getElementById(
+    "providerSubscriptionPaymentModal"
+  );
+
+const providerSubscriptionPaymentClose =
+  document.getElementById(
+    "providerSubscriptionPaymentClose"
+  );
+
+const providerSubscriptionPaymentCancel =
+  document.getElementById(
+    "providerSubscriptionPaymentCancel"
+  );
+
+const providerSubscriptionPaymentConfirm =
+  document.getElementById(
+    "providerSubscriptionPaymentConfirm"
+  );
+
+  let selectedSubscriptionPlanId =
+  null;
+
+let selectedSubscriptionButton =
+  null;
+
   const providerPaymentDisputesContainer =
   document.getElementById(
     "providerPaymentDisputesContainer"
   );
-
-  providerSubscriptionPlansContainer?.addEventListener(
+providerSubscriptionPlansContainer?.addEventListener(
   "click",
   async (event) => {
     const button = event.target.closest(
@@ -1034,222 +1059,27 @@ const providerSubscriptionPlansContainer =
       return;
     }
 
-        const phoneNumber =
-      providerSubscriptionPhone?.value.trim();
+    selectedSubscriptionPlanId =
+      planId;
 
-    if (!phoneNumber) {
-      setMessage(
-        providerDashboardMessage,
-        "Please enter the M-Pesa number you would like to use for this payment."
+    selectedSubscriptionButton =
+      button;
+
+    providerSubscriptionPaymentModal
+      ?.classList.add(
+        "is-visible"
       );
 
-      providerSubscriptionPhone?.focus();
-
-      return;
-    }
-
-    button.disabled = true;
-
-    const originalText =
-      button.textContent;
-
-    button.textContent =
-      "Processing...";
-
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/subscriptions/initialize`,
-        {
-          method: "POST",
-
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-
-            "Content-Type":
-              "application/json",
-
-            Accept:
-              "application/json",
-          },
-
-         body: JSON.stringify({
-  planId,
-  phoneNumber,
-}),
-        }
+    providerSubscriptionPaymentModal
+      ?.setAttribute(
+        "aria-hidden",
+        "false"
       );
 
-      const data =
-        await response.json();
-
-     if (response.status === 401) {
-  clearSessionAndRedirect();
-  return;
-}
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-        throw new Error(
-          data.message ||
-          "Unable to initialize subscription payment."
-        );
-      }
-
-    if (
-  data.paymentMethod !==
-  "PAYHERO_STK"
-) {
-  throw new Error(
-    "Unable to start the M-Pesa payment."
-  );
-}
-
-setMessage(
-  providerDashboardMessage,
-  "M-Pesa payment prompt has been sent to your phone. Please complete the payment.",
-  "success"
-);
-
-button.textContent =
-  "Waiting for payment...";
-
-  const paymentReference =
-  data.reference;
-
-let attempts = 0;
-
-const maxAttempts = 60;
-
-const paymentStatusInterval =
-  setInterval(
-    async () => {
-      attempts += 1;
-
-      try {
-        const verifyResponse =
-          await fetch(
-            `${API_BASE_URL}/subscriptions/verify/${encodeURIComponent(
-              paymentReference
-            )}`,
-            {
-              method: "GET",
-
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-
-                Accept:
-                  "application/json",
-              },
-            }
-          );
-
-        const verifyData =
-          await verifyResponse.json();
-
-        if (
-          verifyData.paymentStatus ===
-          "SUCCESS"
-        ) {
-          clearInterval(
-            paymentStatusInterval
-          );
-
-          setMessage(
-            providerDashboardMessage,
-            "Payment completed successfully. Your subscription is now active.",
-            "success"
-          );
-
-          button.textContent =
-            "Subscribed";
-
-          await loadCurrentSubscription();
-
-          await loadSubscriptionPlans();
-
-          return;
-        }
-
-        if (
-          verifyData.paymentStatus ===
-          "FAILED"
-        ) {
-          clearInterval(
-            paymentStatusInterval
-          );
-
-          throw new Error(
-            verifyData.message ||
-            "The M-Pesa payment was not completed."
-          );
-        }
-
-        if (
-          attempts >= maxAttempts
-        ) {
-          clearInterval(
-            paymentStatusInterval
-          );
-
-          button.disabled = false;
-
-          button.textContent =
-            originalText;
-
-          setMessage(
-            providerDashboardMessage,
-            "Payment confirmation is taking longer than expected. Please refresh after completing the M-Pesa payment."
-          );
-        }
-
-      } catch (error) {
-        console.error(
-          "Verify provider subscription payment error:",
-          error
-        );
-
-        clearInterval(
-          paymentStatusInterval
-        );
-
-        button.disabled = false;
-
-        button.textContent =
-          originalText;
-
-        setMessage(
-          providerDashboardMessage,
-          error.message ||
-            "Unable to verify subscription payment."
-        );
-      }
-    },
-    3000
-  );
-
-    } catch (error) {
-      console.error(
-        "Initialize provider subscription error:",
-        error
-      );
-
-      setMessage(
-        providerDashboardMessage,
-        error.message ||
-          "Unable to start subscription payment."
-      );
-
-      button.disabled = false;
-
-      button.textContent =
-        originalText;
-    }
+    providerSubscriptionPhone
+      ?.focus();
   }
 );
-
 
   if (providerProfilePhoto) {
   providerProfilePhoto.addEventListener(

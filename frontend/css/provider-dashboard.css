@@ -1461,50 +1461,210 @@ input[type="file"]:hover {
 }
 
 
-.subscription-payment-phone {
-  max-width: 520px;
-  margin-bottom: 24px;
+/* ==========================================================
+   Subscription Payment Modal
+   ========================================================== */
+
+.subscription-payment-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
   padding: 20px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+
+  background:
+    rgba(15, 23, 42, 0.55);
+}
+
+.subscription-payment-modal.is-visible {
+  display: flex;
+}
+
+.subscription-payment-modal-dialog {
+  width: 100%;
+  max-width: 460px;
+
+  position: relative;
+
+  padding: 30px;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 24px 60px
+    rgba(15, 23, 42, 0.22);
+}
+
+.subscription-payment-modal-close {
+  position: absolute;
+
+  top: 16px;
+  right: 16px;
+
+  width: 36px;
+  height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f1f5f9;
+
+  color: #475569;
+
+  font-size: 1.3rem;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.subscription-payment-modal-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.subscription-payment-modal-header h2 {
+  margin: 0 45px 10px 0;
+
+  color: #0f172a;
+
+  font-size: 1.35rem;
+}
+
+.subscription-payment-modal-header p {
+  margin: 0 0 24px;
+
+  color: #64748b;
+
+  line-height: 1.6;
+}
+
+.subscription-payment-phone {
+  margin-bottom: 24px;
 }
 
 .subscription-payment-phone label {
   display: block;
+
   margin-bottom: 8px;
-  color: #0f172a;
+
+  color: #334155;
+
   font-size: 0.9rem;
+
   font-weight: 600;
 }
 
 .subscription-payment-phone input {
   width: 100%;
-  min-height: 46px;
-  padding: 11px 14px;
+
+  min-height: 48px;
+
+  padding: 0 14px;
+
   border: 1px solid #cbd5e1;
   border-radius: 10px;
-  outline: none;
+
   background: #ffffff;
+
   color: #0f172a;
+
   font-size: 1rem;
+
+  outline: none;
+
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
 
 .subscription-payment-phone input:focus {
-  border-color: #1d4ed8;
+  border-color: #2563eb;
+
   box-shadow:
     0 0 0 3px
-    rgba(29, 78, 216, 0.1);
+    rgba(37, 99, 235, 0.12);
 }
 
-.subscription-payment-phone p {
-  margin: 10px 0 0;
-  color: #64748b;
-  font-size: 0.85rem;
-  line-height: 1.5;
+.subscription-payment-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 12px;
+}
+
+.subscription-payment-modal-actions button {
+  min-height: 44px;
+  padding: 0 18px;
+
+  border-radius: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.subscription-payment-modal-cancel {
+  background: #ffffff;
+
+  color: #475569;
+
+  border: 1px solid #cbd5e1;
+}
+
+.subscription-payment-modal-cancel:hover {
+  background: #f8fafc;
+}
+
+.subscription-payment-modal-confirm {
+  border: none;
+
+  background: #1d4ed8;
+
+  color: #ffffff;
+}
+
+.subscription-payment-modal-confirm:hover {
+  background: #1e40af;
+}
+
+@media (max-width: 600px) {
+  .subscription-payment-modal {
+    align-items: flex-end;
+
+    padding: 12px;
+  }
+
+  .subscription-payment-modal-dialog {
+    max-width: none;
+
+    padding: 26px 20px;
+
+    border-radius:
+      18px 18px 12px 12px;
+  }
+
+  .subscription-payment-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .subscription-payment-modal-actions button {
+    width: 100%;
+  }
 }
 
 .subscription-status-card {

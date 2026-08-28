@@ -945,22 +945,6 @@ Loading bookings...
     </div>
   </div>
 
-    <div class="subscription-payment-phone">
-    <label for="providerSubscriptionPhone">
-      M-Pesa phone number
-    </label>
-
-    <input
-      type="tel"
-      id="providerSubscriptionPhone"
-      placeholder="0792837468"
-      autocomplete="tel"
-    >
-    <p>
-  Enter the M-Pesa number you would like to use for this payment.
-</p>
-  </div>
-
 
   <div
     id="providerSubscriptionPlansContainer"
@@ -1078,6 +1062,81 @@ Loading bookings...
         id="providerInputModalSubmit"
       >
         Submit
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  id="providerSubscriptionPaymentModal"
+  class="subscription-payment-modal"
+  aria-hidden="true"
+>
+  <div
+    class="subscription-payment-modal-backdrop"
+  ></div>
+
+  <div
+    class="subscription-payment-modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="providerSubscriptionPaymentTitle"
+  >
+    <button
+      type="button"
+      class="subscription-payment-modal-close"
+      id="providerSubscriptionPaymentClose"
+      aria-label="Close payment dialog"
+    >
+      ×
+    </button>
+
+    <div class="subscription-payment-modal-header">
+      <span>
+        Subscription Payment
+      </span>
+
+      <h2
+        id="providerSubscriptionPaymentTitle"
+      >
+        Pay with M-Pesa
+      </h2>
+
+      <p
+        id="providerSubscriptionPaymentDescription"
+      >
+        Enter the M-Pesa number you would like to use for this payment.
+      </p>
+    </div>
+
+    <div class="subscription-payment-phone">
+      <label for="providerSubscriptionPhone">
+        M-Pesa phone number
+      </label>
+
+      <input
+        type="tel"
+        id="providerSubscriptionPhone"
+        placeholder="0792837468"
+        autocomplete="tel"
+      >
+    </div>
+
+    <div class="subscription-payment-modal-actions">
+      <button
+        type="button"
+        class="secondary-button"
+        id="providerSubscriptionPaymentCancel"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        id="providerSubscriptionPaymentConfirm"
+      >
+        Continue
       </button>
     </div>
   </div>
