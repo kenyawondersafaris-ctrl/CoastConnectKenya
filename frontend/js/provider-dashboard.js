@@ -1209,8 +1209,6 @@ const paymentStatusInterval =
     },
     3000
   );
-      window.location.href =
-        data.authorizationUrl;
 
     } catch (error) {
       console.error(
