@@ -3655,10 +3655,7 @@ async function getPaymentDisputes(
           SELECT
            pd.*,
 
-            COALESCE(
-              NULLIF(pd.reason, ''),
-              'General payment dispute'
-            ) AS dispute_reason,
+            pd.dispute_reason,
 
             pp.amount,
             pp.currency,
