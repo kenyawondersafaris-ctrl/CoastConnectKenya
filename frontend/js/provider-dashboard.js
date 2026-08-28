@@ -1392,6 +1392,36 @@ const providerDropdownEmail =
     "providerDropdownEmail"
   );
 
+  const providerInputModal =
+  document.getElementById(
+    "providerInputModal"
+  );
+
+const providerInputModalTitle =
+  document.getElementById(
+    "providerInputModalTitle"
+  );
+
+const providerInputModalMessage =
+  document.getElementById(
+    "providerInputModalMessage"
+  );
+
+const providerInputModalTextarea =
+  document.getElementById(
+    "providerInputModalTextarea"
+  );
+
+const providerInputModalError =
+  document.getElementById(
+    "providerInputModalError"
+  );
+
+const providerInputModalSubmit =
+  document.getElementById(
+    "providerInputModalSubmit"
+  );
+
 let providerBookings = [];
 
 let providerServices = [];
@@ -1639,6 +1669,124 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function showProviderInputModal({
+  title,
+  message,
+  placeholder,
+  submitText,
+}) {
+  return new Promise(
+    (resolve) => {
+      if (
+        !providerInputModal ||
+        !providerInputModalTitle ||
+        !providerInputModalMessage ||
+        !providerInputModalTextarea ||
+        !providerInputModalError ||
+        !providerInputModalSubmit
+      ) {
+        resolve(null);
+        return;
+      }
+
+      providerInputModalTitle.textContent =
+        title;
+
+      providerInputModalMessage.textContent =
+        message;
+
+      providerInputModalTextarea.placeholder =
+        placeholder;
+
+      providerInputModalTextarea.value =
+        "";
+
+      providerInputModalError.textContent =
+        "";
+
+      providerInputModalError.hidden =
+        true;
+
+      providerInputModalSubmit.textContent =
+        submitText;
+
+      providerInputModal.hidden =
+        false;
+
+      document.body.classList.add(
+        "modal-open"
+      );
+
+      window.setTimeout(
+        () => {
+          providerInputModalTextarea.focus();
+        },
+        50
+      );
+
+      const closeModal =
+        (value = null) => {
+          providerInputModal.hidden =
+            true;
+
+          document.body.classList.remove(
+            "modal-open"
+          );
+
+          providerInputModalSubmit.onclick =
+            null;
+
+          providerInputModal
+            .querySelectorAll(
+              "[data-provider-input-close]"
+            )
+            .forEach(
+              (element) => {
+                element.onclick = null;
+              }
+            );
+
+          resolve(value);
+        };
+
+      providerInputModal
+        .querySelectorAll(
+          "[data-provider-input-close]"
+        )
+        .forEach(
+          (element) => {
+            element.onclick =
+              () => {
+                closeModal();
+              };
+          }
+        );
+
+      providerInputModalSubmit.onclick =
+        () => {
+          const value =
+            providerInputModalTextarea.value.trim();
+
+          if (!value) {
+            providerInputModalError.textContent =
+              "Please enter the required information.";
+
+            providerInputModalError.hidden =
+              false;
+
+            providerInputModalTextarea.focus();
+
+            return;
+          }
+
+          closeModal(
+            value
+          );
+        };
+    }
+  );
 }
 
 /*
@@ -3414,27 +3562,28 @@ providerPaymentDisputesContainer?.addEventListener(
       return;
     }
 
-    const responseText =
-      window.prompt(
-        "Enter your response to this payment dispute:"
-      );
+  const responseMessage =
+  await showProviderInputModal({
+    title:
+      "Respond to Payment Dispute",
 
-    if (
-      responseText === null
-    ) {
-      return;
-    }
+    message:
+      "Provide your response for the customer dispute. The administrator will review it during resolution.",
 
-    const responseMessage =
-      responseText.trim();
+    placeholder:
+      "Explain your response to this dispute...",
 
-    if (!responseMessage) {
-      alert(
-        "Please enter a response."
-      );
+    submitText:
+      "Submit Response",
+  });
 
-      return;
-    }
+if (
+  responseMessage === null
+) {
+  return;
+}
+
+   
 
     const originalText =
       button.textContent;
@@ -3496,10 +3645,12 @@ providerPaymentDisputesContainer?.addEventListener(
         );
       }
 
-      alert(
-        data.message ||
-          "Dispute response submitted successfully."
-      );
+    setMessage(
+  providerDashboardMessage,
+  data.message ||
+    "Dispute response submitted successfully.",
+  "success"
+);
 
       await loadProviderPaymentDisputes();
 
@@ -3509,10 +3660,12 @@ providerPaymentDisputesContainer?.addEventListener(
         error
       );
 
-      alert(
-        error.message ||
-          "Unable to submit dispute response."
-      );
+     setMessage(
+  providerDashboardMessage,
+  error.message ||
+    "Unable to submit dispute response.",
+  "error"
+);
 
       button.disabled =
         false;
@@ -3542,28 +3695,27 @@ providerPaymentDisputesContainer?.addEventListener(
       return;
     }
 
-    const evidenceText =
-      window.prompt(
-        "Enter the evidence or supporting information for this dispute:"
-      );
-
-    if (
-      evidenceText === null
-    ) {
-      return;
-    }
-
     const evidence =
-      evidenceText.trim();
+  await showProviderInputModal({
+    title:
+      "Submit Dispute Evidence",
 
-    if (!evidence) {
-      alert(
-        "Please enter evidence or supporting information."
-      );
+    message:
+      "Provide supporting information or evidence for this payment dispute. The administrator will review it during resolution.",
 
-      return;
-    }
+    placeholder:
+      "Enter your supporting evidence or explanation...",
 
+    submitText:
+      "Submit Evidence",
+  });
+
+if (
+  evidence === null
+) {
+  return;
+}
+  
     const originalText =
       button.textContent;
 
@@ -3623,11 +3775,12 @@ providerPaymentDisputesContainer?.addEventListener(
         );
       }
 
-      alert(
-        data.message ||
-          "Dispute evidence submitted successfully."
-      );
-
+      setMessage(
+  providerDashboardMessage,
+  data.message ||
+    "Dispute evidence submitted successfully.",
+  "success"
+);
       await loadProviderPaymentDisputes();
 
     } catch (error) {
@@ -3636,10 +3789,12 @@ providerPaymentDisputesContainer?.addEventListener(
         error
       );
 
-      alert(
-        error.message ||
-          "Unable to submit dispute evidence."
-      );
+     setMessage(
+  providerDashboardMessage,
+  error.message ||
+    "Unable to submit dispute evidence.",
+  "error"
+);
 
       button.disabled =
         false;

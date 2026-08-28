@@ -982,6 +982,89 @@ Loading bookings...
   </div>
 </section>
   </main>
+
+  <div
+  class="provider-input-modal"
+  id="providerInputModal"
+  hidden
+>
+  <div
+    class="provider-input-modal__backdrop"
+    data-provider-input-close
+  ></div>
+
+  <div
+    class="provider-input-modal__dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="providerInputModalTitle"
+  >
+    <div
+      class="provider-input-modal__header"
+    >
+      <div>
+        <span
+          class="provider-input-modal__eyebrow"
+        >
+          PAYMENT DISPUTE
+        </span>
+
+        <h3
+          id="providerInputModalTitle"
+        >
+          Submit Response
+        </h3>
+      </div>
+
+      <button
+        type="button"
+        class="provider-input-modal__close"
+        data-provider-input-close
+        aria-label="Close"
+      >
+        ×
+      </button>
+    </div>
+
+    <p
+      class="provider-input-modal__message"
+      id="providerInputModalMessage"
+    ></p>
+
+    <textarea
+      id="providerInputModalTextarea"
+      class="provider-input-modal__textarea"
+      rows="6"
+      placeholder="Enter your response..."
+    ></textarea>
+
+    <p
+      class="provider-input-modal__error"
+      id="providerInputModalError"
+      hidden
+    ></p>
+
+    <div
+      class="provider-input-modal__actions"
+    >
+      <button
+        type="button"
+        class="provider-input-modal__cancel"
+        data-provider-input-close
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="provider-input-modal__submit"
+        id="providerInputModalSubmit"
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+</div>
    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
    <script src="js/ui-feedback.js"></script>
   <script src="js/provider-dashboard.js"></script>
