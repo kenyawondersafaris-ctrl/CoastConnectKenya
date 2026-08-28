@@ -332,10 +332,10 @@ async function initializeSubscriptionPayment(
       await client.query(
         `
          SELECT
-            id,
+           id,
             full_name,
             email,
-            phone_number
+            phone
           FROM users
           WHERE id = $1
           LIMIT 1
@@ -360,7 +360,7 @@ async function initializeSubscriptionPayment(
     }
 
 
-   if (!user.phone_number) {
+   if (!user.phone) {
 
   return res.status(400).json({
     success: false,
@@ -477,8 +477,8 @@ async function initializeSubscriptionPayment(
 
 const payHeroResponse =
   await initiatePayHeroStkPush({
-    phoneNumber:
-      user.phone_number,
+   phoneNumber:
+  user.phone,
 
     amount:
       Number(
