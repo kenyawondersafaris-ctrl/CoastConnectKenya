@@ -1001,6 +1001,11 @@ const providerSubscriptionPlansContainer =
     "providerSubscriptionPlansContainer"
   );
 
+  const providerPaymentDisputesContainer =
+  document.getElementById(
+    "providerPaymentDisputesContainer"
+  );
+
   providerSubscriptionPlansContainer?.addEventListener(
   "click",
   async (event) => {
@@ -1516,7 +1521,8 @@ async function initializeProviderDashboard() {
   await handleProviderSubscriptionPaymentReturn();
 
   await loadProviderServices();
-  initializeBookingSocket();
+await loadProviderPaymentDisputes();
+initializeBookingSocket();
 }
 
 /*
@@ -3389,6 +3395,261 @@ providerBookingsGrid?.addEventListener(
   }
 );
 
+providerPaymentDisputesContainer?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".respond-payment-dispute-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const disputeId =
+      button.dataset.disputeId;
+
+    if (!disputeId) {
+      return;
+    }
+
+    const responseText =
+      window.prompt(
+        "Enter your response to this payment dispute:"
+      );
+
+    if (
+      responseText === null
+    ) {
+      return;
+    }
+
+    const responseMessage =
+      responseText.trim();
+
+    if (!responseMessage) {
+      alert(
+        "Please enter a response."
+      );
+
+      return;
+    }
+
+    const originalText =
+      button.textContent;
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Submitting...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/provider-payments/disputes/${encodeURIComponent(
+            disputeId
+          )}/respond`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                response:
+                  responseMessage,
+              }),
+          }
+        );
+
+      if (
+        handleUnauthorized(
+          response
+        )
+      ) {
+        return;
+      }
+
+      const data =
+        await readJsonResponse(
+          response
+        );
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to submit dispute response."
+        );
+      }
+
+      alert(
+        data.message ||
+          "Dispute response submitted successfully."
+      );
+
+      await loadProviderPaymentDisputes();
+
+    } catch (error) {
+      console.error(
+        "Respond to payment dispute error:",
+        error
+      );
+
+      alert(
+        error.message ||
+          "Unable to submit dispute response."
+      );
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
+
+providerPaymentDisputesContainer?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".submit-dispute-evidence-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const disputeId =
+      button.dataset.disputeId;
+
+    if (!disputeId) {
+      return;
+    }
+
+    const evidenceText =
+      window.prompt(
+        "Enter the evidence or supporting information for this dispute:"
+      );
+
+    if (
+      evidenceText === null
+    ) {
+      return;
+    }
+
+    const evidence =
+      evidenceText.trim();
+
+    if (!evidence) {
+      alert(
+        "Please enter evidence or supporting information."
+      );
+
+      return;
+    }
+
+    const originalText =
+      button.textContent;
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Submitting...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/provider-payments/disputes/${encodeURIComponent(
+            disputeId
+          )}/evidence`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                evidence,
+              }),
+          }
+        );
+
+      if (
+        handleUnauthorized(
+          response
+        )
+      ) {
+        return;
+      }
+
+      const data =
+        await readJsonResponse(
+          response
+        );
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to submit dispute evidence."
+        );
+      }
+
+      alert(
+        data.message ||
+          "Dispute evidence submitted successfully."
+      );
+
+      await loadProviderPaymentDisputes();
+
+    } catch (error) {
+      console.error(
+        "Submit dispute evidence error:",
+        error
+      );
+
+      alert(
+        error.message ||
+          "Unable to submit dispute evidence."
+      );
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
+
 /*
 |--------------------------------------------------------------------------
 | Professional Verification
@@ -4565,5 +4826,186 @@ if (response.status === 403) {
         "Unable to verify your payment.",
       "error"
     );
+  }
+}
+
+
+async function loadProviderPaymentDisputes() {
+  if (
+    !providerPaymentDisputesContainer
+  ) {
+    return;
+  }
+
+  providerPaymentDisputesContainer.innerHTML =
+    `
+      <p>
+        Loading payment disputes...
+      </p>
+    `;
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/provider-payments/disputes`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      response.status === 401
+    ) {
+      clearSessionAndRedirect();
+      return;
+    }
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to load payment disputes."
+      );
+    }
+
+    const disputes =
+      Array.isArray(data.disputes)
+        ? data.disputes
+        : [];
+
+    if (
+      disputes.length === 0
+    ) {
+      providerPaymentDisputesContainer.innerHTML =
+        `
+          <div class="empty-state">
+            <p>
+              No payment disputes at the moment.
+            </p>
+          </div>
+        `;
+
+      return;
+    }
+
+    providerPaymentDisputesContainer.innerHTML =
+      disputes.map(
+        (dispute) => `
+          <article
+            class="provider-payment-dispute-card"
+          >
+            <div
+              class="provider-payment-dispute-card__header"
+            >
+              <div>
+                <span
+                  class="provider-payment-dispute-card__status"
+                >
+                  ${escapeHtml(
+                    dispute.status || "UNKNOWN"
+                  )}
+                </span>
+
+                <h3>
+                  Payment Dispute
+                </h3>
+              </div>
+
+              <strong>
+                ${escapeHtml(
+                  dispute.currency || "KES"
+                )}
+                ${Number(
+                  dispute.amount || 0
+                ).toLocaleString()}
+              </strong>
+            </div>
+
+            <div
+              class="provider-payment-dispute-card__details"
+            >
+              <p>
+                <strong>Customer:</strong>
+                ${escapeHtml(
+                  dispute.customer_name ||
+                    "Unknown"
+                )}
+              </p>
+
+              <p>
+                <strong>Reason:</strong>
+                ${escapeHtml(
+                  dispute.dispute_reason ||
+                    "Not provided"
+                )}
+              </p>
+
+              <p>
+                <strong>Description:</strong>
+                ${escapeHtml(
+                  dispute.description ||
+                    "Not provided"
+                )}
+              </p>
+            </div>
+
+            ${
+              dispute.status === "OPEN"
+                ? `
+                 <div class="provider-payment-dispute-actions">
+  <button
+    type="button"
+    class="respond-payment-dispute-button"
+    data-dispute-id="${escapeHtml(
+      dispute.id
+    )}"
+  >
+    Respond to Dispute
+  </button>
+
+  <button
+    type="button"
+    class="submit-dispute-evidence-button"
+    data-dispute-id="${escapeHtml(
+      dispute.id
+    )}"
+  >
+    Submit Evidence
+  </button>
+</div>
+                `
+                : ""
+            }
+          </article>
+        `
+      ).join("");
+  } catch (error) {
+    console.error(
+      "Load provider payment disputes error:",
+      error
+    );
+
+    providerPaymentDisputesContainer.innerHTML =
+      `
+        <div class="empty-state">
+          <p>
+            ${escapeHtml(
+              error.message ||
+                "Unable to load payment disputes."
+            )}
+          </p>
+        </div>
+      `;
   }
 }

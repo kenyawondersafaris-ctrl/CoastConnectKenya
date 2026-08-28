@@ -12,6 +12,7 @@ const {
   resolvePaymentDispute,
   markPaymentRefunded,
   getPaymentDisputes,
+  getProviderPaymentDisputes,
 } =
 require("../controllers/providerPaymentController");
 
@@ -31,7 +32,12 @@ router.post(
   createProviderPaymentAttempt
 );
 
-
+router.get(
+  "/disputes",
+  authenticate,
+  requireRole("PROVIDER"),
+  getProviderPaymentDisputes
+);
 router.post(
   "/disputes",
   authenticate,

@@ -1609,6 +1609,142 @@ input[type="file"]:hover {
   color: #2e7d32;
 }
 
+/* Provider payment disputes */
+
+.provider-payment-disputes-section {
+  margin-top: 32px;
+  padding: 24px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  background: #ffffff;
+}
+
+.provider-payment-disputes-container {
+  display: grid;
+  gap: 16px;
+
+  margin-top: 20px;
+}
+
+.provider-payment-dispute-card {
+  padding: 20px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  background: #ffffff;
+}
+
+.provider-payment-dispute-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  margin-bottom: 16px;
+}
+
+.provider-payment-dispute-card__header h3 {
+  margin: 8px 0 0;
+
+  font-size: 1rem;
+}
+
+.provider-payment-dispute-card__status {
+  display: inline-flex;
+
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  background: #fef3c7;
+  color: #92400e;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.provider-payment-dispute-card__details {
+  display: grid;
+  gap: 10px;
+}
+
+.provider-payment-dispute-card__details p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.provider-payment-dispute-card__details strong {
+  color: #1f2937;
+}
+
+.provider-payment-dispute-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.respond-payment-dispute-button,
+.submit-dispute-evidence-button {
+  padding: 10px 16px;
+
+  border: none;
+  border-radius: 8px;
+
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.respond-payment-dispute-button {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.submit-dispute-evidence-button {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.respond-payment-dispute-button:disabled,
+.submit-dispute-evidence-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (max-width: 640px) {
+  .provider-payment-disputes-section {
+    padding: 16px;
+  }
+
+  .provider-payment-dispute-card {
+    padding: 16px;
+  }
+
+  .provider-payment-dispute-card__header {
+    flex-direction: column;
+  }
+
+  .provider-payment-dispute-actions {
+    flex-direction: column;
+  }
+
+  .respond-payment-dispute-button,
+  .submit-dispute-evidence-button {
+    width: 100%;
+  }
+}
+
 @media (max-width: 900px) {
   .subscription-plans-container {
     grid-template-columns:
