@@ -11,6 +11,7 @@ const requireRole =
 
 const {
   handlePayHeroCallback,
+  handlePayHeroSubscriptionCallback,
 } =
   require("../controllers/payheroController");
 
@@ -98,6 +99,11 @@ router.post(
 router.post(
   "/callback",
   handlePayHeroCallback
+);
+
+router.post(
+  "/subscription-callback",
+  handlePayHeroSubscriptionCallback
 );
 
 module.exports =

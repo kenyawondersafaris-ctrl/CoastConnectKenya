@@ -139,6 +139,17 @@ FROM provider_payments
   const payment =
     paymentResult.rows[0];
 
+    if (
+  payment.status ===
+  "SUCCESS"
+) {
+  return res.status(200).json({
+    success: true,
+    message:
+      "Subscription payment was already processed.",
+  });
+}
+
   const successful =
     isSuccessfulPayHeroResult(
       response
@@ -477,6 +488,216 @@ if (io) {
   });
 }
 
+async function handlePayHeroSubscriptionCallback(
+  req,
+  res
+) {
+  const payload =
+    req.body || {};
+
+  const response =
+    payload.response || {};
+
+  const externalReference =
+    cleanText(
+      response.ExternalReference
+    );
+
+  const resultCode =
+    Number(
+      response.ResultCode
+    );
+
+  const resultDesc =
+    cleanText(
+      response.ResultDesc
+    );
+
+  if (!externalReference) {
+    console.warn(
+      "Subscription callback missing ExternalReference:",
+      payload
+    );
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Callback accepted.",
+    });
+  }
+
+  const paymentResult =
+    await pool.query(
+      `
+        SELECT
+          sp.id,
+          sp.subscription_id,
+          sp.amount_kes,
+          sp.status,
+          bs.user_id,
+          bs.plan_id,
+          bs.business_type
+        FROM subscription_payments sp
+        INNER JOIN business_subscriptions bs
+          ON bs.id =
+            sp.subscription_id
+        WHERE sp.paystack_reference =
+          $1::varchar
+        LIMIT 1
+      `,
+      [
+        externalReference,
+      ]
+    );
+
+  if (
+    paymentResult.rows.length === 0
+  ) {
+    console.warn(
+      "Unmatched PayHero subscription callback:",
+      {
+        externalReference,
+        resultCode,
+        resultDesc,
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Callback accepted.",
+    });
+  }
+
+  const payment =
+    paymentResult.rows[0];
+
+  const successful =
+    isSuccessfulPayHeroResult(
+      response
+    );
+
+  if (!successful) {
+
+    if (
+  payment.status ===
+  "FAILED"
+) {
+  return res.status(200).json({
+    success: true,
+    message:
+      "Subscription payment failure was already processed.",
+  });
+}
+    await pool.query(
+      `
+        UPDATE subscription_payments
+        SET
+          status = 'FAILED',
+          updated_at =
+            CURRENT_TIMESTAMP
+        WHERE id = $1
+      `,
+      [
+        payment.id,
+      ]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Subscription payment failure processed.",
+    });
+  }
+
+ await pool.query(
+  `
+    UPDATE subscription_payments
+    SET
+      status = 'SUCCESS',
+
+      paystack_transaction_id =
+        COALESCE(
+          NULLIF(
+            $1::varchar,
+            ''
+          ),
+          paystack_transaction_id
+        ),
+
+      paid_at =
+        COALESCE(
+          paid_at,
+          CURRENT_TIMESTAMP
+        ),
+
+      updated_at =
+        CURRENT_TIMESTAMP
+
+    WHERE id = $2
+  `,
+  [
+    cleanText(
+      response.MpesaReceiptNumber
+    ),
+    payment.id,
+  ]
+);
+
+  const planResult =
+  await pool.query(
+    `
+      SELECT
+        duration_days
+      FROM subscription_plans
+      WHERE id = $1
+      LIMIT 1
+    `,
+    [
+      payment.plan_id,
+    ]
+  );
+
+const durationDays =
+  Number(
+    planResult.rows[0]
+      ?.duration_days || 0
+  );
+
+await pool.query(
+  `
+    UPDATE business_subscriptions
+    SET
+      status = 'ACTIVE',
+
+      starts_at =
+        COALESCE(
+          starts_at,
+          CURRENT_TIMESTAMP
+        ),
+expires_at =
+  CURRENT_TIMESTAMP +
+  ($1::int * INTERVAL '1 day'),
+
+      updated_at =
+        CURRENT_TIMESTAMP
+
+    WHERE id = $2
+  `,
+  [
+    durationDays,
+    payment.subscription_id,
+  ]
+);
+
+  return res.status(200).json({
+    success: true,
+    message:
+      "Subscription payment callback received.",
+  });
+}
+
 module.exports = {
   handlePayHeroCallback,
+  handlePayHeroSubscriptionCallback,
 };

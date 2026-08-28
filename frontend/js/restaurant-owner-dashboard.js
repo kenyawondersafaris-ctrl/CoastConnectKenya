@@ -1509,14 +1509,144 @@ subscriptionPlansContainer?.addEventListener(
         );
       }
 
-      if (!data.authorizationUrl) {
+      if (!data.reference) {
         throw new Error(
-          "Payment authorization URL was not returned."
+          "Payment reference was not returned."
         );
       }
 
-      window.location.href =
-        data.authorizationUrl;
+      button.textContent =
+        "Waiting for payment...";
+
+      const paymentReference =
+        data.reference;
+
+      let attempts = 0;
+
+      const maxAttempts = 60;
+
+      const paymentStatusInterval =
+        setInterval(
+          async () => {
+            attempts += 1;
+
+            try {
+              const verifyResponse =
+                await fetch(
+                  `${API_BASE_URL}/subscriptions/verify/${encodeURIComponent(
+                    paymentReference
+                  )}`,
+                  {
+                    method: "GET",
+
+                    headers: {
+                      Authorization:
+                        `Bearer ${token}`,
+
+                      Accept:
+                        "application/json",
+                    },
+                  }
+                );
+
+              const verifyData =
+                await verifyResponse.json();
+
+              if (
+                verifyResponse.status === 401 ||
+                verifyResponse.status === 403
+              ) {
+                clearInterval(
+                  paymentStatusInterval
+                );
+
+                logout();
+                return;
+              }
+
+              if (
+                verifyData.paymentStatus ===
+                "SUCCESS"
+              ) {
+                clearInterval(
+                  paymentStatusInterval
+                );
+
+                showMessage(
+                  "Payment completed successfully. Your subscription is now active."
+                );
+
+                button.textContent =
+                  "Subscribed";
+
+                await loadCurrentSubscription();
+
+                await loadSubscriptionPlans();
+
+                return;
+              }
+
+              if (
+                verifyData.paymentStatus ===
+                "FAILED"
+              ) {
+                clearInterval(
+                  paymentStatusInterval
+                );
+
+                button.disabled = false;
+
+                button.textContent =
+                  originalText;
+
+                showMessage(
+                  verifyData.message ||
+                  "The M-Pesa payment was not completed."
+                );
+
+                return;
+              }
+
+              if (
+                attempts >= maxAttempts
+              ) {
+                clearInterval(
+                  paymentStatusInterval
+                );
+
+                button.disabled = false;
+
+                button.textContent =
+                  originalText;
+
+                showMessage(
+                  "Payment confirmation is taking longer than expected. Please refresh after completing the M-Pesa payment."
+                );
+              }
+
+            } catch (error) {
+              console.error(
+                "Verify restaurant subscription payment error:",
+                error
+              );
+
+              clearInterval(
+                paymentStatusInterval
+              );
+
+              button.disabled = false;
+
+              button.textContent =
+                originalText;
+
+              showMessage(
+                error.message ||
+                "Unable to verify subscription payment."
+              );
+            }
+          },
+          3000
+        );
 
     } catch (error) {
       console.error(

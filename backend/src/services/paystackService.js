@@ -381,6 +381,26 @@ function normalizePaystackTransaction(
   };
 }
 
+function generatePayHeroSubscriptionReference(
+  paymentReference
+) {
+  const reference =
+    String(
+      paymentReference || ""
+    ).trim();
+
+  if (!reference) {
+    throw new Error(
+      "Subscription payment reference is required."
+    );
+  }
+
+  return reference.slice(
+    0,
+    100
+  );
+}
+
 
 module.exports = {
   initializePaystackTransaction,

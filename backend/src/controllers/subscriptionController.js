@@ -5,10 +5,9 @@ const pool = require("../config/db");
 const crypto = require("crypto");
 
 const {
-  initializePaystackTransaction,
-  verifyPaystackTransaction,
-  normalizePaystackTransaction,
-} = require("../services/paystackService");
+  initiatePayHeroStkPush,
+  generatePayHeroSubscriptionReference,
+} = require("../services/payheroService");
 
 
 async function getSubscriptionPlans(
@@ -332,10 +331,11 @@ async function initializeSubscriptionPayment(
     const userResult =
       await client.query(
         `
-          SELECT
+         SELECT
             id,
             full_name,
-            email
+            email,
+            phone_number
           FROM users
           WHERE id = $1
           LIMIT 1
@@ -360,15 +360,15 @@ async function initializeSubscriptionPayment(
     }
 
 
-    if (!user.email) {
+   if (!user.phone_number) {
 
-      return res.status(400).json({
-        success: false,
-        message:
-          "Your account must have an email address before making a payment.",
-      });
+  return res.status(400).json({
+    success: false,
+    message:
+      "Your account must have a phone number before making a payment.",
+  });
 
-    }
+}
 
 
     /*
@@ -381,6 +381,12 @@ async function initializeSubscriptionPayment(
       `CCK-SUB-${Date.now()}-${crypto
         .randomBytes(6)
         .toString("hex")}`;
+
+
+        const payHeroReference =
+  generatePayHeroSubscriptionReference(
+    paymentReference
+  );
 
 
     /*
@@ -439,7 +445,7 @@ async function initializeSubscriptionPayment(
           $2,
           $3,
           'KES',
-          'PAYSTACK',
+          'PAYHERO',
           $4,
           'INITIALIZED'
         )
@@ -463,40 +469,31 @@ async function initializeSubscriptionPayment(
     |--------------------------------------------------------------------------
     */
 
-    const paystackResponse =
-      await initializePaystackTransaction({
-        email:
-          user.email,
+    /*
+|--------------------------------------------------------------------------
+| Initialize PayHero subscription payment
+|--------------------------------------------------------------------------
+*/
 
-        amount:
-        Number(
-            plan.amount_kes
-        ),
-        reference:
-          paymentReference,
-          callbackUrl:
-  businessType === "PROVIDER"
-    ? `${process.env.FRONTEND_URL}/provider-dashboard.html?subscription_reference=${encodeURIComponent(
-        paymentReference
-      )}`
-    : `${process.env.FRONTEND_URL}/restaurant-owner-dashboard.html?subscription_reference=${encodeURIComponent(
-        paymentReference
-      )}`,
+const payHeroResponse =
+  await initiatePayHeroStkPush({
+    phoneNumber:
+      user.phone_number,
 
-        metadata: {
-          payment_type:
-            "SUBSCRIPTION",
+    amount:
+      Number(
+        plan.amount_kes
+      ),
 
-          subscription_id:
-            subscription.id,
+    externalReference:
+      payHeroReference,
 
-          plan_id:
-            plan.id,
+    customerName:
+      user.full_name,
 
-          business_type:
-            businessType,
-        },
-      });
+    callbackUrl:
+      `${process.env.BACKEND_URL}/api/payments/payhero/subscription-callback`,
+  });
 
 
     /*
@@ -517,11 +514,11 @@ async function initializeSubscriptionPayment(
       reference:
         paymentReference,
 
-     authorizationUrl:
-    paystackResponse.authorizationUrl,
+    payHeroResponse:
+  payHeroResponse.response,
 
-    accessCode:
-    paystackResponse.accessCode,
+paymentMethod:
+  "PAYHERO_STK",
     });
 
   } catch (error) {
@@ -560,23 +557,18 @@ async function verifySubscriptionPayment(
   res
 ) {
   try {
-
     const {
       reference,
     } =
       req.params;
 
-
     if (!reference) {
-
       return res.status(400).json({
         success: false,
         message:
           "Payment reference is required.",
       });
-
     }
-
 
     /*
     |------------------------------------------------------------------
@@ -595,21 +587,18 @@ async function verifySubscriptionPayment(
             sp.currency,
             sp.status AS payment_status,
 
-            bs.id AS subscription_id,
             bs.status AS subscription_status,
-            bs.plan_id,
-
-            pl.duration_days
+            bs.plan_id
 
           FROM subscription_payments sp
 
           INNER JOIN business_subscriptions bs
-            ON bs.id = sp.subscription_id
+            ON bs.id =
+              sp.subscription_id
 
-          INNER JOIN subscription_plans pl
-            ON pl.id = bs.plan_id
-
-          WHERE sp.paystack_reference = $1
+          WHERE
+            sp.paystack_reference =
+              $1::varchar
 
           LIMIT 1
         `,
@@ -619,52 +608,15 @@ async function verifySubscriptionPayment(
       );
 
     const payment =
-  paymentResult.rows[0];
+      paymentResult.rows[0];
 
-
-if (!payment) {
-
-  return res.status(404).json({
-    success: false,
-    message:
-      "Subscription payment was not found.",
-  });
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Idempotency
-|--------------------------------------------------------------------------
-|
-| If this payment was already successfully processed,
-| do not activate the subscription again.
-|
-*/
-
-if (
-  payment.payment_status ===
-  "SUCCESS"
-) {
-
-  return res.json({
-    success: true,
-
-    alreadyProcessed: true,
-
-    message:
-      "Subscription payment was already verified.",
-
-    subscriptionId:
-      payment.subscription_id,
-
-    paymentStatus:
-      "SUCCESS",
-  });
-
-}
-
+    if (!payment) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Subscription payment was not found.",
+      });
+    }
 
     /*
     |------------------------------------------------------------------
@@ -676,291 +628,50 @@ if (
       payment.user_id !==
       req.user.userId
     ) {
-
       return res.status(403).json({
         success: false,
         message:
           "You do not have permission to verify this payment.",
       });
-
     }
-
 
     /*
     |------------------------------------------------------------------
-    | Ask Paystack for the real transaction status
+    | Return status updated by PayHero callback
     |------------------------------------------------------------------
+    |
+    | PayHero confirms the actual payment through
+    | handlePayHeroSubscriptionCallback().
+    |
+    | This endpoint only checks the current database status.
+    |
     */
-
-    const verification =
-      await verifyPaystackTransaction(
-        reference
-      );
-
-    const transaction =
-      normalizePaystackTransaction(
-        verification.transaction
-      );
-
-
-    /*
-    |------------------------------------------------------------------
-    | Payment not successful
-    |------------------------------------------------------------------
-    */
-
-    if (
-      transaction.status !==
-      "success"
-    ) {
-
-      return res.json({
-        success: false,
-
-        paymentStatus:
-          transaction.status,
-
-        message:
-          "Payment has not been completed yet.",
-      });
-
-    }
-
-
-    /*
-    |------------------------------------------------------------------
-    | Verify amount and currency
-    |------------------------------------------------------------------
-    */
-
-    if (
-      Number(transaction.amount) !==
-      Number(payment.amount_kes)
-    ) {
-
-      console.error(
-        "Subscription payment amount mismatch:",
-        {
-          expected:
-            payment.amount_kes,
-
-          received:
-            transaction.amount,
-
-          reference,
-        }
-      );
-
-      return res.status(400).json({
-        success: false,
-        message:
-          "Payment amount verification failed.",
-      });
-
-    }
-
-
-    if (
-      transaction.currency !==
-      String(
-        payment.currency
-      ).toUpperCase()
-    ) {
-
-      return res.status(400).json({
-        success: false,
-        message:
-          "Payment currency verification failed.",
-      });
-
-    }
-
-
-    /*
-    |------------------------------------------------------------------
-    | Activate subscription atomically
-    |------------------------------------------------------------------
-    */
-
-    const client =
-      await pool.connect();
-
-    try {
-
-      await client.query(
-        "BEGIN"
-      );
-
-      /*
-|--------------------------------------------------------------------------
-| Lock payment row
-|--------------------------------------------------------------------------
-|
-| Prevent simultaneous verification requests from processing
-| the same subscription payment at the same time.
-|
-*/
-
-const lockedPaymentResult =
-  await client.query(
-    `
-      SELECT
-        id,
-        subscription_id,
-        status
-      FROM subscription_payments
-      WHERE id = $1
-      FOR UPDATE
-    `,
-    [
-      payment.payment_id,
-    ]
-  );
-
-const lockedPayment =
-  lockedPaymentResult.rows[0];
-
-
-if (!lockedPayment) {
-
-  throw new Error(
-    "Subscription payment disappeared during verification."
-  );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Check again after acquiring the lock
-|--------------------------------------------------------------------------
-*/
-
-if (
-  lockedPayment.status ===
-  "SUCCESS"
-) {
-
-  await client.query(
-    "COMMIT"
-  );
-
-  return res.json({
-    success: true,
-
-    alreadyProcessed: true,
-
-    message:
-      "Subscription payment was already verified.",
-
-    subscriptionId:
-      lockedPayment.subscription_id,
-
-    paymentStatus:
-      "SUCCESS",
-  });
-
-}
-
-
-      /*
-      |----------------------------------------------------------------
-      | Mark payment successful
-      |----------------------------------------------------------------
-      */
-
-     const paymentUpdateResult =
-  await client.query(
-    `
-      UPDATE subscription_payments
-      SET
-        status = 'SUCCESS',
-        paystack_transaction_id = $1,
-        paid_at = NOW(),
-        updated_at = NOW()
-      WHERE id = $2
-        AND status <> 'SUCCESS'
-      RETURNING id
-    `,
-    [
-      transaction.id,
-      payment.payment_id,
-    ]
-  );
-
-
-if (
-  paymentUpdateResult.rowCount !== 1
-) {
-
-  throw new Error(
-    "Subscription payment could not be marked as successful."
-  );
-
-}
-
-
-      /*
-      |----------------------------------------------------------------
-      | Activate subscription
-      |----------------------------------------------------------------
-      */
-
-      await client.query(
-        `
-          UPDATE business_subscriptions
-          SET
-            status = 'ACTIVE',
-            starts_at = NOW(),
-            expires_at =
-              NOW() +
-              ($1 * INTERVAL '1 day'),
-            updated_at = NOW()
-          WHERE id = $2
-        `,
-        [
-          payment.duration_days,
-          payment.subscription_id,
-        ]
-      );
-
-
-      await client.query(
-        "COMMIT"
-      );
-
-    } catch (error) {
-
-      await client.query(
-        "ROLLBACK"
-      );
-
-      throw error;
-
-    } finally {
-
-      client.release();
-
-    }
-
 
     return res.json({
-      success: true,
+      success:
+        payment.payment_status ===
+        "SUCCESS",
 
-      message:
-        "Subscription activated successfully.",
+      paymentStatus:
+        payment.payment_status,
+
+      subscriptionStatus:
+        payment.subscription_status,
 
       subscriptionId:
         payment.subscription_id,
 
-      paymentStatus:
-        "SUCCESS",
-
-      transaction,
+      message:
+        payment.payment_status ===
+        "SUCCESS"
+          ? "Subscription payment completed successfully."
+          : payment.payment_status ===
+            "FAILED"
+          ? "Subscription payment failed."
+          : "Waiting for M-Pesa payment confirmation.",
     });
 
   } catch (error) {
-
     console.error(
       "Verify subscription payment error:",
       error
@@ -971,7 +682,6 @@ if (
       message:
         "Unable to verify subscription payment.",
     });
-
   }
 }
 
@@ -1003,6 +713,8 @@ async function handleSubscriptionPaymentWebhook(
 
   }
 }
+
+
 
 
 module.exports = {
