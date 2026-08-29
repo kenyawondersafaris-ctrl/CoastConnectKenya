@@ -1043,6 +1043,11 @@ const providerSubscriptionPaymentConfirm =
 
   selectedSubscriptionButton =
     null;
+
+    setMessage(
+  providerDashboardMessage,
+  "Subscription payment was cancelled."
+);
 }
 
 
@@ -1249,19 +1254,22 @@ providerSubscriptionPaymentCancel
                 }
 
                 if (
-                  verifyData.paymentStatus ===
-                  "FAILED"
-                ) {
-                  clearInterval(
-                    paymentStatusInterval
-                  );
+  [
+    "FAILED",
+    "CANCELLED",
+    "CANCELED",
+  ].includes(
+    verifyData.paymentStatus
+  )
+) {
+  clearInterval(
+    paymentStatusInterval
+  );
 
-                  throw new Error(
-                    verifyData.message ||
-                    "The M-Pesa payment was not completed."
-                  );
-                }
-
+  throw new Error(
+    "The M-Pesa payment was cancelled. Your subscription has not been activated."
+  );
+}
                 if (
                   attempts >= maxAttempts
                 ) {
