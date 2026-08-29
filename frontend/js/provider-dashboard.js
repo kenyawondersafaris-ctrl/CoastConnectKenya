@@ -1223,6 +1223,11 @@ providerSubscriptionPaymentCancel
                 const verifyData =
                   await verifyResponse.json();
 
+                  console.log(
+  "Subscription payment status:",
+  verifyData
+);
+
                 if (
                   verifyData.paymentStatus ===
                   "SUCCESS"
