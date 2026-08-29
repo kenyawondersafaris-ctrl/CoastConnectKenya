@@ -936,6 +936,11 @@ const providerDashboardMessage =
     "providerDashboardMessage"
   );
 
+  const providerSubscriptionMessage =
+  document.getElementById(
+    "providerSubscriptionMessage"
+  );
+
 const providerProfileMessage =
   document.getElementById(
     "providerProfileMessage"
@@ -1044,8 +1049,8 @@ const providerSubscriptionPaymentConfirm =
   selectedSubscriptionButton =
     null;
 
-    setMessage(
-  providerDashboardMessage,
+   setMessage(
+  providerSubscriptionMessage,
   "Subscription payment was cancelled."
 );
 }
@@ -1303,13 +1308,13 @@ providerSubscriptionPaymentConfirm
   selectedSubscriptionButton =
     null;
 
-  setMessage(
-    providerDashboardMessage,
-    paymentMessage,
-    "error"
-  );
+ setMessage(
+  providerSubscriptionMessage,
+  paymentMessage,
+  "error"
+);
 
-  providerDashboardMessage
+providerSubscriptionMessage
   ?.scrollIntoView({
     behavior: "smooth",
     block: "center",
@@ -4002,8 +4007,8 @@ if (
         );
       }
 
-    setMessage(
-  providerDashboardMessage,
+   setMessage(
+  providerSubscriptionMessage,
   data.message ||
     "Dispute response submitted successfully.",
   "success"
@@ -4017,8 +4022,8 @@ if (
         error
       );
 
-     setMessage(
-  providerDashboardMessage,
+   setMessage(
+  providerSubscriptionMessage,
   error.message ||
     "Unable to submit dispute response.",
   "error"
@@ -4132,8 +4137,8 @@ if (
         );
       }
 
-      setMessage(
-  providerDashboardMessage,
+  setMessage(
+  providerSubscriptionMessage,
   data.message ||
     "Dispute evidence submitted successfully.",
   "success"
@@ -4146,8 +4151,8 @@ if (
         error
       );
 
-     setMessage(
-  providerDashboardMessage,
+    setMessage(
+  providerSubscriptionMessage,
   error.message ||
     "Unable to submit dispute evidence.",
   "error"
@@ -5316,7 +5321,7 @@ if (response.status === 403) {
     );
 
     setMessage(
-      providerDashboardMessage,
+     providerSubscriptionMessage,
       "Payment successful. Your subscription is now active.",
       "success"
     );
