@@ -1049,7 +1049,7 @@ const providerSubscriptionPaymentConfirm =
   selectedSubscriptionButton =
     null;
 
-   setMessage(
+  setMessage(
   providerSubscriptionMessage,
   "Subscription payment was cancelled."
 );
@@ -1078,7 +1078,7 @@ providerSubscriptionPaymentConfirm
         !selectedSubscriptionButton
       ) {
         setMessage(
-          providerDashboardMessage,
+  providerSubscriptionMessage,
           "Please select a subscription plan again."
         );
 
@@ -1093,7 +1093,7 @@ providerSubscriptionPaymentConfirm
 
       if (!phoneNumber) {
         setMessage(
-          providerDashboardMessage,
+  providerSubscriptionMessage,
           "Please enter the M-Pesa number you would like to use for this payment."
         );
 
@@ -1184,7 +1184,7 @@ providerSubscriptionPaymentConfirm
           );
 
         setMessage(
-          providerDashboardMessage,
+  providerSubscriptionMessage,
           "M-Pesa payment prompt has been sent to your phone. Please complete the payment.",
           "success"
         );
@@ -1252,7 +1252,7 @@ providerSubscriptionPaymentConfirm
                   );
 
                   setMessage(
-                    providerDashboardMessage,
+  providerSubscriptionMessage,
                     "Payment completed successfully. Your subscription is now active.",
                     "success"
                   );
@@ -1338,7 +1338,7 @@ providerSubscriptionMessage
                     originalText;
 
                   setMessage(
-                    providerDashboardMessage,
+  providerSubscriptionMessage,
                     "Payment confirmation is taking longer than expected. Please check your M-Pesa and try again if payment was not completed."
                   );
 
@@ -1368,7 +1368,7 @@ providerSubscriptionMessage
                   originalText;
 
                 setMessage(
-                  providerDashboardMessage,
+  providerSubscriptionMessage,
                   error.message ||
                     "Unable to verify subscription payment."
                 );
@@ -1393,7 +1393,7 @@ providerSubscriptionMessage
         );
 
         setMessage(
-          providerDashboardMessage,
+  providerSubscriptionMessage,
           error.message ||
             "Unable to start subscription payment."
         );
