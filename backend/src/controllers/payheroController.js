@@ -590,6 +590,10 @@ async function handlePayHeroSubscriptionCallback(
       );
 
     if (!successful) {
+      const failureReason =
+        resultDesc ||
+        "M-Pesa payment was not completed.";
+
       if (
         payment.status ===
         "FAILED"
@@ -606,13 +610,29 @@ async function handlePayHeroSubscriptionCallback(
           UPDATE subscription_payments
           SET
             status = 'FAILED',
+
+            failure_reason =
+              $1::text,
+
             updated_at =
               CURRENT_TIMESTAMP
-          WHERE id = $1
+
+          WHERE id = $2
         `,
         [
+          failureReason,
           payment.id,
         ]
+      );
+
+      console.log(
+        "Subscription payment failed:",
+        {
+          externalReference,
+          resultCode,
+          resultDesc:
+            failureReason,
+        }
       );
 
       return res.status(200).json({

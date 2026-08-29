@@ -588,6 +588,7 @@ async function verifySubscriptionPayment(
             sp.amount_kes,
             sp.currency,
             sp.status AS payment_status,
+            sp.failure_reason,
 
             bs.status AS subscription_status,
             bs.plan_id
@@ -663,14 +664,17 @@ async function verifySubscriptionPayment(
       subscriptionId:
         payment.subscription_id,
 
-      message:
-        payment.payment_status ===
-        "SUCCESS"
-          ? "Subscription payment completed successfully."
-          : payment.payment_status ===
-            "FAILED"
-          ? "Subscription payment failed."
-          : "Waiting for M-Pesa payment confirmation.",
+     message:
+  payment.payment_status ===
+  "SUCCESS"
+    ? "Subscription payment completed successfully."
+    : payment.payment_status ===
+      "FAILED"
+    ? (
+        payment.failure_reason ||
+        "M-Pesa payment was not completed."
+      )
+    : "Waiting for M-Pesa payment confirmation.",
     });
 
   } catch (error) {
