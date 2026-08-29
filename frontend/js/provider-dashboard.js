@@ -1984,12 +1984,14 @@ function setMessage(
   element.textContent =
     message;
 
-  element.className =
-    type
-      ? `${element.className
-          .split(" ")[0]} ${type}`
-      : element.className
-          .split(" ")[0];
+  element.classList.remove(
+    "success",
+    "error"
+  );
+
+  if (type) {
+    element.classList.add(type);
+  }
 }
 
 function formatMoney(value) {
