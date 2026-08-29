@@ -637,22 +637,6 @@ async function handlePayHeroSubscriptionCallback(
       }
 
       await client.query(
-        `
-          UPDATE business_subscriptions
-          SET
-            status = 'FAILED',
-
-            updated_at =
-              CURRENT_TIMESTAMP
-
-          WHERE id = $1
-        `,
-        [
-          payment.subscription_id,
-        ]
-      );
-
-      await client.query(
         "COMMIT"
       );
 
