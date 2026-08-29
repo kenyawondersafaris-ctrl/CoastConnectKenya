@@ -961,9 +961,9 @@ const subscriptionPlansContainer =
     "subscriptionPlansContainer"
   );
 
-  const restaurantSubscriptionPaymentModal =
+const restaurantSubscriptionPaymentModal =
   document.getElementById(
-    "providerSubscriptionPaymentModal"
+    "restaurantSubscriptionPaymentModal"
   );
 
 const restaurantSubscriptionPaymentClose =
