@@ -625,6 +625,23 @@ async function handlePayHeroSubscriptionCallback(
         ]
       );
 
+                  await pool.query(
+        `
+          UPDATE business_subscriptions
+          SET
+            status = 'FAILED',
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id = $1
+        `,
+        [
+          payment.subscription_id,
+        ]
+      );
+
+
       console.log(
         "Subscription payment failed:",
         {

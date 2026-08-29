@@ -88,7 +88,14 @@ async function getMySubscription(
           INNER JOIN subscription_plans sp
             ON sp.id = bs.plan_id
 
-          WHERE bs.user_id = $1
+                   WHERE
+            bs.user_id = $1
+
+            AND bs.status IN (
+              'ACTIVE',
+              'CANCELLED',
+              'EXPIRED'
+            )
 
           ORDER BY
             bs.created_at DESC
