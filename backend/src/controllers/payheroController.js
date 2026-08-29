@@ -492,220 +492,235 @@ async function handlePayHeroSubscriptionCallback(
   req,
   res
 ) {
-  const response =
-  payload.response ||
-  payload ||
-  {};
+  try {
+    const payload =
+      req.body || {};
 
     console.log(
-  "PayHero subscription callback:",
-  JSON.stringify(
-    payload,
-    null,
-    2
-  )
-);
-
-  const response =
-    payload.response || {};
-
-  const externalReference =
-    cleanText(
-      response.ExternalReference
+      "PayHero subscription callback:",
+      JSON.stringify(
+        payload,
+        null,
+        2
+      )
     );
 
-  const resultCode =
-    Number(
-      response.ResultCode
-    );
+    const response =
+      payload.response ||
+      payload ||
+      {};
 
-  const resultDesc =
-    cleanText(
-      response.ResultDesc
-    );
+    const externalReference =
+      cleanText(
+        response.ExternalReference
+      );
 
-  if (!externalReference) {
-    console.warn(
-      "Subscription callback missing ExternalReference:",
-      payload
-    );
+    const resultCode =
+      Number(
+        response.ResultCode
+      );
 
-    return res.status(200).json({
-      success: true,
-      message:
-        "Callback accepted.",
-    });
-  }
+    const resultDesc =
+      cleanText(
+        response.ResultDesc
+      );
 
-  const paymentResult =
-    await pool.query(
-      `
-        SELECT
-          sp.id,
-          sp.subscription_id,
-          sp.amount_kes,
-          sp.status,
-          bs.user_id,
-          bs.plan_id,
-          bs.business_type
-        FROM subscription_payments sp
-        INNER JOIN business_subscriptions bs
-          ON bs.id =
-            sp.subscription_id
-        WHERE sp.paystack_reference =
-          $1::varchar
-        LIMIT 1
-      `,
-      [
-        externalReference,
-      ]
-    );
+    if (!externalReference) {
+      console.warn(
+        "Subscription callback missing ExternalReference:",
+        payload
+      );
 
-  if (
-    paymentResult.rows.length === 0
-  ) {
-    console.warn(
-      "Unmatched PayHero subscription callback:",
-      {
-        externalReference,
-        resultCode,
-        resultDesc,
-      }
-    );
+      return res.status(200).json({
+        success: true,
+        message:
+          "Callback accepted.",
+      });
+    }
 
-    return res.status(200).json({
-      success: true,
-      message:
-        "Callback accepted.",
-    });
-  }
-
-  const payment =
-    paymentResult.rows[0];
-
-  const successful =
-    isSuccessfulPayHeroResult(
-      response
-    );
-
-  if (!successful) {
+    const paymentResult =
+      await pool.query(
+        `
+          SELECT
+            sp.id,
+            sp.subscription_id,
+            sp.amount_kes,
+            sp.status,
+            bs.user_id,
+            bs.plan_id,
+            bs.business_type
+          FROM subscription_payments sp
+          INNER JOIN business_subscriptions bs
+            ON bs.id =
+              sp.subscription_id
+          WHERE sp.paystack_reference =
+            $1::varchar
+          LIMIT 1
+        `,
+        [
+          externalReference,
+        ]
+      );
 
     if (
-  payment.status ===
-  "FAILED"
-) {
-  return res.status(200).json({
-    success: true,
-    message:
-      "Subscription payment failure was already processed.",
-  });
-}
+      paymentResult.rows.length === 0
+    ) {
+      console.warn(
+        "Unmatched PayHero subscription callback:",
+        {
+          externalReference,
+          resultCode,
+          resultDesc,
+        }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Callback accepted.",
+      });
+    }
+
+    const payment =
+      paymentResult.rows[0];
+
+    const successful =
+      isSuccessfulPayHeroResult(
+        response
+      );
+
+    if (!successful) {
+      if (
+        payment.status ===
+        "FAILED"
+      ) {
+        return res.status(200).json({
+          success: true,
+          message:
+            "Subscription payment failure was already processed.",
+        });
+      }
+
+      await pool.query(
+        `
+          UPDATE subscription_payments
+          SET
+            status = 'FAILED',
+            updated_at =
+              CURRENT_TIMESTAMP
+          WHERE id = $1
+        `,
+        [
+          payment.id,
+        ]
+      );
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Subscription payment failure processed.",
+      });
+    }
+
     await pool.query(
       `
         UPDATE subscription_payments
         SET
-          status = 'FAILED',
+          status = 'SUCCESS',
+
+          paystack_transaction_id =
+            COALESCE(
+              NULLIF(
+                $1::varchar,
+                ''
+              ),
+              paystack_transaction_id
+            ),
+
+          paid_at =
+            COALESCE(
+              paid_at,
+              CURRENT_TIMESTAMP
+            ),
+
           updated_at =
             CURRENT_TIMESTAMP
-        WHERE id = $1
+
+        WHERE id = $2
       `,
       [
+        cleanText(
+          response.MpesaReceiptNumber
+        ),
         payment.id,
+      ]
+    );
+
+    const planResult =
+      await pool.query(
+        `
+          SELECT
+            duration_days
+          FROM subscription_plans
+          WHERE id = $1
+          LIMIT 1
+        `,
+        [
+          payment.plan_id,
+        ]
+      );
+
+    const durationDays =
+      Number(
+        planResult.rows[0]
+          ?.duration_days || 0
+      );
+
+    await pool.query(
+      `
+        UPDATE business_subscriptions
+        SET
+          status = 'ACTIVE',
+
+          starts_at =
+            COALESCE(
+              starts_at,
+              CURRENT_TIMESTAMP
+            ),
+
+          expires_at =
+            CURRENT_TIMESTAMP +
+            ($1::int * INTERVAL '1 day'),
+
+          updated_at =
+            CURRENT_TIMESTAMP
+
+        WHERE id = $2
+      `,
+      [
+        durationDays,
+        payment.subscription_id,
       ]
     );
 
     return res.status(200).json({
       success: true,
       message:
-        "Subscription payment failure processed.",
+        "Subscription payment callback received.",
+    });
+
+  } catch (error) {
+    console.error(
+      "PayHero subscription callback error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to process subscription payment callback.",
     });
   }
-
- await pool.query(
-  `
-    UPDATE subscription_payments
-    SET
-      status = 'SUCCESS',
-
-      paystack_transaction_id =
-        COALESCE(
-          NULLIF(
-            $1::varchar,
-            ''
-          ),
-          paystack_transaction_id
-        ),
-
-      paid_at =
-        COALESCE(
-          paid_at,
-          CURRENT_TIMESTAMP
-        ),
-
-      updated_at =
-        CURRENT_TIMESTAMP
-
-    WHERE id = $2
-  `,
-  [
-    cleanText(
-      response.MpesaReceiptNumber
-    ),
-    payment.id,
-  ]
-);
-
-  const planResult =
-  await pool.query(
-    `
-      SELECT
-        duration_days
-      FROM subscription_plans
-      WHERE id = $1
-      LIMIT 1
-    `,
-    [
-      payment.plan_id,
-    ]
-  );
-
-const durationDays =
-  Number(
-    planResult.rows[0]
-      ?.duration_days || 0
-  );
-
-await pool.query(
-  `
-    UPDATE business_subscriptions
-    SET
-      status = 'ACTIVE',
-
-      starts_at =
-        COALESCE(
-          starts_at,
-          CURRENT_TIMESTAMP
-        ),
-expires_at =
-  CURRENT_TIMESTAMP +
-  ($1::int * INTERVAL '1 day'),
-
-      updated_at =
-        CURRENT_TIMESTAMP
-
-    WHERE id = $2
-  `,
-  [
-    durationDays,
-    payment.subscription_id,
-  ]
-);
-
-  return res.status(200).json({
-    success: true,
-    message:
-      "Subscription payment callback received.",
-  });
 }
 
 module.exports = {
