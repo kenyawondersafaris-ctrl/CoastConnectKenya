@@ -140,10 +140,13 @@ if (!channelId) {
     provider:
       "m-pesa",
 
-    externalReference:
-      String(
-        externalReference || ""
-      ).slice(0, 100),
+  externalReference:
+  String(
+    externalReference || ""
+  ).slice(0, 100),
+
+callbackUrl:
+  resolvedCallbackUrl,
   }
 );
 
