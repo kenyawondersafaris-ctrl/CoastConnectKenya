@@ -692,7 +692,6 @@ async function handleSubscriptionPaymentWebhook(
   res
 ) {
   try {
-
     console.log(
       "Subscription webhook received:",
       req.body
