@@ -1309,6 +1309,12 @@ providerSubscriptionPaymentConfirm
     "error"
   );
 
+  providerDashboardMessage
+  ?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+
   return;
 }
 
