@@ -269,6 +269,16 @@ app.use(
   subscriptionRoutes
 );
 
+
+console.log(
+  "Subscription routes loaded:",
+  subscriptionRoutes.stack.map(
+    (layer) => ({
+      path: layer.route?.path,
+      methods: layer.route?.methods,
+    })
+  )
+);
 app.use(
   "/api/favorites",
   favoriteRoutes
