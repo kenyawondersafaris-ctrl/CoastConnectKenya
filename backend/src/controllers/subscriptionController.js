@@ -572,12 +572,6 @@ async function verifySubscriptionPayment(
       });
     }
 
-    /*
-    |------------------------------------------------------------------
-    | Find subscription payment
-    |------------------------------------------------------------------
-    */
-
     const paymentResult =
       await pool.query(
         `
@@ -621,12 +615,6 @@ async function verifySubscriptionPayment(
       });
     }
 
-    /*
-    |------------------------------------------------------------------
-    | Verify ownership
-    |------------------------------------------------------------------
-    */
-
     if (
       payment.user_id !==
       req.user.userId
@@ -638,19 +626,27 @@ async function verifySubscriptionPayment(
       });
     }
 
-    /*
-    |------------------------------------------------------------------
-    | Return status updated by PayHero callback
-    |------------------------------------------------------------------
-    |
-    | PayHero confirms the actual payment through
-    | handlePayHeroSubscriptionCallback().
-    |
-    | This endpoint only checks the current database status.
-    |
-    */
+    let message;
 
-    return res.json({
+    if (
+      payment.payment_status ===
+      "SUCCESS"
+    ) {
+      message =
+        "Subscription payment completed successfully.";
+    } else if (
+      payment.payment_status ===
+      "FAILED"
+    ) {
+      message =
+        payment.failure_reason ||
+        "M-Pesa payment was not completed.";
+    } else {
+      message =
+        "Waiting for M-Pesa payment confirmation.";
+    }
+
+    return res.status(200).json({
       success:
         payment.payment_status ===
         "SUCCESS",
@@ -664,17 +660,11 @@ async function verifySubscriptionPayment(
       subscriptionId:
         payment.subscription_id,
 
-     message:
-  payment.payment_status ===
-  "SUCCESS"
-    ? "Subscription payment completed successfully."
-    : payment.payment_status ===
-      "FAILED"
-    ? (
+      failureReason:
         payment.failure_reason ||
-        "M-Pesa payment was not completed."
-      )
-    : "Waiting for M-Pesa payment confirmation.",
+        null,
+
+      message,
     });
 
   } catch (error) {
