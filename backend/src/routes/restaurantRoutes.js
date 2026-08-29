@@ -73,7 +73,6 @@ router.put(
   "/owner/payment-settings",
   authenticate,
   requireRole("RESTAURANT_OWNER"),
-  requireActiveSubscription,
   updateOwnerRestaurantPaymentSettings
 );
 
