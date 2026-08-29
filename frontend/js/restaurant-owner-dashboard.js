@@ -1546,9 +1546,9 @@ restaurantSubscriptionPaymentConfirm?.addEventListener(
             },
 
             body: JSON.stringify({
-              planId,
-              phone,
-            }),
+  planId,
+  phoneNumber: phone,
+}),
           }
         );
 
