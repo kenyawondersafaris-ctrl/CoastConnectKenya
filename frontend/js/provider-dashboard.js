@@ -1064,7 +1064,7 @@ providerSubscriptionPaymentCancel
     closeProviderSubscriptionPaymentModal
   );
 
-  providerSubscriptionPaymentConfirm
+providerSubscriptionPaymentConfirm
   ?.addEventListener(
     "click",
     async () => {
@@ -1141,9 +1141,10 @@ providerSubscriptionPaymentCancel
         const data =
           await response.json();
 
-        if (response.status === 401) {
+        if (
+          response.status === 401
+        ) {
           clearSessionAndRedirect();
-
           return;
         }
 
@@ -1193,12 +1194,21 @@ providerSubscriptionPaymentCancel
 
         let attempts = 0;
 
-        const maxAttempts =
-          60;
+        const maxAttempts = 60;
+
+        let checkingPayment = false;
 
         const paymentStatusInterval =
           setInterval(
             async () => {
+              if (
+                checkingPayment
+              ) {
+                return;
+              }
+
+              checkingPayment = true;
+
               attempts += 1;
 
               try {
@@ -1223,10 +1233,10 @@ providerSubscriptionPaymentCancel
                 const verifyData =
                   await verifyResponse.json();
 
-                  console.log(
-  "Subscription payment status:",
-  verifyData
-);
+                console.log(
+                  "Subscription payment status:",
+                  verifyData
+                );
 
                 if (
                   verifyData.paymentStatus ===
@@ -1258,41 +1268,46 @@ providerSubscriptionPaymentCancel
                   return;
                 }
 
-               if (
-  [
-    "FAILED",
-    "CANCELLED",
-    "CANCELED",
-  ].includes(
-    verifyData.paymentStatus
-  )
-) {
-  clearInterval(
-    paymentStatusInterval
-  );
-
-  button.disabled =
-    false;
-
-  button.textContent =
-    originalText;
-
-  setMessage(
-    providerDashboardMessage,
-    verifyData.message ||
-      "The M-Pesa payment was not completed."
-  );
-
-  selectedSubscriptionPlanId =
-    null;
-
-  selectedSubscriptionButton =
-    null;
-
-  return;
-}
                 if (
-                  attempts >= maxAttempts
+                  [
+                    "FAILED",
+                    "CANCELLED",
+                    "CANCELED",
+                  ].includes(
+                    verifyData.paymentStatus
+                  )
+                ) {
+                  clearInterval(
+                    paymentStatusInterval
+                  );
+
+                  button.disabled =
+                    false;
+
+                  button.textContent =
+                    originalText;
+
+                  const paymentMessage =
+                    verifyData.message ||
+                    "The M-Pesa payment was not completed.";
+
+                  setMessage(
+                    providerDashboardMessage,
+                    paymentMessage
+                  );
+
+                  selectedSubscriptionPlanId =
+                    null;
+
+                  selectedSubscriptionButton =
+                    null;
+
+                  return;
+                }
+
+                if (
+                  attempts >=
+                  maxAttempts
                 ) {
                   clearInterval(
                     paymentStatusInterval
@@ -1306,7 +1321,7 @@ providerSubscriptionPaymentCancel
 
                   setMessage(
                     providerDashboardMessage,
-                    "Payment confirmation is taking longer than expected. Please refresh after completing the M-Pesa payment."
+                    "Payment confirmation is taking longer than expected. Please check your M-Pesa and try again if payment was not completed."
                   );
 
                   selectedSubscriptionPlanId =
@@ -1314,6 +1329,8 @@ providerSubscriptionPaymentCancel
 
                   selectedSubscriptionButton =
                     null;
+
+                  return;
                 }
 
               } catch (error) {
@@ -1337,6 +1354,15 @@ providerSubscriptionPaymentCancel
                   error.message ||
                     "Unable to verify subscription payment."
                 );
+
+                selectedSubscriptionPlanId =
+                  null;
+
+                selectedSubscriptionButton =
+                  null;
+
+              } finally {
+                checkingPayment = false;
               }
             },
             3000
@@ -1353,6 +1379,12 @@ providerSubscriptionPaymentCancel
           error.message ||
             "Unable to start subscription payment."
         );
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          originalText;
 
       } finally {
         providerSubscriptionPaymentConfirm.disabled =
