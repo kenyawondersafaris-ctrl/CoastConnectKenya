@@ -968,22 +968,22 @@ const restaurantSubscriptionPaymentModal =
 
 const restaurantSubscriptionPaymentClose =
   document.getElementById(
-    "providerSubscriptionPaymentClose"
+    "restaurantSubscriptionPaymentClose"
   );
 
 const restaurantSubscriptionPaymentCancel =
   document.getElementById(
-    "providerSubscriptionPaymentCancel"
+    "restaurantSubscriptionPaymentCancel"
   );
 
 const restaurantSubscriptionPaymentConfirm =
   document.getElementById(
-    "providerSubscriptionPaymentConfirm"
+    "restaurantSubscriptionPaymentConfirm"
   );
 
 const restaurantSubscriptionPhone =
   document.getElementById(
-    "providerSubscriptionPhone"
+    "restaurantSubscriptionPhone"
   );
   let restaurantStaff = [];
 let ownerDeliveryZones = [];
@@ -1768,6 +1768,7 @@ async function loadCurrentSubscription() {
     currentSubscription =
       data.subscription || null;
       renderCurrentSubscription();
+      renderSubscriptionPlans();
 
     } catch (error) {
     console.error(
@@ -2035,7 +2036,7 @@ function renderSubscriptionPlans() {
                 String(plan.id || "")
               )}"
             >
-              ${currentSubscription ? "Renew" : "Subscribe"}
+             ${currentSubscription ? "Renew" : "Subscribe"}
             </button>
           </article>
         `;

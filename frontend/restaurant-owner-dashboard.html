@@ -3207,6 +3207,81 @@
       </div>
     </main>
   </div>
+
+  <div
+  id="restaurantSubscriptionPaymentModal"
+  class="subscription-payment-modal"
+  aria-hidden="true"
+>
+  <div
+    class="subscription-payment-modal-backdrop"
+  ></div>
+
+  <div
+    class="subscription-payment-modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="restaurantSubscriptionPaymentTitle"
+  >
+    <button
+      type="button"
+      class="subscription-payment-modal-close"
+      id="restaurantSubscriptionPaymentClose"
+      aria-label="Close payment dialog"
+    >
+      ×
+    </button>
+
+    <div class="subscription-payment-modal-header">
+      <span>
+        Subscription Payment
+      </span>
+
+      <h2
+        id="restaurantSubscriptionPaymentTitle"
+      >
+        Pay with M-Pesa
+      </h2>
+
+      <p
+        id="restaurantSubscriptionPaymentDescription"
+      >
+        Enter the M-Pesa number you would like to use for this payment.
+      </p>
+    </div>
+
+    <div class="subscription-payment-phone">
+      <label for="restaurantSubscriptionPhone">
+        M-Pesa phone number
+      </label>
+
+      <input
+        type="tel"
+        id="restaurantSubscriptionPhone"
+        placeholder="07********"
+        autocomplete="tel"
+      >
+    </div>
+
+    <div class="subscription-payment-modal-actions">
+      <button
+        type="button"
+        class="secondary-button"
+        id="restaurantSubscriptionPaymentCancel"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        id="restaurantSubscriptionPaymentConfirm"
+      >
+        Continue
+      </button>
+    </div>
+  </div>
+</div>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/ui-feedback.js"></script>
