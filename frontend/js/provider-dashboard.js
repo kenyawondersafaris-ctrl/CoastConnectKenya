@@ -1269,41 +1269,48 @@ providerSubscriptionPaymentConfirm
                 }
 
                 if (
-                  [
-                    "FAILED",
-                    "CANCELLED",
-                    "CANCELED",
-                  ].includes(
-                    verifyData.paymentStatus
-                  )
-                ) {
-                  clearInterval(
-                    paymentStatusInterval
-                  );
+  [
+    "FAILED",
+    "CANCELLED",
+    "CANCELED",
+  ].includes(
+    verifyData.paymentStatus
+  )
+) {
+  clearInterval(
+    paymentStatusInterval
+  );
 
-                  button.disabled =
-                    false;
+  const paymentMessage =
+    verifyData.message ||
+    verifyData.failureReason ||
+    "The M-Pesa payment was not completed.";
 
-                  button.textContent =
-                    originalText;
+  console.log(
+    "Displaying subscription payment failure:",
+    paymentMessage
+  );
 
-                  const paymentMessage =
-                    verifyData.message ||
-                    "The M-Pesa payment was not completed.";
+  button.disabled =
+    false;
 
-                  setMessage(
-                    providerDashboardMessage,
-                    paymentMessage
-                  );
+  button.textContent =
+    originalText;
 
-                  selectedSubscriptionPlanId =
-                    null;
+  selectedSubscriptionPlanId =
+    null;
 
-                  selectedSubscriptionButton =
-                    null;
+  selectedSubscriptionButton =
+    null;
 
-                  return;
-                }
+  setMessage(
+    providerDashboardMessage,
+    paymentMessage,
+    "error"
+  );
+
+  return;
+}
 
                 if (
                   attempts >=
