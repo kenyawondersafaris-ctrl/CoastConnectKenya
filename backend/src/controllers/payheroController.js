@@ -492,8 +492,10 @@ async function handlePayHeroSubscriptionCallback(
   req,
   res
 ) {
-  const payload =
-    req.body || {};
+  const response =
+  payload.response ||
+  payload ||
+  {};
 
     console.log(
   "PayHero subscription callback:",
