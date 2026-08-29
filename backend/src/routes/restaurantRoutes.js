@@ -13,6 +13,8 @@ const {
   getOwnerRestaurantReviews,
   getOwnerRestaurantAnalytics,
   updateOwnerOrderAvailability,
+  getOwnerRestaurantPaymentSettings,
+updateOwnerRestaurantPaymentSettings,
 } = require("../controllers/restaurantController");
 
 const {
@@ -58,6 +60,21 @@ router.put(
   requireRole("RESTAURANT_OWNER"),
   requireActiveSubscription,
   updateOwnerRestaurant
+);
+
+router.get(
+  "/owner/payment-settings",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  getOwnerRestaurantPaymentSettings
+);
+
+router.put(
+  "/owner/payment-settings",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  requireActiveSubscription,
+  updateOwnerRestaurantPaymentSettings
 );
 
 router.get(

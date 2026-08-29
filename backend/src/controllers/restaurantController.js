@@ -2459,6 +2459,176 @@ async function updateOwnerOrderAvailability(
   }
 }
 
+async function getOwnerRestaurantPaymentSettings(
+  req,
+  res
+) {
+  try {
+    const ownerId =
+      req.user.userId;
+
+    const result =
+      await pool.query(
+        `
+          SELECT
+            mpesa_payment_type,
+            mpesa_business_number,
+            mpesa_account_number,
+            mpesa_payment_enabled
+
+          FROM restaurants
+
+          WHERE owner_id = $1
+
+          LIMIT 1
+        `,
+        [
+          ownerId,
+        ]
+      );
+
+    if (
+      result.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Restaurant profile not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      paymentSettings:
+        result.rows[0],
+    });
+  } catch (error) {
+    console.error(
+      "Get restaurant payment settings error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load restaurant payment settings.",
+    });
+  }
+}
+
+async function updateOwnerRestaurantPaymentSettings(
+  req,
+  res
+) {
+  try {
+    const ownerId =
+      req.user.userId;
+
+    const paymentType =
+      cleanText(
+        req.body.paymentType
+      )
+        ?.toUpperCase();
+
+    const businessNumber =
+      cleanText(
+        req.body.businessNumber
+      );
+
+    const accountNumber =
+      cleanText(
+        req.body.accountNumber
+      );
+
+    const paymentEnabled =
+      Boolean(
+        req.body.paymentEnabled
+      );
+
+    if (
+      paymentEnabled &&
+      !["PAYBILL", "TILL"].includes(
+        paymentType
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Select PAYBILL or TILL as the M-Pesa payment type.",
+      });
+    }
+
+    if (
+      paymentEnabled &&
+      !businessNumber
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Enter the M-Pesa PayBill or Till number.",
+      });
+    }
+
+    const result =
+      await pool.query(
+        `
+          UPDATE restaurants
+
+          SET
+            mpesa_payment_type = $1,
+            mpesa_business_number = $2,
+            mpesa_account_number = $3,
+            mpesa_payment_enabled = $4,
+            updated_at = CURRENT_TIMESTAMP
+
+          WHERE owner_id = $5
+
+          RETURNING
+            mpesa_payment_type,
+            mpesa_business_number,
+            mpesa_account_number,
+            mpesa_payment_enabled
+        `,
+        [
+          paymentType || null,
+          businessNumber || null,
+          accountNumber || null,
+          paymentEnabled,
+          ownerId,
+        ]
+      );
+
+    if (
+      result.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Restaurant profile not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Restaurant payment settings updated successfully.",
+      paymentSettings:
+        result.rows[0],
+    });
+  } catch (error) {
+    console.error(
+      "Update restaurant payment settings error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to update restaurant payment settings.",
+    });
+  }
+}
+
 module.exports = {
   getRestaurants,
   getRestaurantByIdentifier,
@@ -2470,4 +2640,6 @@ module.exports = {
   getOwnerRestaurantReviews,
   getOwnerRestaurantAnalytics,
   updateOwnerOrderAvailability,
+  getOwnerRestaurantPaymentSettings,
+updateOwnerRestaurantPaymentSettings,
 };
