@@ -985,6 +985,41 @@ const restaurantSubscriptionPhone =
   document.getElementById(
     "restaurantSubscriptionPhone"
   );
+
+  const restaurantPaymentSettingsForm =
+  document.getElementById(
+    "restaurantPaymentSettingsForm"
+  );
+
+const restaurantMpesaPaymentType =
+  document.getElementById(
+    "restaurantMpesaPaymentType"
+  );
+
+const restaurantMpesaBusinessNumber =
+  document.getElementById(
+    "restaurantMpesaBusinessNumber"
+  );
+
+const restaurantMpesaAccountNumber =
+  document.getElementById(
+    "restaurantMpesaAccountNumber"
+  );
+
+const restaurantMpesaAccountNumberGroup =
+  document.getElementById(
+    "restaurantMpesaAccountNumberGroup"
+  );
+
+const restaurantMpesaPaymentEnabled =
+  document.getElementById(
+    "restaurantMpesaPaymentEnabled"
+  );
+
+const saveRestaurantPaymentSettings =
+  document.getElementById(
+    "saveRestaurantPaymentSettings"
+  );
   let restaurantStaff = [];
 let ownerDeliveryZones = [];
 let ownerReviews = [];
@@ -1865,6 +1900,230 @@ async function loadSubscriptionPlans() {
         </p>
       </div>
     `;
+  }
+}
+
+function updateRestaurantPaymentSettingsForm() {
+  const paymentType =
+    restaurantMpesaPaymentType?.value;
+
+  const isPaybill =
+    paymentType === "PAYBILL";
+
+  if (
+    restaurantMpesaAccountNumberGroup
+  ) {
+    restaurantMpesaAccountNumberGroup.hidden =
+      !isPaybill;
+  }
+
+  if (restaurantMpesaAccountNumber) {
+    restaurantMpesaAccountNumber.required =
+      isPaybill;
+
+    if (!isPaybill) {
+      restaurantMpesaAccountNumber.value = "";
+    }
+  }
+}
+
+async function loadRestaurantPaymentSettings() {
+  if (
+    !restaurantPaymentSettingsForm
+  ) {
+    return;
+  }
+
+  const response =
+    await fetch(
+      `${API_BASE_URL}/restaurants/owner/payment-settings`,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+
+          Accept:
+            "application/json",
+        },
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    response.status === 401 ||
+    response.status === 403
+  ) {
+    logout();
+    return;
+  }
+
+  if (
+    !response.ok ||
+    !data.success
+  ) {
+    throw new Error(
+      data.message ||
+      "Unable to load payment settings."
+    );
+  }
+
+  const settings =
+    data.paymentSettings || {};
+
+  restaurantMpesaPaymentType.value =
+    settings.mpesa_payment_type || "";
+
+  restaurantMpesaBusinessNumber.value =
+    settings.mpesa_business_number || "";
+
+  restaurantMpesaAccountNumber.value =
+    settings.mpesa_account_number || "";
+
+  restaurantMpesaPaymentEnabled.checked =
+    settings.mpesa_payment_enabled === true;
+
+  updateRestaurantPaymentSettingsForm();
+}
+
+async function saveRestaurantPaymentSettingsForm(
+  event
+) {
+  event.preventDefault();
+
+  const paymentType =
+    restaurantMpesaPaymentType?.value;
+
+  const businessNumber =
+    restaurantMpesaBusinessNumber?.value
+      .trim();
+
+  const accountNumber =
+    restaurantMpesaAccountNumber?.value
+      .trim();
+
+  const paymentEnabled =
+    restaurantMpesaPaymentEnabled?.checked === true;
+
+  if (
+    paymentEnabled &&
+    !paymentType
+  ) {
+    showMessage(
+      "Please select a payment type."
+    );
+
+    return;
+  }
+
+  if (
+    paymentEnabled &&
+    !businessNumber
+  ) {
+    showMessage(
+      "Please enter the PayBill or Till number."
+    );
+
+    restaurantMpesaBusinessNumber?.focus();
+
+    return;
+  }
+
+  if (
+    paymentEnabled &&
+    paymentType === "PAYBILL" &&
+    !accountNumber
+  ) {
+    showMessage(
+      "Please enter the PayBill account number."
+    );
+
+    restaurantMpesaAccountNumber?.focus();
+
+    return;
+  }
+
+  const originalText =
+    saveRestaurantPaymentSettings.textContent;
+
+  saveRestaurantPaymentSettings.disabled =
+    true;
+
+  saveRestaurantPaymentSettings.textContent =
+    "Saving...";
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/restaurants/owner/payment-settings`,
+        {
+          method: "PUT",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            paymentType,
+            businessNumber,
+            accountNumber,
+            paymentEnabled,
+          }),
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      logout();
+      return;
+    }
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to save payment settings."
+      );
+    }
+
+    showMessage(
+      data.message ||
+      "Payment settings saved successfully."
+    );
+
+    await loadRestaurantPaymentSettings();
+
+  } catch (error) {
+    console.error(
+      "Save restaurant payment settings error:",
+      error
+    );
+
+    showMessage(
+      error.message ||
+      "Unable to save payment settings."
+    );
+  } finally {
+    saveRestaurantPaymentSettings.disabled =
+      false;
+
+    saveRestaurantPaymentSettings.textContent =
+      originalText;
   }
 }
 
@@ -5987,10 +6246,11 @@ async function loadOwnerRestaurant() {
 
   populateRestaurantForm();
 
-  await Promise.allSettled([
-    loadCurrentSubscription(),
-    loadSubscriptionPlans(),
-  ]);
+ await Promise.allSettled([
+  loadCurrentSubscription(),
+  loadSubscriptionPlans(),
+  loadRestaurantPaymentSettings(),
+]);
 
   return;
 }
@@ -6034,6 +6294,7 @@ if (!response.ok) {
       loadOwnerDeliveryZones(),
       loadCurrentSubscription(),
       loadSubscriptionPlans(),
+      loadRestaurantPaymentSettings(),
     ]);
 
   } catch (error) {
@@ -7640,6 +7901,16 @@ restaurantProfileForm.addEventListener(
 openingHoursForm.addEventListener(
   "submit",
   saveOpeningHours
+);
+
+restaurantMpesaPaymentType?.addEventListener(
+  "change",
+  updateRestaurantPaymentSettingsForm
+);
+
+restaurantPaymentSettingsForm?.addEventListener(
+  "submit",
+  saveRestaurantPaymentSettingsForm
 );
 
 topbarLogoutButton.addEventListener(

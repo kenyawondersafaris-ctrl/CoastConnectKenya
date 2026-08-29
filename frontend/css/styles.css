@@ -1198,6 +1198,224 @@ select {
     rgba(15, 118, 110, 0.08);
 }
 
+/* =========================================
+   RESTAURANT PAYMENT SETTINGS
+   ========================================= */
+
+.restaurant-payment-settings-form {
+  width: 100%;
+}
+
+.restaurant-payment-settings-form .panel-card {
+  overflow: hidden;
+}
+
+.payment-settings-intro {
+  margin: 0 0 24px;
+  max-width: 720px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.payment-settings-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--surface-color);
+}
+
+.payment-settings-status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary-color);
+}
+
+.payment-settings-status-content {
+  min-width: 0;
+}
+
+.payment-settings-status-title {
+  margin: 0 0 3px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.payment-settings-status-text {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.restaurant-payment-settings-form .form-section-heading {
+  margin-top: 28px;
+}
+
+.restaurant-payment-settings-form .form-section-heading:first-child {
+  margin-top: 0;
+}
+
+.restaurant-payment-settings-form .form-group {
+  min-width: 0;
+}
+
+.restaurant-payment-settings-form input,
+.restaurant-payment-settings-form select {
+  width: 100%;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--surface-color);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.toggle-label:hover {
+  border-color: var(--primary-color);
+}
+
+.toggle-label input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+  margin: 1px 0 0;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.toggle-label span {
+  min-width: 0;
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.toggle-label:has(
+  input[type="checkbox"]:checked
+) {
+  border-color: var(--primary-color);
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.restaurant-payment-settings-form .form-help-text {
+  margin-top: 7px;
+  line-height: 1.55;
+}
+
+.restaurant-payment-settings-form .form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  margin-top: 28px;
+  border-top: 1px solid var(--border-color);
+}
+
+.restaurant-payment-settings-form .primary-button {
+  min-width: 170px;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .payment-settings-status {
+    padding: 15px 16px;
+  }
+
+  .restaurant-payment-settings-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .payment-settings-intro {
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+  }
+
+  .payment-settings-status {
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .payment-settings-status-icon {
+    flex-basis: 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+  }
+
+  .payment-settings-status-title {
+    font-size: 0.9rem;
+  }
+
+  .payment-settings-status-text {
+    font-size: 0.82rem;
+  }
+
+  .toggle-label {
+    gap: 10px;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .toggle-label span {
+    font-size: 0.9rem;
+  }
+
+  .restaurant-payment-settings-form .form-actions {
+    padding-top: 20px;
+    margin-top: 24px;
+  }
+
+  .restaurant-payment-settings-form .primary-button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 420px) {
+  .payment-settings-status {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .payment-settings-status-icon {
+    flex-basis: 34px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .toggle-label {
+    padding: 12px;
+  }
+}
+
 @media (max-width: 620px) {
 
   .category-section {

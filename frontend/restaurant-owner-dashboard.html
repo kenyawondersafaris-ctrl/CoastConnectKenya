@@ -150,6 +150,15 @@
         </a>
 
         <a
+  href="#payment-settings"
+  class="nav-link"
+  data-section="payment-settings"
+>
+  <span class="nav-icon">💳</span>
+  <span>Payment Settings</span>
+</a>
+
+        <a
           href="#settings"
           class="nav-link"
           data-section="settings"
@@ -2988,6 +2997,133 @@
     class="subscription-plans-container"
   >
   </div>
+</section>
+
+<section
+  id="paymentSettingsSection"
+  class="dashboard-section"
+  data-section-panel="payment-settings"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Payment settings
+      </span>
+
+      <h2>Configure how customers pay</h2>
+
+      <p>
+        Add the M-Pesa PayBill or Till details customers
+        should use when paying for food orders.
+      </p>
+    </div>
+  </div>
+
+  <form
+    id="restaurantPaymentSettingsForm"
+    class="restaurant-payment-settings-form"
+    novalidate
+  >
+    <article class="panel-card">
+      <div class="form-section-heading">
+        <div>
+          <h3>M-Pesa payment details</h3>
+
+          <p>
+            Choose the payment method registered to your
+            restaurant and enter its details.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="restaurantMpesaPaymentType">
+            Payment type
+          </label>
+
+          <select
+            id="restaurantMpesaPaymentType"
+          >
+            <option value="">
+              Select payment type
+            </option>
+
+            <option value="PAYBILL">
+              M-Pesa PayBill
+            </option>
+
+            <option value="TILL">
+              M-Pesa Till Number
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantMpesaBusinessNumber">
+            PayBill or Till number
+          </label>
+
+          <input
+            type="text"
+            id="restaurantMpesaBusinessNumber"
+            placeholder="Enter PayBill or Till number"
+            inputmode="numeric"
+            autocomplete="off"
+          >
+        </div>
+
+        <div
+          class="form-group"
+          id="restaurantMpesaAccountNumberGroup"
+        >
+          <label for="restaurantMpesaAccountNumber">
+            Account number
+          </label>
+
+          <input
+            type="text"
+            id="restaurantMpesaAccountNumber"
+            placeholder="Enter account number"
+            autocomplete="off"
+          >
+
+          <small class="form-help-text">
+            Required for PayBill payments. For Till payments,
+            this can be left empty.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="toggle-label">
+            <input
+              type="checkbox"
+              id="restaurantMpesaPaymentEnabled"
+            >
+
+            <span>
+              Enable M-Pesa payments
+            </span>
+          </label>
+
+          <small class="form-help-text">
+            When enabled, customers can use these details
+            during checkout.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="primary-button"
+          id="saveRestaurantPaymentSettings"
+        >
+          Save payment settings
+        </button>
+      </div>
+    </article>
+  </form>
 </section>
 
         <section
