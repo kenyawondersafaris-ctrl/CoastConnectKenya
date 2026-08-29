@@ -1049,7 +1049,8 @@ const sectionTitles = {
   staff: "Staff Management",
   hours: "Opening Hours",
   analytics: "Analytics",
-  subscription: "Subscription",
+"payment-settings": "Payment Settings",
+subscription: "Subscription",
   settings: "Settings",
   "delivery-zones":
   "Delivery Zones",
