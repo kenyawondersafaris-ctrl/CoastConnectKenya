@@ -960,6 +960,31 @@ const subscriptionPlansContainer =
   document.getElementById(
     "subscriptionPlansContainer"
   );
+
+  const restaurantSubscriptionPaymentModal =
+  document.getElementById(
+    "providerSubscriptionPaymentModal"
+  );
+
+const restaurantSubscriptionPaymentClose =
+  document.getElementById(
+    "providerSubscriptionPaymentClose"
+  );
+
+const restaurantSubscriptionPaymentCancel =
+  document.getElementById(
+    "providerSubscriptionPaymentCancel"
+  );
+
+const restaurantSubscriptionPaymentConfirm =
+  document.getElementById(
+    "providerSubscriptionPaymentConfirm"
+  );
+
+const restaurantSubscriptionPhone =
+  document.getElementById(
+    "providerSubscriptionPhone"
+  );
   let restaurantStaff = [];
 let ownerDeliveryZones = [];
 let ownerReviews = [];
@@ -976,6 +1001,7 @@ let unreadOwnerNotifications = 0;
 let ownerPromotions = [];
 let currentSubscription = null;
 let subscriptionPlans = [];
+let selectedSubscriptionPlanId = null;
 
 const sectionTitles = {
   overview: "Overview",
@@ -1437,7 +1463,7 @@ document.addEventListener(
 
 subscriptionPlansContainer?.addEventListener(
   "click",
-  async (event) => {
+  (event) => {
     const button = event.target.closest(
       ".subscription-action-button"
     );
@@ -1457,36 +1483,74 @@ subscriptionPlansContainer?.addEventListener(
       return;
     }
 
-    button.disabled = true;
+    openSubscriptionPaymentModal(
+      planId
+    );
+  }
+);
+
+restaurantSubscriptionPaymentConfirm?.addEventListener(
+  "click",
+  async () => {
+    const planId =
+      selectedSubscriptionPlanId;
+
+    const phone =
+      restaurantSubscriptionPhone?.value
+        .trim();
+
+    if (!planId) {
+      showMessage(
+        "Please select a subscription plan first."
+      );
+
+      return;
+    }
+
+    if (!phone) {
+      showMessage(
+        "Please enter your M-Pesa phone number."
+      );
+
+      restaurantSubscriptionPhone?.focus();
+
+      return;
+    }
+
+    restaurantSubscriptionPaymentConfirm.disabled =
+      true;
 
     const originalText =
-      button.textContent;
+      restaurantSubscriptionPaymentConfirm
+        .textContent;
 
-    button.textContent =
+    restaurantSubscriptionPaymentConfirm.textContent =
       "Preparing payment...";
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/subscriptions/initialize`,
-        {
-          method: "POST",
+      const response =
+        await fetch(
+          `${API_BASE_URL}/subscriptions/initialize`,
+          {
+            method: "POST",
 
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
 
-            "Content-Type":
-              "application/json",
+              "Content-Type":
+                "application/json",
 
-            Accept:
-              "application/json",
-          },
+              Accept:
+                "application/json",
+            },
 
-          body: JSON.stringify({
-            planId,
-          }),
-        }
-      );
+            body: JSON.stringify({
+              planId,
+              phone,
+            }),
+          }
+        );
 
       const data =
         await response.json();
@@ -1515,8 +1579,11 @@ subscriptionPlansContainer?.addEventListener(
         );
       }
 
-      button.textContent =
-        "Waiting for payment...";
+      closeSubscriptionPaymentModal();
+
+      showMessage(
+        "Check your phone and complete the M-Pesa payment."
+      );
 
       const paymentReference =
         data.reference;
@@ -1561,6 +1628,7 @@ subscriptionPlansContainer?.addEventListener(
                 );
 
                 logout();
+
                 return;
               }
 
@@ -1575,9 +1643,6 @@ subscriptionPlansContainer?.addEventListener(
                 showMessage(
                   "Payment completed successfully. Your subscription is now active."
                 );
-
-                button.textContent =
-                  "Subscribed";
 
                 await loadCurrentSubscription();
 
@@ -1594,11 +1659,6 @@ subscriptionPlansContainer?.addEventListener(
                   paymentStatusInterval
                 );
 
-                button.disabled = false;
-
-                button.textContent =
-                  originalText;
-
                 showMessage(
                   verifyData.message ||
                   "The M-Pesa payment was not completed."
@@ -1614,11 +1674,6 @@ subscriptionPlansContainer?.addEventListener(
                   paymentStatusInterval
                 );
 
-                button.disabled = false;
-
-                button.textContent =
-                  originalText;
-
                 showMessage(
                   "Payment confirmation is taking longer than expected. Please refresh after completing the M-Pesa payment."
                 );
@@ -1633,11 +1688,6 @@ subscriptionPlansContainer?.addEventListener(
               clearInterval(
                 paymentStatusInterval
               );
-
-              button.disabled = false;
-
-              button.textContent =
-                originalText;
 
               showMessage(
                 error.message ||
@@ -1658,10 +1708,11 @@ subscriptionPlansContainer?.addEventListener(
         error.message ||
         "Unable to start subscription payment."
       );
+    } finally {
+      restaurantSubscriptionPaymentConfirm.disabled =
+        false;
 
-      button.disabled = false;
-
-      button.textContent =
+      restaurantSubscriptionPaymentConfirm.textContent =
         originalText;
     }
   }
@@ -8446,5 +8497,78 @@ if (
     }
   }
 );
+
+
+function openSubscriptionPaymentModal(
+  planId
+) {
+  selectedSubscriptionPlanId =
+    planId;
+
+  if (
+    !restaurantSubscriptionPaymentModal
+  ) {
+    return;
+  }
+
+  restaurantSubscriptionPhone.value = "";
+
+  restaurantSubscriptionPaymentModal
+    .classList.add(
+      "is-open"
+    );
+
+  restaurantSubscriptionPaymentModal
+    .setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+  setTimeout(() => {
+    restaurantSubscriptionPhone?.focus();
+  }, 100);
+}
+
+
+function closeSubscriptionPaymentModal() {
+  if (
+    !restaurantSubscriptionPaymentModal
+  ) {
+    return;
+  }
+
+  restaurantSubscriptionPaymentModal
+    .classList.remove(
+      "is-open"
+    );
+
+  restaurantSubscriptionPaymentModal
+    .setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+  selectedSubscriptionPlanId =
+    null;
+}
+
+restaurantSubscriptionPaymentClose?.addEventListener(
+  "click",
+  closeSubscriptionPaymentModal
+);
+
+restaurantSubscriptionPaymentCancel?.addEventListener(
+  "click",
+  closeSubscriptionPaymentModal
+);
+
+restaurantSubscriptionPaymentModal
+  ?.querySelector(
+    ".subscription-payment-modal-backdrop"
+  )
+  ?.addEventListener(
+    "click",
+    closeSubscriptionPaymentModal
+  );
 
    
