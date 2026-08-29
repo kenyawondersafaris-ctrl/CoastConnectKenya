@@ -492,6 +492,9 @@ async function handlePayHeroSubscriptionCallback(
   req,
   res
 ) {
+  const client =
+    await pool.connect();
+
   try {
     const payload =
       req.body || {};
@@ -538,8 +541,12 @@ async function handlePayHeroSubscriptionCallback(
       });
     }
 
+    await client.query(
+      "BEGIN"
+    );
+
     const paymentResult =
-      await pool.query(
+      await client.query(
         `
           SELECT
             sp.id,
@@ -549,12 +556,18 @@ async function handlePayHeroSubscriptionCallback(
             bs.user_id,
             bs.plan_id,
             bs.business_type
+
           FROM subscription_payments sp
+
           INNER JOIN business_subscriptions bs
             ON bs.id =
               sp.subscription_id
+
           WHERE sp.paystack_reference =
             $1::varchar
+
+          FOR UPDATE
+
           LIMIT 1
         `,
         [
@@ -565,6 +578,10 @@ async function handlePayHeroSubscriptionCallback(
     if (
       paymentResult.rows.length === 0
     ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
       console.warn(
         "Unmatched PayHero subscription callback:",
         {
@@ -595,37 +612,31 @@ async function handlePayHeroSubscriptionCallback(
         "M-Pesa payment was not completed.";
 
       if (
-        payment.status ===
+        payment.status !==
         "FAILED"
       ) {
-        return res.status(200).json({
-          success: true,
-          message:
-            "Subscription payment failure was already processed.",
-        });
+        await client.query(
+          `
+            UPDATE subscription_payments
+            SET
+              status = 'FAILED',
+
+              failure_reason =
+                $1::text,
+
+              updated_at =
+                CURRENT_TIMESTAMP
+
+            WHERE id = $2
+          `,
+          [
+            failureReason,
+            payment.id,
+          ]
+        );
       }
 
-      await pool.query(
-        `
-          UPDATE subscription_payments
-          SET
-            status = 'FAILED',
-
-            failure_reason =
-              $1::text,
-
-            updated_at =
-              CURRENT_TIMESTAMP
-
-          WHERE id = $2
-        `,
-        [
-          failureReason,
-          payment.id,
-        ]
-      );
-
-                  await pool.query(
+      await client.query(
         `
           UPDATE business_subscriptions
           SET
@@ -641,12 +652,20 @@ async function handlePayHeroSubscriptionCallback(
         ]
       );
 
+      await client.query(
+        "COMMIT"
+      );
 
       console.log(
         "Subscription payment failed:",
         {
+          subscriptionId:
+            payment.subscription_id,
+
           externalReference,
+
           resultCode,
+
           resultDesc:
             failureReason,
         }
@@ -659,11 +678,28 @@ async function handlePayHeroSubscriptionCallback(
       });
     }
 
-    await pool.query(
+    if (
+      payment.status ===
+      "SUCCESS"
+    ) {
+      await client.query(
+        "COMMIT"
+      );
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Subscription payment was already processed.",
+      });
+    }
+
+    await client.query(
       `
         UPDATE subscription_payments
         SET
           status = 'SUCCESS',
+
+          failure_reason = NULL,
 
           paystack_transaction_id =
             COALESCE(
@@ -694,12 +730,15 @@ async function handlePayHeroSubscriptionCallback(
     );
 
     const planResult =
-      await pool.query(
+      await client.query(
         `
           SELECT
             duration_days
+
           FROM subscription_plans
+
           WHERE id = $1
+
           LIMIT 1
         `,
         [
@@ -713,7 +752,7 @@ async function handlePayHeroSubscriptionCallback(
           ?.duration_days || 0
       );
 
-    await pool.query(
+    await client.query(
       `
         UPDATE business_subscriptions
         SET
@@ -740,6 +779,22 @@ async function handlePayHeroSubscriptionCallback(
       ]
     );
 
+    await client.query(
+      "COMMIT"
+    );
+
+    console.log(
+      "Subscription payment successful:",
+      {
+        subscriptionId:
+          payment.subscription_id,
+
+        externalReference,
+
+        resultCode,
+      }
+    );
+
     return res.status(200).json({
       success: true,
       message:
@@ -747,6 +802,17 @@ async function handlePayHeroSubscriptionCallback(
     });
 
   } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (rollbackError) {
+      console.error(
+        "Subscription callback rollback error:",
+        rollbackError
+      );
+    }
+
     console.error(
       "PayHero subscription callback error:",
       error
@@ -757,6 +823,9 @@ async function handlePayHeroSubscriptionCallback(
       message:
         "Unable to process subscription payment callback.",
     });
+
+  } finally {
+    client.release();
   }
 }
 
