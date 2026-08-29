@@ -2220,7 +2220,7 @@ async function saveOwnerAccount(event) {
 
         body: JSON.stringify({
           fullName,
-          phone,
+          phoneNumber: phone,
         }),
       }
     );
