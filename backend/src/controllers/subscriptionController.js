@@ -81,22 +81,39 @@ async function getMySubscription(
             sp.name AS plan_name,
             sp.billing_period,
             sp.amount_kes,
-            sp.duration_days
+            sp.duration_days,
+
+            payment.status AS payment_status,
+            payment.failure_reason
 
           FROM business_subscriptions bs
 
           INNER JOIN subscription_plans sp
             ON sp.id = bs.plan_id
 
-                 WHERE
-  bs.user_id = $1
+          LEFT JOIN LATERAL (
+            SELECT
+              status,
+              failure_reason,
+              created_at
+            FROM subscription_payments
+            WHERE
+              subscription_id = bs.id
+            ORDER BY
+              created_at DESC
+            LIMIT 1
+          ) payment
+            ON true
 
-  AND bs.status IN (
-    'ACTIVE',
-    'CANCELLED',
-    'EXPIRED',
-    'PENDING'
-  )
+          WHERE
+            bs.user_id = $1
+
+            AND bs.status IN (
+              'ACTIVE',
+              'CANCELLED',
+              'EXPIRED',
+              'PENDING'
+            )
 
           ORDER BY
             bs.created_at DESC
