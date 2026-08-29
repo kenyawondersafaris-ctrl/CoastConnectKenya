@@ -1258,7 +1258,7 @@ providerSubscriptionPaymentCancel
                   return;
                 }
 
-                if (
+               if (
   [
     "FAILED",
     "CANCELLED",
@@ -1271,9 +1271,25 @@ providerSubscriptionPaymentCancel
     paymentStatusInterval
   );
 
-  throw new Error(
-    "The M-Pesa payment was cancelled. Your subscription has not been activated."
+  button.disabled =
+    false;
+
+  button.textContent =
+    originalText;
+
+  setMessage(
+    providerDashboardMessage,
+    verifyData.message ||
+      "The M-Pesa payment was not completed."
   );
+
+  selectedSubscriptionPlanId =
+    null;
+
+  selectedSubscriptionButton =
+    null;
+
+  return;
 }
                 if (
                   attempts >= maxAttempts
