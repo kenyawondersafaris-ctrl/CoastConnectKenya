@@ -7072,15 +7072,17 @@ const confirmed =
 
     const data = await response.json();
 
-    if (
-      response.status === 401 ||
-      response.status === 403
-    ) {
-      logout();
-      return;
-    }
+   const data = await response.json();
 
-    if (!response.ok) {
+if (
+  response.status === 401 ||
+  response.status === 403
+) {
+  logout();
+  return;
+}
+
+if (!response.ok) {
       throw new Error(
         data.message ||
         "Unable to update the order status."
