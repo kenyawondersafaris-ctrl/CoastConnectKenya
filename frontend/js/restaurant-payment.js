@@ -24,6 +24,21 @@ const businessNumberElement =
     "restaurantPaymentBusinessNumber"
   );
 
+  const businessRow =
+  document.getElementById(
+    "restaurantPaymentBusinessRow"
+  );
+
+  const phoneRow =
+  document.getElementById(
+    "restaurantPaymentPhoneRow"
+  );
+
+const phoneNumberElement =
+  document.getElementById(
+    "restaurantPaymentPhoneNumber"
+  );
+
 const accountRow =
   document.getElementById(
     "restaurantPaymentAccountRow"
@@ -86,9 +101,31 @@ function showPaymentInstructions(
     paymentInstructions.paymentMethod ||
     "M-Pesa";
 
+ if (
+  paymentInstructions.businessNumber
+) {
   businessNumberElement.textContent =
-    paymentInstructions.businessNumber ||
-    "";
+    paymentInstructions.businessNumber;
+
+  businessRow.hidden =
+    false;
+} else {
+  businessRow.hidden =
+    true;
+}
+
+    if (
+  paymentInstructions.phoneNumber
+) {
+  phoneNumberElement.textContent =
+    paymentInstructions.phoneNumber;
+
+  phoneRow.hidden =
+    false;
+} else {
+  phoneRow.hidden =
+    true;
+}
 
   if (
     paymentInstructions.accountNumber

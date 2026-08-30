@@ -2051,9 +2051,10 @@ async function saveRestaurantPaymentSettingsForm(
   }
 
   if (
-    paymentEnabled &&
-    !businessNumber
-  ) {
+  paymentEnabled &&
+  paymentType !== "PHONE" &&
+  !businessNumber
+) {
     showMessage(
       "Please enter the PayBill or Till number."
     );
@@ -2077,8 +2078,9 @@ async function saveRestaurantPaymentSettingsForm(
     return;
   }
 
-  if (
+if (
   paymentEnabled &&
+  paymentType === "PHONE" &&
   !phoneNumber
 ) {
   showMessage(

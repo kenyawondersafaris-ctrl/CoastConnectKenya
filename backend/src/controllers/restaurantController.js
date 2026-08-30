@@ -2682,6 +2682,7 @@ async function getRestaurantPaymentInstructions(
 
             r.mpesa_payment_type,
             r.mpesa_business_number,
+            r.mpesa_phone_number,
             r.mpesa_account_number,
             r.mpesa_payment_enabled
 
@@ -2723,9 +2724,18 @@ async function getRestaurantPaymentInstructions(
     }
 
     if (
-      !checkout.mpesa_payment_type ||
-      !checkout.mpesa_business_number
-    ) {
+  !checkout.mpesa_payment_type ||
+  (
+    checkout.mpesa_payment_type ===
+      "PHONE" &&
+    !checkout.mpesa_phone_number
+  ) ||
+  (
+    checkout.mpesa_payment_type !==
+      "PHONE" &&
+    !checkout.mpesa_business_number
+  )
+) {
       return res.status(400).json({
         success: false,
         message:
@@ -2743,15 +2753,22 @@ async function getRestaurantPaymentInstructions(
         businessNumber:
           checkout.mpesa_business_number,
 
+           phoneNumber:
+    checkout.mpesa_phone_number ||
+    "",
+
         accountNumber:
           checkout.mpesa_account_number ||
           "",
 
         instructions:
-          checkout.mpesa_payment_type ===
-          "PAYBILL"
-            ? "Open M-Pesa, select Lipa na M-Pesa, then PayBill. Enter the business number and account number shown above."
-            : "Open M-Pesa, select Lipa na M-Pesa, then Buy Goods. Enter the Till number shown above.",
+  checkout.mpesa_payment_type ===
+  "PAYBILL"
+    ? "Open M-Pesa, select Lipa na M-Pesa, then PayBill. Enter the business number and account number shown above."
+    : checkout.mpesa_payment_type ===
+      "TILL"
+      ? "Open M-Pesa, select Lipa na M-Pesa, then Buy Goods. Enter the Till number shown above."
+      : "Send the payment directly to the M-Pesa phone number shown above.",
       },
     });
   } catch (error) {
