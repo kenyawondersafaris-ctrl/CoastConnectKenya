@@ -2921,12 +2921,7 @@ async function getOwnerPendingManualPayments(
 ) {
   try {
     const ownerId =
-      req.user.id;
-
-      console.log(
-  "Pending manual payments owner ID:",
-  ownerId
-);
+  req.user.userId;
 
     const result =
       await pool.query(
