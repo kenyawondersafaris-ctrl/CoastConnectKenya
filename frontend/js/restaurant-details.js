@@ -348,25 +348,18 @@ function updatePaymentMethodButton() {
       'input[name="checkoutPaymentMethod"]:checked'
     )?.value || "MPESA";
 
-  const cardSelected =
-    selectedMethod === "CARD";
-
-  checkoutEmailGroup.hidden =
-    !cardSelected;
-
-  checkoutCustomerEmail.required =
-    cardSelected;
-
-  if (cardSelected) {
+  if (
+    selectedMethod === "MANUAL"
+  ) {
     placeOrderButton.textContent =
-      "Pay with Card";
+      "Continue to Payment";
   } else {
-    checkoutCustomerEmail.value = "";
-
     placeOrderButton.textContent =
       "Pay with M-Pesa";
   }
 }
+
+
 checkoutPaymentMethods.forEach(
   (paymentMethodInput) => {
     paymentMethodInput.addEventListener(
@@ -2251,29 +2244,18 @@ async function startCheckoutPayment(
     }
 
 
-    /*
+       /*
     |--------------------------------------------------------------------------
-    | CARD
+    | MANUAL PAYMENT
     |--------------------------------------------------------------------------
     */
 
     if (
       selectedPaymentMethod ===
-      "CARD"
+      "MANUAL"
     ) {
-      const email =
-        checkoutCustomerEmail.value
-          .trim()
-          .toLowerCase();
-
-      if (!email) {
-        throw new Error(
-          "Email address is required for card payment."
-        );
-      }
-
       checkoutMessage.textContent =
-        "Preparing secure card checkout...";
+        "Loading payment instructions...";
 
       checkoutMessage.className =
         "form-message";
@@ -2282,95 +2264,64 @@ async function startCheckoutPayment(
         true;
 
       placeOrderButton.textContent =
-        "Opening Secure Checkout...";
+        "Loading Payment Details...";
 
-      const cardResponse =
+      const paymentResponse =
         await fetch(
-          `${API_BASE_URL}/payments/card/payment-attempt`,
+          `${API_BASE_URL}/restaurants/payment-instructions?sessionToken=${encodeURIComponent(
+            sessionToken
+          )}`,
           {
-            method: "POST",
-
             headers: {
-              "Content-Type":
-                "application/json",
-
               Accept:
                 "application/json",
             },
-
-            body: JSON.stringify({
-              sessionToken,
-              email,
-            }),
           }
         );
 
-      const cardData =
-        await cardResponse.json();
+      const paymentData =
+        await paymentResponse.json();
 
       if (
-        !cardResponse.ok ||
-        !cardData.success
+        !paymentResponse.ok ||
+        !paymentData.success
       ) {
         throw new Error(
-          cardData.message ||
-          "Unable to initialize card payment."
+          paymentData.message ||
+          "Unable to load payment instructions."
         );
       }
 
-      const authorizationUrl =
-        cardData.checkout
-          ?.authorizationUrl;
-
-      const paymentReference =
-        cardData.checkout
-          ?.reference ||
-        cardData.payment
-          ?.paymentReference ||
-        "";
+      const paymentInstructions =
+        paymentData.paymentInstructions;
 
       if (
-        !authorizationUrl
+        !paymentInstructions
       ) {
         throw new Error(
-          "Card checkout URL was not returned."
+          "This restaurant has not configured manual payment instructions."
         );
       }
 
-      /*
-      |--------------------------------------------------------------------------
-      | Save card payment state
-      |--------------------------------------------------------------------------
-      */
-
       sessionStorage.setItem(
-        "coastConnectCardPaymentReference",
-        paymentReference
-      );
-
-      sessionStorage.setItem(
-        "coastConnectCardCheckoutSessionToken",
+        "coastConnectManualPaymentSession",
         sessionToken
       );
 
-      checkoutMessage.textContent =
-        "Redirecting to secure card payment...";
-
-      checkoutMessage.className =
-        "form-message success";
-
-      /*
-      |--------------------------------------------------------------------------
-      | Redirect customer to Paystack
-      |--------------------------------------------------------------------------
-      */
+      sessionStorage.setItem(
+        "coastConnectManualPaymentInstructions",
+        JSON.stringify(
+          paymentInstructions
+        )
+      );
 
       window.location.href =
-        authorizationUrl;
+        `restaurant-payment.html?session=${encodeURIComponent(
+          sessionToken
+        )}`;
 
       return;
     }
-
 
     /*
     |--------------------------------------------------------------------------

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Complete Payment | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/styles.css"
+  >
+</head>
+
+<body>
+
+  <main class="restaurant-payment-page">
+
+    <section class="restaurant-payment-card">
+
+      <div class="restaurant-payment-header">
+
+        <h1>
+          Complete Your Payment
+        </h1>
+
+        <p>
+          Follow the payment instructions below to complete your order.
+        </p>
+
+      </div>
+
+      <div
+        id="restaurantPaymentStatus"
+        class="form-message"
+      ></div>
+
+      <div
+        id="restaurantPaymentInstructions"
+        hidden
+      >
+
+        <div class="restaurant-payment-method">
+
+          <span>
+            Payment Method
+          </span>
+
+          <strong
+            id="restaurantPaymentMethod"
+          >
+            M-Pesa
+          </strong>
+
+        </div>
+
+        <div class="restaurant-payment-detail">
+
+          <span>
+            Business Number
+          </span>
+
+          <strong
+            id="restaurantPaymentBusinessNumber"
+          ></strong>
+
+        </div>
+
+        <div
+          id="restaurantPaymentAccountRow"
+          class="restaurant-payment-detail"
+          hidden
+        >
+
+          <span>
+            Account Number
+          </span>
+
+          <strong
+            id="restaurantPaymentAccountNumber"
+          ></strong>
+
+        </div>
+
+        <div
+          id="restaurantPaymentInstructionsTextRow"
+          class="restaurant-payment-instructions-text"
+          hidden
+        >
+
+          <p
+            id="restaurantPaymentInstructionsText"
+          ></p>
+
+        </div>
+
+        <div class="restaurant-payment-confirmation">
+
+          <p>
+            After making the payment, click the button below
+            to notify the restaurant for verification.
+          </p>
+
+          <button
+            type="button"
+            id="confirmRestaurantPaymentButton"
+            class="primary-button"
+          >
+            I Have Made the Payment
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="js/restaurant-payment.js"></script>
+
+</body>
+
+</html>

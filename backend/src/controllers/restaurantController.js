@@ -2629,6 +2629,292 @@ async function updateOwnerRestaurantPaymentSettings(
   }
 }
 
+async function getRestaurantPaymentInstructions(
+  req,
+  res
+) {
+  try {
+    const sessionToken =
+      cleanText(
+        req.query.sessionToken
+      );
+
+    if (!sessionToken) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Checkout session token is required.",
+      });
+    }
+
+    const result =
+      await pool.query(
+        `
+          SELECT
+            cs.id,
+            cs.restaurant_id,
+
+            r.mpesa_payment_type,
+            r.mpesa_business_number,
+            r.mpesa_account_number,
+            r.mpesa_payment_enabled
+
+          FROM checkout_sessions cs
+
+          INNER JOIN restaurants r
+            ON r.id = cs.restaurant_id
+
+          WHERE cs.session_token = $1
+
+          LIMIT 1
+        `,
+        [
+          sessionToken,
+        ]
+      );
+
+    if (
+      result.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Checkout session was not found.",
+      });
+    }
+
+    const checkout =
+      result.rows[0];
+
+    if (
+      !checkout.mpesa_payment_enabled
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This restaurant has not enabled manual M-Pesa payments.",
+      });
+    }
+
+    if (
+      !checkout.mpesa_payment_type ||
+      !checkout.mpesa_business_number
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This restaurant has not configured its M-Pesa payment details.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+
+      paymentInstructions: {
+        paymentMethod:
+          checkout.mpesa_payment_type,
+
+        businessNumber:
+          checkout.mpesa_business_number,
+
+        accountNumber:
+          checkout.mpesa_account_number ||
+          "",
+
+        instructions:
+          checkout.mpesa_payment_type ===
+          "PAYBILL"
+            ? "Open M-Pesa, select Lipa na M-Pesa, then PayBill. Enter the business number and account number shown above."
+            : "Open M-Pesa, select Lipa na M-Pesa, then Buy Goods. Enter the Till number shown above.",
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Get restaurant payment instructions error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load restaurant payment instructions.",
+    });
+  }
+}
+
+
+async function confirmRestaurantManualPayment(
+  req,
+  res
+) {
+  try {
+    const sessionToken =
+      cleanText(
+        req.body.sessionToken
+      );
+
+    if (!sessionToken) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Checkout session token is required.",
+      });
+    }
+
+    const result =
+      await pool.query(
+        `
+          SELECT
+            cs.id,
+            cs.restaurant_id,
+            cs.converted_order_id,
+            cs.status,
+            cs.total_amount,
+
+            r.mpesa_payment_enabled,
+            r.mpesa_payment_type,
+            r.mpesa_business_number
+
+          FROM checkout_sessions cs
+
+          INNER JOIN restaurants r
+            ON r.id = cs.restaurant_id
+
+          WHERE cs.session_token = $1
+
+          LIMIT 1
+        `,
+        [
+          sessionToken,
+        ]
+      );
+
+    if (
+      result.rows.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Checkout session was not found.",
+      });
+    }
+
+    const checkout =
+      result.rows[0];
+
+    if (
+      checkout.converted_order_id
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "This checkout session has already been processed.",
+      });
+    }
+
+    if (
+      !checkout.mpesa_payment_enabled ||
+      !checkout.mpesa_payment_type ||
+      !checkout.mpesa_business_number
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Manual payment is not available for this restaurant.",
+      });
+    }
+
+    const existingPayment =
+      await pool.query(
+        `
+          SELECT
+            id,
+            status
+
+          FROM restaurant_payments
+
+          WHERE checkout_session_id =
+            $1::uuid
+
+            AND payment_method =
+              'MANUAL'
+
+          LIMIT 1
+        `,
+        [
+          checkout.id,
+        ]
+      );
+
+    if (
+      existingPayment.rows.length > 0
+    ) {
+      return res.status(200).json({
+        success: true,
+        message:
+          "Your payment confirmation has already been submitted.",
+      });
+    }
+
+    const paymentReference =
+      `CCKMANUAL-${Date.now()}-${Math.floor(
+        1000 +
+        Math.random() * 9000
+      )}`;
+
+    await pool.query(
+      `
+        INSERT INTO restaurant_payments (
+          checkout_session_id,
+          order_id,
+          restaurant_id,
+          payment_reference,
+          payment_method,
+          payment_provider,
+          amount,
+          currency,
+          status
+        )
+
+        VALUES (
+          $1::uuid,
+          NULL,
+          $2::uuid,
+          $3::varchar,
+          'MANUAL',
+          'MANUAL_MPESA',
+          $4::numeric,
+          'KES',
+          'PENDING_VERIFICATION'
+        )
+      `,
+      [
+        checkout.id,
+        checkout.restaurant_id,
+        paymentReference,
+        checkout.total_amount,
+      ]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message:
+        "Payment confirmation submitted. The restaurant will verify your payment shortly.",
+    });
+  } catch (error) {
+    console.error(
+      "Confirm restaurant manual payment error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to confirm your payment.",
+    });
+  }
+}
+
 module.exports = {
   getRestaurants,
   getRestaurantByIdentifier,
@@ -2642,4 +2928,6 @@ module.exports = {
   updateOwnerOrderAvailability,
   getOwnerRestaurantPaymentSettings,
 updateOwnerRestaurantPaymentSettings,
+getRestaurantPaymentInstructions,
+confirmRestaurantManualPayment,
 };

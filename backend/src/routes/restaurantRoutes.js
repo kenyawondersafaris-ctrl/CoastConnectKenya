@@ -14,7 +14,9 @@ const {
   getOwnerRestaurantAnalytics,
   updateOwnerOrderAvailability,
   getOwnerRestaurantPaymentSettings,
-updateOwnerRestaurantPaymentSettings,
+  updateOwnerRestaurantPaymentSettings,
+  getRestaurantPaymentInstructions,
+  confirmRestaurantManualPayment,
 } = require("../controllers/restaurantController");
 
 const {
@@ -30,6 +32,16 @@ const requireActiveSubscription = require("../middleware/requireActiveSubscripti
 const router = express.Router();
 
 router.get("/", getRestaurants);
+
+router.get(
+  "/payment-instructions",
+  getRestaurantPaymentInstructions
+);
+
+router.post(
+  "/manual-payment/confirm",
+  confirmRestaurantManualPayment
+);
 
 router.get(
   "/owner/profile",
