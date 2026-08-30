@@ -2311,13 +2311,31 @@ async function createMpesaPaymentAttempt(
             "Coast Connect order",
         });
 
-      const providerResponse =
-        stkResult.response || {};
+     const providerResponse =
+  stkResult.response || {};
 
-      await client.query(
-        "BEGIN"
-      );
+/*
+|--------------------------------------------------------------------------
+| Safaricom STK request validation
+|--------------------------------------------------------------------------
+*/
 
+if (
+  String(
+    providerResponse.ResponseCode || ""
+  ) !== "0"
+) {
+  throw new Error(
+    providerResponse.errorMessage ||
+    providerResponse.ResponseDescription ||
+    providerResponse.CustomerMessage ||
+    "M-Pesa payment could not be initiated."
+  );
+}
+
+await client.query(
+  "BEGIN"
+);
       const updatedPaymentResult =
         await client.query(
           `
