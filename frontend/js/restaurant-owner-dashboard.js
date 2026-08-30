@@ -376,6 +376,26 @@ const ordersContainer =
     "ordersContainer"
   );
 
+  const pendingPaymentsContainer =
+  document.getElementById(
+    "pendingPaymentsContainer"
+  );
+
+const pendingPaymentsSummary =
+  document.getElementById(
+    "pendingPaymentsSummary"
+  );
+
+const pendingPaymentsMessage =
+  document.getElementById(
+    "pendingPaymentsMessage"
+  );
+
+const refreshPendingPaymentsButton =
+  document.getElementById(
+    "refreshPendingPaymentsButton"
+  );
+
 const ordersSummary =
   document.getElementById(
     "ordersSummary"
@@ -5494,6 +5514,148 @@ function setOrdersLoading(isLoading) {
       : "Refresh orders";
 }
 
+async function loadPendingManualPayments() {
+  pendingPaymentsMessage.textContent = "";
+  pendingPaymentsMessage.className =
+    "form-message";
+
+  refreshPendingPaymentsButton.disabled = true;
+  refreshPendingPaymentsButton.textContent =
+    "Loading...";
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/restaurants/owner/pending-manual-payments`,
+        {
+          method: "GET",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      logout();
+      return;
+    }
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to load pending payment confirmations."
+      );
+    }
+
+    const payments =
+      Array.isArray(data.payments)
+        ? data.payments
+        : [];
+
+    pendingPaymentsSummary.textContent =
+      payments.length === 0
+        ? "No customer payment confirmations are waiting for verification."
+        : `${payments.length} payment confirmation${
+            payments.length === 1
+              ? ""
+              : "s"
+          } waiting for verification.`;
+
+    if (payments.length === 0) {
+      pendingPaymentsContainer.innerHTML = `
+        <div class="empty-state">
+          <h3>No pending payments</h3>
+
+          <p>
+            Customer manual payment confirmations will appear here.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+    pendingPaymentsContainer.innerHTML =
+      payments.map(
+        (payment) => `
+          <article
+            class="pending-payment-item"
+          >
+            <div>
+              <strong>
+                ${escapeHtml(
+                  payment.customerName ||
+                  "Customer"
+                )}
+              </strong>
+
+              <p>
+                ${escapeHtml(
+                  payment.customerPhone ||
+                  ""
+                )}
+              </p>
+
+              <p>
+                Reference:
+                ${escapeHtml(
+                  payment.paymentReference ||
+                  ""
+                )}
+              </p>
+            </div>
+
+            <div
+              class="pending-payment-amount"
+            >
+              KES ${Number(
+                payment.amount || 0
+              ).toLocaleString(
+                "en-KE"
+              )}
+            </div>
+          </article>
+        `
+      ).join("");
+
+  } catch (error) {
+    console.error(
+      "Load pending manual payments error:",
+      error
+    );
+
+    pendingPaymentsSummary.textContent =
+      "Unable to load payment confirmations.";
+
+    pendingPaymentsMessage.textContent =
+      error.message ||
+      "Unable to connect to the server.";
+
+    pendingPaymentsMessage.className =
+      "form-message error";
+  } finally {
+    refreshPendingPaymentsButton.disabled =
+      false;
+
+    refreshPendingPaymentsButton.textContent =
+      "Refresh payments";
+  }
+}
+
 async function loadOwnerOrders(
   page = currentOrdersPage
 ) {
@@ -6296,6 +6458,7 @@ if (!response.ok) {
       loadCurrentSubscription(),
       loadSubscriptionPlans(),
       loadRestaurantPaymentSettings(),
+      loadPendingManualPayments(),
     ]);
 
   } catch (error) {
@@ -8061,6 +8224,26 @@ deliveryZoneForm.addEventListener(
   "submit",
   saveDeliveryZone
 );
+
+refreshPendingPaymentsButton?.addEventListener(
+  "click",
+  () => {
+    loadPendingManualPayments();
+  }
+);
+
+
+ordersStatusFilter?.addEventListener(
+  "change",
+  () => {
+    currentOrdersStatus =
+      ordersStatusFilter.value;
+
+    currentOrdersPage = 1;
+
+    loadOwnerOrders(1);
+  }
+);
 menuItemsContainer.addEventListener(
   "click",
   (event) => {
@@ -8614,9 +8797,14 @@ socket.on(
       order
     );
 
-    socket.on(
-  "restaurant-order-created",
-  (order) => {
+    if (
+      !order?.id ||
+      String(order.restaurantId) !==
+        String(ownerRestaurant?.id)
+    ) {
+      return;
+    }
+
     addOwnerNotification({
       icon: "🧾",
       title: "New customer order",
@@ -8624,11 +8812,46 @@ socket.on(
         `${order.orderNumber || "A new order"} has been received.`,
     });
 
-    loadOwnerOrders(
-      currentOrdersPage
+    currentOrdersStatus = "";
+    currentOrdersPage = 1;
+
+    if (ordersStatusFilter) {
+      ordersStatusFilter.value = "";
+    }
+
+    await loadOwnerOrders(1);
+
+    pendingOrdersBadge.classList.add(
+      "has-new-order"
     );
+
+    showMessage(
+      `New paid order ${order.orderNumber} received.`,
+      "success"
+    );
+
+    if (
+      document.visibilityState ===
+      "visible"
+    ) {
+      showSection("orders");
+    }
+
+    try {
+      const audio = new Audio(
+        "sounds/new-order.mp3"
+      );
+
+      await audio.play();
+    } catch (error) {
+      console.log(
+        "New-order sound could not play:",
+        error.message
+      );
+    }
   }
 );
+
 
 socket.on(
   "restaurant-order-updated",
@@ -8681,10 +8904,25 @@ socket.on(
       },
     };
 
-    socket.on(
+    const details =
+      notificationDetails[status];
+
+    if (details) {
+      addOwnerNotification(
+        details
+      );
+    }
+
+    loadOwnerOrders(
+      currentOrdersPage
+    );
+  }
+);
+
+
+socket.on(
   "restaurant-notification-created",
   (notification) => {
-
     ownerNotifications.unshift({
       id: notification.id,
       icon: "🔔",
@@ -8704,70 +8942,6 @@ socket.on(
     unreadOwnerNotifications++;
 
     renderOwnerNotifications();
-
-  }
-);
-
-    const details =
-      notificationDetails[status];
-
-    if (details) {
-      addOwnerNotification(
-        details
-      );
-    }
-
-    loadOwnerOrders(
-      currentOrdersPage
-    );
-  }
-);
-
-if (
-  !order?.id ||
-  String(order.restaurantId) !==
-    String(ownerRestaurant?.id)
-) {
-  return;
-}
-
-    currentOrdersStatus = "";
-    currentOrdersPage = 1;
-
-    if (ordersStatusFilter) {
-      ordersStatusFilter.value = "";
-    }
-
-    await loadOwnerOrders(1);
-
-    pendingOrdersBadge.classList.add(
-      "has-new-order"
-    );
-
-    showMessage(
-      `New paid order ${order.orderNumber} received.`,
-      "success"
-    );
-
-    if (
-      document.visibilityState ===
-      "visible"
-    ) {
-      showSection("orders");
-    }
-
-    try {
-      const audio = new Audio(
-        "sounds/new-order.mp3"
-      );
-
-      await audio.play();
-    } catch (error) {
-      console.log(
-        "New-order sound could not play:",
-        error.message
-      );
-    }
   }
 );
 

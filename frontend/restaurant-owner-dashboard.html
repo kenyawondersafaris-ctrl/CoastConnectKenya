@@ -1929,6 +1929,51 @@
     </article>
   </div>
 
+   <article
+    class="panel-card pending-payments-card"
+  >
+    <div class="orders-toolbar">
+      <div>
+        <h3>Pending payment verification</h3>
+
+        <p id="pendingPaymentsSummary">
+          Checking for customer payment confirmations.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        id="refreshPendingPaymentsButton"
+        class="secondary-button"
+      >
+        Refresh payments
+      </button>
+    </div>
+
+    <div
+      id="pendingPaymentsMessage"
+      class="form-message"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+    <div
+      id="pendingPaymentsContainer"
+      class="pending-payments-container"
+    >
+      <div class="empty-state">
+        <h3>Loading payment confirmations</h3>
+
+        <p>
+          Please wait while pending manual payments are loaded.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  
+
+
   <article class="panel-card">
     <div class="orders-toolbar">
       <div>
