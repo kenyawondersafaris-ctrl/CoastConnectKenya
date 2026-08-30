@@ -1026,6 +1026,11 @@ const restaurantMpesaAccountNumber =
     "restaurantMpesaAccountNumber"
   );
 
+  const restaurantMpesaPhoneNumber =
+  document.getElementById(
+    "restaurantMpesaPhoneNumber"
+  );
+
 const restaurantMpesaAccountNumberGroup =
   document.getElementById(
     "restaurantMpesaAccountNumberGroup"
@@ -2002,6 +2007,9 @@ async function loadRestaurantPaymentSettings() {
   restaurantMpesaAccountNumber.value =
     settings.mpesa_account_number || "";
 
+    restaurantMpesaPhoneNumber.value =
+  settings.mpesa_phone_number || "";
+
   restaurantMpesaPaymentEnabled.checked =
     settings.mpesa_payment_enabled === true;
 
@@ -2023,6 +2031,10 @@ async function saveRestaurantPaymentSettingsForm(
   const accountNumber =
     restaurantMpesaAccountNumber?.value
       .trim();
+
+      const phoneNumber =
+  restaurantMpesaPhoneNumber?.value
+    .trim();
 
   const paymentEnabled =
     restaurantMpesaPaymentEnabled?.checked === true;
@@ -2065,6 +2077,19 @@ async function saveRestaurantPaymentSettingsForm(
     return;
   }
 
+  if (
+  paymentEnabled &&
+  !phoneNumber
+) {
+  showMessage(
+    "Please enter the M-Pesa phone number."
+  );
+
+  restaurantMpesaPhoneNumber?.focus();
+
+  return;
+}
+
   const originalText =
     saveRestaurantPaymentSettings.textContent;
 
@@ -2096,6 +2121,7 @@ async function saveRestaurantPaymentSettingsForm(
             paymentType,
             businessNumber,
             accountNumber,
+            phoneNumber,
             paymentEnabled,
           }),
         }

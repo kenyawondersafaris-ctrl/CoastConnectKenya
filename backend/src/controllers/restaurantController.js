@@ -2481,6 +2481,7 @@ async function getOwnerRestaurantPaymentSettings(
             mpesa_payment_type,
             mpesa_business_number,
             mpesa_account_number,
+            mpesa_phone_number,
             mpesa_payment_enabled
 
           FROM restaurants
@@ -2534,8 +2535,7 @@ async function updateOwnerRestaurantPaymentSettings(
     const paymentType =
       cleanText(
         req.body.paymentType
-      )
-        ?.toUpperCase();
+      )?.toUpperCase();
 
     const businessNumber =
       cleanText(
@@ -2545,6 +2545,11 @@ async function updateOwnerRestaurantPaymentSettings(
     const accountNumber =
       cleanText(
         req.body.accountNumber
+      );
+
+    const phoneNumber =
+      cleanText(
+        req.body.phoneNumber
       );
 
     const paymentEnabled =
@@ -2576,6 +2581,17 @@ async function updateOwnerRestaurantPaymentSettings(
       });
     }
 
+    if (
+      paymentEnabled &&
+      !phoneNumber
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Enter the M-Pesa phone number.",
+      });
+    }
+
     const result =
       await pool.query(
         `
@@ -2586,14 +2602,16 @@ async function updateOwnerRestaurantPaymentSettings(
             mpesa_business_number = $2,
             mpesa_account_number = $3,
             mpesa_payment_enabled = $4,
+            mpesa_phone_number = $5,
             updated_at = CURRENT_TIMESTAMP
 
-          WHERE owner_id = $5
+          WHERE owner_id = $6
 
           RETURNING
             mpesa_payment_type,
             mpesa_business_number,
             mpesa_account_number,
+            mpesa_phone_number,
             mpesa_payment_enabled
         `,
         [
@@ -2601,6 +2619,7 @@ async function updateOwnerRestaurantPaymentSettings(
           businessNumber || null,
           accountNumber || null,
           paymentEnabled,
+          phoneNumber || null,
           ownerId,
         ]
       );
