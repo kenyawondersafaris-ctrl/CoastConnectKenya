@@ -128,18 +128,20 @@ if (
     true;
 }
 
-  if (
-    paymentInstructions.accountNumber
-  ) {
-    accountNumberElement.textContent =
-      paymentInstructions.accountNumber;
+ if (
+  paymentInstructions.paymentMethod !==
+    "PHONE" &&
+  paymentInstructions.accountNumber
+) {
+  accountNumberElement.textContent =
+    paymentInstructions.accountNumber;
 
-    accountRow.hidden =
-      false;
-  } else {
-    accountRow.hidden =
-      true;
-  }
+  accountRow.hidden =
+    false;
+} else {
+  accountRow.hidden =
+    true;
+}
 
   if (
     paymentInstructions.instructions
