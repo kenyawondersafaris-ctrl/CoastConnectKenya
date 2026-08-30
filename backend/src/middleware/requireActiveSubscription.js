@@ -25,10 +25,15 @@ async function requireActiveSubscription(
             status,
             expires_at
           FROM business_subscriptions
-          WHERE user_id = $1
-            AND business_type = 'RESTAURANT'
-          ORDER BY created_at DESC
-          LIMIT 1
+         WHERE user_id = $1
+  AND business_type = 'RESTAURANT'
+  AND status = 'ACTIVE'
+  AND (
+    expires_at IS NULL
+    OR expires_at > CURRENT_TIMESTAMP
+  )
+ORDER BY created_at DESC
+LIMIT 1
         `,
         [userId]
       );
