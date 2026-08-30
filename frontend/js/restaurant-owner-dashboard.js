@@ -1950,10 +1950,12 @@ function updateRestaurantPaymentSettingsForm() {
       !isPaybill;
   }
 
-  const businessNumberGroup =
-  restaurantMpesaBusinessNumber?.closest(
-    ".form-group"
+const businessNumberGroup =
+  document.getElementById(
+    "restaurantMpesaBusinessNumberGroup"
   );
+
+  
 
 if (businessNumberGroup) {
   businessNumberGroup.hidden =
@@ -1962,10 +1964,9 @@ if (businessNumberGroup) {
 
 
 const phoneNumberGroup =
-  restaurantMpesaPhoneNumber?.closest(
-    ".form-group"
+  document.getElementById(
+    "restaurantMpesaPhoneNumberGroup"
   );
-
 if (phoneNumberGroup) {
   phoneNumberGroup.hidden =
     !isPhone;
