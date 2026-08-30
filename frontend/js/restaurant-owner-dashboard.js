@@ -1936,12 +1936,42 @@ function updateRestaurantPaymentSettingsForm() {
   const isPaybill =
     paymentType === "PAYBILL";
 
+    const isPhone =
+  paymentType === "PHONE";
+
+  const isBusinessPayment =
+  paymentType === "PAYBILL" ||
+  paymentType === "TILL";
+
   if (
     restaurantMpesaAccountNumberGroup
   ) {
     restaurantMpesaAccountNumberGroup.hidden =
       !isPaybill;
   }
+
+  const businessNumberGroup =
+  restaurantMpesaBusinessNumber?.closest(
+    ".form-group"
+  );
+
+if (businessNumberGroup) {
+  businessNumberGroup.hidden =
+    !isBusinessPayment;
+}
+
+
+const phoneNumberGroup =
+  restaurantMpesaPhoneNumber?.closest(
+    ".form-group"
+  );
+
+if (phoneNumberGroup) {
+  phoneNumberGroup.hidden =
+    !isPhone;
+}
+
+
 
   if (restaurantMpesaAccountNumber) {
     restaurantMpesaAccountNumber.required =
@@ -1951,6 +1981,15 @@ function updateRestaurantPaymentSettingsForm() {
       restaurantMpesaAccountNumber.value = "";
     }
   }
+
+  if (restaurantMpesaPhoneNumber) {
+  restaurantMpesaPhoneNumber.required =
+    isPhone;
+
+  if (!isPhone) {
+    restaurantMpesaPhoneNumber.value = "";
+  }
+}
 }
 
 async function loadRestaurantPaymentSettings() {
