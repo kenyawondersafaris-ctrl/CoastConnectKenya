@@ -160,8 +160,6 @@ async function saveMyVerification(
   let client;
 
   try {
-
-
     const {
       qualificationTitle,
       institutionName,
