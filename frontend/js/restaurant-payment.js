@@ -101,7 +101,8 @@ function showPaymentInstructions(
     paymentInstructions.paymentMethod ||
     "M-Pesa";
 
- if (
+if (
+  paymentInstructions.paymentMethod !== "PHONE" &&
   paymentInstructions.businessNumber
 ) {
   businessNumberElement.textContent =
