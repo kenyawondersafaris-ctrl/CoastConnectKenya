@@ -2286,6 +2286,45 @@ async function createMpesaPaymentAttempt(
       });
     }
 
+        return res.status(201).json({
+      success: true,
+
+      message:
+        "Payment initiated successfully. Complete the payment manually using the restaurant's M-Pesa details.",
+
+      stkPushReady: false,
+
+      payment: {
+        id:
+          payment.id,
+
+        checkoutSessionId:
+          payment
+            .checkout_session_id,
+
+        paymentReference:
+          payment
+            .payment_reference,
+
+        phoneNumber:
+          payment.phone_number,
+
+        amount:
+          Number(
+            payment.amount
+          ),
+
+        currency:
+          payment.currency,
+
+        status:
+          payment.status,
+
+        createdAt:
+          payment.created_at,
+      },
+    });
+
     /*
     |--------------------------------------------------------------------------
     | STK Push
