@@ -5689,15 +5689,21 @@ pendingPaymentsContainer.addEventListener(
       return;
     }
 
-    const confirmed =
-      window.confirm(
-        "Confirm that you have received and verified this payment?"
-      );
+           const confirmed =
+      await showConfirm({
+        title:
+          "Verify payment?",
+        message:
+          "Confirm that you have received and verified this payment. The customer order will then be created and sent for processing.",
+        confirmText:
+          "Verify payment",
+        cancelText:
+          "Cancel",
+      });
 
     if (!confirmed) {
       return;
     }
-
     button.disabled = true;
 
     const originalText =
