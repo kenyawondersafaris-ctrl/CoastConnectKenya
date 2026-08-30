@@ -2742,6 +2742,105 @@ flex-wrap:wrap;
   min-height: 50px;
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Pending Manual Payments
+|--------------------------------------------------------------------------
+*/
+
+.pending-payment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding: 18px 20px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  margin-bottom: 12px;
+}
+
+.pending-payment-item strong {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.pending-payment-item p {
+  margin: 4px 0;
+
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.pending-payment-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+
+  flex-shrink: 0;
+}
+
+.pending-payment-amount {
+  font-weight: 700;
+  font-size: 16px;
+
+  color: var(--text-primary);
+
+  white-space: nowrap;
+}
+
+.verify-manual-payment-button {
+  border: none;
+  border-radius: 8px;
+
+  padding: 10px 16px;
+
+  background: var(--primary-color);
+
+  color: #ffffff;
+
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.verify-manual-payment-button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.verify-manual-payment-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 620px) {
+  .pending-payment-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pending-payment-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 /* =========================================================
    MOBILE
 ========================================================= */
