@@ -1,17 +1,5 @@
 "use strict";
 
-const socket = io(
-  "https://coastconnectkenya.onrender.com",
-  {
-    auth: {
-      token:
-        sessionStorage.getItem(
-          "coastConnectToken"
-        ),
-    },
-  }
-);
-
 const API_BASE_URL =
   window.API_BASE_URL ||
   "https://coastconnectkenya.onrender.com/api";
@@ -77,57 +65,6 @@ function getSessionToken() {
   ).trim();
 }
 
-function joinPaymentSessionRoom() {
-  const sessionToken =
-    getSessionToken();
-
-  if (!sessionToken) {
-    return;
-  }
-
-  socket.emit(
-    "join-checkout-room",
-    sessionToken
-  );
-}
-
-
-joinPaymentSessionRoom();
-
-
-socket.on(
-  "checkout-payment-completed",
-  (data) => {
-    if (
-      !data ||
-      !data.success ||
-      !data.order ||
-      !data.order.trackingToken
-    ) {
-      return;
-    }
-
-    paymentStatus.textContent =
-      "Payment verified successfully. Opening your order tracking...";
-
-    paymentStatus.className =
-      "form-message success";
-
-    confirmPaymentButton.disabled =
-      true;
-
-    window.setTimeout(
-      () => {
-        window.location.replace(
-          `order-tracking.html?token=${encodeURIComponent(
-            data.order.trackingToken
-          )}`
-        );
-      },
-      700
-    );
-  }
-);
 
 
 function showPaymentError(message) {
