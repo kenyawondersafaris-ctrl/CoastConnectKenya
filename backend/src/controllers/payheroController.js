@@ -499,15 +499,6 @@ async function handlePayHeroSubscriptionCallback(
     const payload =
       req.body || {};
 
-    console.log(
-      "PayHero subscription callback:",
-      JSON.stringify(
-        payload,
-        null,
-        2
-      )
-    );
-
     const response =
       payload.response ||
       payload ||
@@ -640,21 +631,6 @@ async function handlePayHeroSubscriptionCallback(
         "COMMIT"
       );
 
-      console.log(
-        "Subscription payment failed:",
-        {
-          subscriptionId:
-            payment.subscription_id,
-
-          externalReference,
-
-          resultCode,
-
-          resultDesc:
-            failureReason,
-        }
-      );
-
       return res.status(200).json({
         success: true,
         message:
@@ -765,18 +741,6 @@ async function handlePayHeroSubscriptionCallback(
 
     await client.query(
       "COMMIT"
-    );
-
-    console.log(
-      "Subscription payment successful:",
-      {
-        subscriptionId:
-          payment.subscription_id,
-
-        externalReference,
-
-        resultCode,
-      }
     );
 
     return res.status(200).json({

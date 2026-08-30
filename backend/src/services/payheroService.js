@@ -123,33 +123,6 @@ if (!channelId) {
     );
   }
 
-  console.log(
-  "PayHero STK request:",
-  {
-    url:
-      `${PAYHERO_BASE_URL}/payments`,
-
-    channelId,
-
-    amount:
-      normalizedAmount,
-
-    phone:
-      normalizedPhone,
-
-    provider:
-      "m-pesa",
-
-  externalReference:
-  String(
-    externalReference || ""
-  ).slice(0, 100),
-
-callbackUrl:
-  resolvedCallbackUrl,
-  }
-);
-
   const response =
   await axios.post(
     `${PAYHERO_BASE_URL}/payments`,

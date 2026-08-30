@@ -617,11 +617,6 @@ socket.on(
 socket.on(
   "connect",
   () => {
-
-    console.log(
-      "Customer orders socket connected:",
-      socket.id
-    );
   }
 );
 

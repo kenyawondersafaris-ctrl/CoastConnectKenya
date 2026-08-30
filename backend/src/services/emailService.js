@@ -12,10 +12,6 @@ async function verifyEmailTransport() {
       "SMTP_FROM is missing."
     );
   }
-
-  console.log(
-    "Brevo email API configured."
-  );
 }
 
 

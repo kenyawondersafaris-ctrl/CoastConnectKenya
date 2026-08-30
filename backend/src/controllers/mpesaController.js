@@ -501,11 +501,6 @@ async function handleMpesaCallback(
         "COMMIT"
       );
 
-      console.log(
-        "Duplicate successful M-Pesa callback ignored:",
-        checkoutRequestId
-      );
-
       return res.status(200).json({
         ResultCode: 0,
         ResultDesc:
@@ -641,15 +636,6 @@ async function handleMpesaCallback(
           }
         );
       }
-
-      console.log(
-        "M-Pesa payment failed:",
-        {
-          checkoutRequestId,
-          resultCode,
-          resultDescription,
-        }
-      );
 
       return res.status(200).json({
         ResultCode: 0,
@@ -1465,22 +1451,6 @@ if (
         committedOrder
       );
     }
-
-    console.log(
-      "M-Pesa payment converted to order:",
-      {
-        checkoutRequestId,
-
-        receipt:
-          mpesaReceiptNumber,
-
-        orderId:
-          committedOrder.id,
-
-        orderNumber:
-          committedOrder.orderNumber,
-      }
-    );
 
     return res.status(200).json({
       ResultCode: 0,

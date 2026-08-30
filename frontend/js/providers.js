@@ -44,10 +44,6 @@ let serviceCategories = [];
 
 async function initializeProvidersPage() {
 
-  console.log(
-    "Initializing providers page..."
-  );
-
   await loadServiceCategories();
 
   await loadProviders();

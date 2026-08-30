@@ -760,10 +760,6 @@ trackingTimeProgressBar.style.width =
 socket.on(
   "customer-order-updated",
   (order) => {
-    console.log(
-      "Live order update:",
-      order
-    );
 
     currentTrackedOrder = {
       ...currentTrackedOrder,
@@ -795,11 +791,6 @@ window.addEventListener(
 socket.on(
   "connect",
   () => {
-    console.log(
-      "Tracking socket connected:",
-      socket.id
-    );
-
     if (joinedTrackingRoom) {
       socket.emit(
         "join-order-room",

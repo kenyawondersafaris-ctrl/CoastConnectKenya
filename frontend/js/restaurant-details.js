@@ -473,16 +473,6 @@ async function loadRestaurantFavoriteStatus() {
     const result =
       await response.json();
 
-      console.log(
-  "RESTAURANT FAVORITES RESULT:",
-  result
-);
-
-console.log(
-  "CURRENT RESTAURANT ID:",
-  currentRestaurant?.id
-);
-
     if (
       !response.ok ||
       !result.success
@@ -1306,8 +1296,6 @@ function addItemToCart(item) {
   }
 
   renderCart();
-
-  console.log("Current cart:", cart);
 }
 
 function increaseCartItemQuantity(itemId) {
@@ -1619,11 +1607,6 @@ checkoutPromoMessage.className =
 
     const result =
       await response.json();
-
-      console.log(
-  "PROMOTION VALIDATION RESULT:",
-  result
-);
 
     if (
       !response.ok ||
@@ -2587,20 +2570,11 @@ socket.on(
   "checkout-payment-completed",
   (data) => {
 
-    console.log(
-      "Payment completed:",
-      data
-    );
-
     socket.on(
   "join-checkout-room",
   (sessionToken) => {
     socket.join(
       `checkout:${sessionToken}`
-    );
-
-    console.log(
-      `Socket ${socket.id} joined checkout:${sessionToken}`
     );
   }
 );
@@ -2623,12 +2597,6 @@ socket.on(
 socket.on(
   "checkout-payment-failed",
   (data) => {
-
-    console.log(
-      "Payment failed:",
-      data
-    );
-
     const checkoutMessage =
       document.getElementById(
         "checkoutMessage"

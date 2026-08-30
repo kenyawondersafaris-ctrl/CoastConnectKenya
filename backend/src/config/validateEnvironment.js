@@ -39,10 +39,6 @@ function validateEnvironment() {
 
     process.exit(1);
   }
-
-  console.log(
-    "Environment validation passed."
-  );
 }
 
 module.exports =

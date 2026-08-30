@@ -187,9 +187,6 @@ const accountDashboardLink =
   );
 
 if (storedUser) {
-  console.log(
-    "Logged in user detected"
-  );
 
   if (mobileLoginLink) {
   mobileLoginLink.hidden =

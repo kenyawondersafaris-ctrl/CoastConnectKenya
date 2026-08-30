@@ -1967,6 +1967,8 @@ const phoneNumberGroup =
   document.getElementById(
     "restaurantMpesaPhoneNumberGroup"
   );
+
+
 if (phoneNumberGroup) {
   phoneNumberGroup.hidden =
     !isPhone;
@@ -2194,6 +2196,9 @@ if (
       data.message ||
       "Payment settings saved successfully."
     );
+
+    saveRestaurantPaymentSettings.textContent =
+  "Saved";
 
     await loadRestaurantPaymentSettings();
 
@@ -5926,11 +5931,6 @@ async function loadOwnerOrders(
           ownerOrders.length
         )
       );
-
-    console.log(
-      "Restaurant orders loaded:",
-      data
-    );
   } catch (error) {
     console.error(
       "Load restaurant orders error:",
@@ -6688,12 +6688,7 @@ function joinOwnerRestaurantRoom() {
   socket.emit(
     "join-restaurant-room",
     ownerRestaurant.id
-  );
-
-  console.log(
-    "Joined restaurant room:",
-    ownerRestaurant.id
-  );
+  )
 }
 
 function getOrderActionButtons(order) {
@@ -8826,10 +8821,6 @@ loadOwnerRestaurant();
 socket.on(
   "connect",
   () => {
-    console.log(
-      "Restaurant dashboard socket connected:",
-      socket.id
-    );
 
     joinOwnerRestaurantRoom();
   }
@@ -8845,11 +8836,6 @@ socket.on(
     ) {
       return;
     }
-
-    console.log(
-      "New restaurant order received:",
-      order
-    );
 
     addOwnerNotification({
       icon: "🧾",
@@ -8883,10 +8869,6 @@ socket.on(
 
       await audio.play();
     } catch (error) {
-      console.log(
-        "New-order sound could not play:",
-        error.message
-      );
     }
   }
 );
@@ -8968,10 +8950,6 @@ socket.on(
 socket.on(
   "disconnect",
   (reason) => {
-    console.log(
-      "Restaurant dashboard socket disconnected:",
-      reason
-    );
   }
 );
 
@@ -8988,10 +8966,6 @@ socket.on(
 socket.on(
   "restaurant-order-created",
   async (order) => {
-    console.log(
-      "New paid order received:",
-      order
-    );
 
     if (
       !order?.id ||
@@ -9040,10 +9014,6 @@ socket.on(
 
       await audio.play();
     } catch (error) {
-      console.log(
-        "New-order sound could not play:",
-        error.message
-      );
     }
   }
 );

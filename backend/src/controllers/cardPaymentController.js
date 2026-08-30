@@ -1500,27 +1500,6 @@ async function handleCardPaymentWebhook(
         req,
       });
 
-    if (
-      result.processed
-    ) {
-      console.log(
-        "Paystack card payment processed:",
-        {
-          reference,
-
-          duplicate:
-            Boolean(
-              result.duplicate
-            ),
-
-          orderId:
-            result.order?.id ||
-            result.orderId ||
-            null,
-        }
-      );
-    }
-
     return res.status(200).json({
       success: true,
       message:

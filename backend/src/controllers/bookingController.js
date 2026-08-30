@@ -1179,30 +1179,8 @@ async function createBooking(
 
    const io = req.app.get("io");
 
-console.log("========== BOOKING REALTIME DEBUG ==========");
-console.log("Booking created:", booking.id);
-console.log("Provider ID:", providerId);
-console.log(
-  "Target room:",
-  `provider:${providerId}`
-);
-console.log(
-  "Socket.IO available:",
-  !!io
-);
-
 if (io) {
   const room = `provider:${providerId}`;
-
-  const socketsInRoom =
-    io.sockets.adapter.rooms.get(room);
-
-  console.log(
-    "Sockets currently in provider room:",
-    socketsInRoom
-      ? Array.from(socketsInRoom)
-      : []
-  );
 
   io.to(room).emit(
     "provider-booking-created",
@@ -1215,14 +1193,9 @@ if (io) {
       startTime: booking.start_time,
     }
   );
-
-  console.log(
-    "provider-booking-created emitted to:",
-    room
-  );
 }
 
-console.log("============================================");
+
 
     return res.status(201).json({
       success: true,

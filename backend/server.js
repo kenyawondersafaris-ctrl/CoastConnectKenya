@@ -82,16 +82,6 @@ const io = new Server(server, {
 app.set("io", io);
 io.use((socket, next) => {
   try {
-
-    console.log(
-  "SOCKET AUTH DEBUG:",
-  {
-    socketId: socket.id,
-    hasToken: Boolean(
-      socket.handshake.auth?.token
-    ),
-  }
-);
     const token =
       socket.handshake.auth?.token;
 
@@ -269,16 +259,6 @@ app.use(
   subscriptionRoutes
 );
 
-
-console.log(
-  "Subscription routes loaded:",
-  subscriptionRoutes.stack.map(
-    (layer) => ({
-      path: layer.route?.path,
-      methods: layer.route?.methods,
-    })
-  )
-);
 app.use(
   "/api/favorites",
   favoriteRoutes
@@ -385,8 +365,6 @@ app.get("/api/health/database", async (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log(`Socket connected: ${socket.id}`);
-
  socket.on(
   "join-order-room",
   async (trackingToken) => {
@@ -427,10 +405,6 @@ io.on("connection", (socket) => {
 
       socket.join(
         `order:${normalizedTrackingToken}`
-      );
-
-      console.log(
-        `Socket ${socket.id} joined order:${normalizedTrackingToken}`
       );
     } catch (error) {
       console.error(
@@ -508,10 +482,6 @@ socket.on(
       `customer:${authenticatedUserId}`,
   }
 );
-
-    console.log(
-      `Socket ${socket.id} joined customer:${authenticatedUserId}`
-    );
   }
 );
 
@@ -586,10 +556,6 @@ socket.on(
       socket.join(
         `provider:${normalizedProviderId}`
       );
-
-      console.log(
-        `Socket ${socket.id} joined provider:${normalizedProviderId}`
-      );
     } catch (error) {
       console.error(
         "Provider room authorization error:",
@@ -656,10 +622,6 @@ socket.on(
 
       socket.join(
         `checkout:${normalizedSessionToken}`
-      );
-
-      console.log(
-        `Socket ${socket.id} joined checkout:${normalizedSessionToken}`
       );
     } catch (error) {
       console.error(
@@ -741,10 +703,6 @@ socket.on(
       socket.join(
         `restaurant:${normalizedRestaurantId}`
       );
-
-      console.log(
-        `Socket ${socket.id} joined restaurant:${normalizedRestaurantId}`
-      );
     } catch (error) {
       console.error(
         "Restaurant room authorization error:",
@@ -755,7 +713,6 @@ socket.on(
 );
 
   socket.on("disconnect", () => {
-    console.log(`Socket disconnected: ${socket.id}`);
   });
 });
 
@@ -770,13 +727,9 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-  console.log(`Coast Connect Kenya server running on port ${PORT}`);
 
   verifyEmailTransport()
   .then(() => {
-    console.log(
-      "Email service ready."
-    );
   })
   .catch((error) => {
     console.error(

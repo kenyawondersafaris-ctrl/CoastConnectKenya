@@ -30,14 +30,6 @@ async function test() {
       },
     }
   );
-
-  console.log(
-    JSON.stringify(
-      response.data,
-      null,
-      2
-    )
-  );
 }
 
 test().catch((error) => {

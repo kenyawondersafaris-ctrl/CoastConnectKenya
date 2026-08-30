@@ -147,11 +147,6 @@ function initializeDestinationPage() {
     }
 
   }
-
-  console.log(
-    "Destination location:",
-    requestedLocation
-  );
 loadDestinationProviders();
 loadDestinationRestaurants();
 }

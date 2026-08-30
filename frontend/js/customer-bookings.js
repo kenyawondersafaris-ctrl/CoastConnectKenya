@@ -1639,20 +1639,11 @@ function initializeCustomerBookingSocket() {
       "join-customer-room",
       customerId
     );
-
-    console.log(
-      "Joined customer room:",
-      `customer:${customerId}`
-    );
   }
 
   socket.on(
     "connect",
     () => {
-      console.log(
-        "Customer socket connected:",
-        socket.id
-      );
 
       joinCustomerRoom();
     }
@@ -1669,24 +1660,12 @@ function initializeCustomerBookingSocket() {
   socket.on(
   "customer-room-joined",
   (data) => {
-    console.log(
-      "CUSTOMER ROOM CONFIRMED:",
-      data
-    );
   }
 );
 
 socket.on(
   "customer-booking-start-requested",
   async (booking) => {
-    console.log(
-      "Provider requested service start:",
-      booking
-    );
-
-
-
-
     await loadCustomerBookings();
 
     showMessage(
@@ -1699,11 +1678,6 @@ socket.on(
 socket.on(
   "customer-booking-started",
   async (booking) => {
-    console.log(
-      "Provider started service:",
-      booking
-    );
-
     try {
       await loadCustomerBookings();
     } catch (error) {
@@ -1718,11 +1692,6 @@ socket.on(
   socket.on(
     "customer-booking-status-updated",
     async (booking) => {
-
-      console.log(
-        "Booking updated:",
-        booking
-      );
 
       await loadCustomerBookings();
 
@@ -1740,11 +1709,6 @@ socket.on(
   socket.on(
   "provider-payment-completed",
   async (payment) => {
-
-    console.log(
-      "Provider payment completed:",
-      payment
-    );
 
     const booking =
   customerBookings.find(

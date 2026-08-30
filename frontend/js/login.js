@@ -395,13 +395,8 @@ loginForm?.addEventListener(
         )
       );
 
-      console.log(
-        "Logged-in user:",
-        data.user
-      );
-
       showMessage(
-        "Login successful. Redirecting...",
+        "Login successful.",
         "success"
       );
 

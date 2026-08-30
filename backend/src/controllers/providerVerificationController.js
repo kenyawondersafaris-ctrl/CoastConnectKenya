@@ -161,10 +161,6 @@ async function saveMyVerification(
 
   try {
 
-    console.log(
-      "SAVE VERIFICATION BODY:",
-      request.body
-    );
 
     const {
       qualificationTitle,

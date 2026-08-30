@@ -1238,11 +1238,6 @@ providerSubscriptionPaymentConfirm
                 const verifyData =
                   await verifyResponse.json();
 
-                console.log(
-                  "Subscription payment status:",
-                  verifyData
-                );
-
                 if (
                   verifyData.paymentStatus ===
                   "SUCCESS"
@@ -1289,12 +1284,7 @@ providerSubscriptionPaymentConfirm
   const paymentMessage =
     verifyData.message ||
     verifyData.failureReason ||
-    "The M-Pesa payment was not completed.";
-
-  console.log(
-    "Displaying subscription payment failure:",
-    paymentMessage
-  );
+    "The M-Pesa payment was not completed."
 
   button.disabled =
     false;
@@ -4908,10 +4898,6 @@ submitVerificationButton?.addEventListener(
 
 function initializeBookingSocket() {
   const joinProviderRoom = async () => {
-    console.log(
-      "Provider socket connected:",
-      socket.id
-    );
 
     await loadProviderProfileForSocket();
   };
@@ -4924,10 +4910,6 @@ function initializeBookingSocket() {
   socket.on(
     "provider-booking-created",
     async (booking) => {
-      console.log(
-        "New booking received:",
-        booking
-      );
 
       await loadProviderBookings();
 
@@ -4942,10 +4924,6 @@ function initializeBookingSocket() {
   socket.on(
     "provider-booking-status-updated",
     async (booking) => {
-      console.log(
-        "Provider booking status updated:",
-        booking
-      );
 
       await loadProviderBookings();
     }
@@ -4954,10 +4932,6 @@ function initializeBookingSocket() {
  socket.on(
   "provider-booking-payment-updated",
   async (payment) => {
-    console.log(
-      "Provider payment updated:",
-      payment
-    );
 
     await loadProviderBookings();
 
@@ -5024,11 +4998,6 @@ async function loadProviderProfileForSocket() {
     ) {
       socket.emit(
         "join-provider-room",
-        data.provider.id
-      );
-
-      console.log(
-        "Joined provider room:",
         data.provider.id
       );
     }

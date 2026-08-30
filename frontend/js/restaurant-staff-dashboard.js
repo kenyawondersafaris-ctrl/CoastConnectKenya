@@ -200,10 +200,6 @@ function initializeSocket() {
   socket.on(
     "connect",
     () => {
-      console.log(
-        "Kitchen connected:",
-        socket.id
-      );
 
       if (
         window.currentStaffRestaurantId
@@ -218,9 +214,6 @@ function initializeSocket() {
   socket.on(
     "restaurant-order-created",
     () => {
-      console.log(
-        "New restaurant order received."
-      );
 
       loadStaffOrders(
         currentStaffOrdersPage
@@ -231,9 +224,6 @@ function initializeSocket() {
   socket.on(
     "restaurant-order-updated",
     () => {
-      console.log(
-        "Restaurant order updated."
-      );
 
       loadStaffOrders(
         currentStaffOrdersPage
@@ -244,10 +234,6 @@ function initializeSocket() {
   socket.on(
     "disconnect",
     (reason) => {
-      console.log(
-        "Kitchen disconnected:",
-        reason
-      );
     }
   );
 
@@ -275,11 +261,6 @@ function joinStaffRestaurantRoom(
 
   socket.emit(
     "join-restaurant-room",
-    restaurantId
-  );
-
-  console.log(
-    "Kitchen joined restaurant room:",
     restaurantId
   );
 }

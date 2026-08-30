@@ -119,20 +119,6 @@ const reviewsTotalCount =
   );
 
 async function initializeProviderDetails() {
-  console.log(
-    "Provider details URL:",
-    window.location.href
-  );
-
-  console.log(
-    "Provider ID:",
-    providerId
-  );
-
-  console.log(
-    "Service ID:",
-    selectedServiceId
-  );
 
   if (!providerId) {
     showMessage(
