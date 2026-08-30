@@ -2915,6 +2915,128 @@ async function confirmRestaurantManualPayment(
   }
 }
 
+async function getOwnerPendingManualPayments(
+  req,
+  res
+) {
+  try {
+    const ownerId =
+      req.user.id;
+
+    const result =
+      await pool.query(
+        `
+          SELECT
+            rp.id,
+            rp.checkout_session_id,
+            rp.payment_reference,
+            rp.payment_method,
+            rp.payment_provider,
+            rp.amount,
+            rp.currency,
+            rp.status,
+            rp.created_at,
+
+            cs.customer_name,
+            cs.customer_phone,
+            cs.order_type,
+            cs.total_amount,
+
+            r.name AS restaurant_name
+
+          FROM restaurant_payments rp
+
+          INNER JOIN restaurants r
+            ON r.id = rp.restaurant_id
+
+          INNER JOIN checkout_sessions cs
+            ON cs.id = rp.checkout_session_id
+
+          WHERE r.owner_id =
+            $1::uuid
+
+            AND rp.payment_method =
+              'MANUAL'
+
+            AND rp.status =
+              'PENDING_VERIFICATION'
+
+          ORDER BY
+            rp.created_at ASC
+        `,
+        [
+          ownerId,
+        ]
+      );
+
+    return res.status(200).json({
+      success: true,
+
+      payments:
+        result.rows.map(
+          (payment) => ({
+            id:
+              payment.id,
+
+            checkoutSessionId:
+              payment.checkout_session_id,
+
+            paymentReference:
+              payment.payment_reference,
+
+            paymentMethod:
+              payment.payment_method,
+
+            paymentProvider:
+              payment.payment_provider,
+
+            amount:
+              Number(
+                payment.amount || 0
+              ),
+
+            currency:
+              payment.currency,
+
+            status:
+              payment.status,
+
+            createdAt:
+              payment.created_at,
+
+            customerName:
+              payment.customer_name,
+
+            customerPhone:
+              payment.customer_phone,
+
+            orderType:
+              payment.order_type,
+
+            totalAmount:
+              Number(
+                payment.total_amount || 0
+              ),
+
+            restaurantName:
+              payment.restaurant_name,
+          })
+        ),
+    });
+  } catch (error) {
+    console.error(
+      "Get owner pending manual payments error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to load pending payment confirmations.",
+    });
+  }
+}
+
 module.exports = {
   getRestaurants,
   getRestaurantByIdentifier,
@@ -2930,4 +3052,5 @@ module.exports = {
 updateOwnerRestaurantPaymentSettings,
 getRestaurantPaymentInstructions,
 confirmRestaurantManualPayment,
+getOwnerPendingManualPayments,
 };

@@ -17,6 +17,7 @@ const {
   updateOwnerRestaurantPaymentSettings,
   getRestaurantPaymentInstructions,
   confirmRestaurantManualPayment,
+    getOwnerPendingManualPayments,
 } = require("../controllers/restaurantController");
 
 const {
@@ -41,6 +42,13 @@ router.get(
 router.post(
   "/manual-payment/confirm",
   confirmRestaurantManualPayment
+);
+
+router.get(
+  "/owner/pending-manual-payments",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  getOwnerPendingManualPayments
 );
 
 router.get(
