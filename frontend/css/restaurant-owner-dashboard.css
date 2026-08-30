@@ -2800,35 +2800,37 @@ flex-wrap:wrap;
 }
 
 .verify-manual-payment-button {
-  border: none;
-  border-radius: 8px;
+  min-height: 44px;
 
-  padding: 10px 16px;
+  padding: 0 16px;
 
-  background: var(--primary-color);
+  border: 0;
+  border-radius: 11px;
 
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--white);
 
   font: inherit;
-  font-weight: 600;
+  font-weight: 800;
 
+  white-space: nowrap;
   cursor: pointer;
 
   transition:
-    opacity 0.2s ease,
+    background 0.2s ease,
     transform 0.2s ease;
 }
 
 .verify-manual-payment-button:hover:not(:disabled) {
-  opacity: 0.9;
+  background: var(--primary-dark);
   transform: translateY(-1px);
 }
 
 .verify-manual-payment-button:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+  transform: none;
 }
-
 @media (max-width: 620px) {
   .pending-payment-item {
     align-items: flex-start;
