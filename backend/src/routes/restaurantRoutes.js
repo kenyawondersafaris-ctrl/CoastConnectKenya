@@ -154,8 +154,17 @@ router.get(
 );
 
 router.get(
+  "/owner/pending-manual-payments",
+  authenticate,
+  requireRole("RESTAURANT_OWNER"),
+  getOwnerPendingManualPayments
+);
+
+router.get(
   "/:identifier",
   getRestaurantByIdentifier
 );
+
+
 
 module.exports = router;
