@@ -1,5 +1,17 @@
 "use strict";
 
+const socket = io(
+  "https://coastconnectkenya.onrender.com",
+  {
+    auth: {
+      token:
+        sessionStorage.getItem(
+          "coastConnectToken"
+        ),
+    },
+  }
+);
+
 const API_BASE_URL =
   window.API_BASE_URL ||
   "https://coastconnectkenya.onrender.com/api";
