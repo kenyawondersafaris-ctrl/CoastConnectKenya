@@ -5646,111 +5646,6 @@ async function loadPendingManualPayments() {
     `
   ).join("");
 
-const verifyButtons =
-  pendingPaymentsContainer.querySelectorAll(
-    ".verify-manual-payment-button"
-  );
-
-verifyButtons.forEach(
-  (button) => {
-    button.addEventListener(
-      "click",
-      async () => {
-        const paymentId =
-          button.dataset.paymentId;
-
-        if (!paymentId) {
-          return;
-        }
-
-        const confirmed =
-          window.confirm(
-            "Confirm that you have received and verified this payment?"
-          );
-
-        if (!confirmed) {
-          return;
-        }
-
-        button.disabled = true;
-
-        const originalText =
-          button.textContent;
-
-        button.textContent =
-          "Verifying...";
-
-        try {
-          const response =
-            await fetch(
-              `${API_BASE_URL}/restaurants/owner/manual-payments/${encodeURIComponent(
-                paymentId
-              )}/verify`,
-              {
-                method: "POST",
-
-                headers: {
-                  Authorization:
-                    `Bearer ${token}`,
-
-                  Accept:
-                    "application/json",
-                },
-              }
-            );
-
-          const data =
-            await response.json();
-
-          if (
-            response.status === 401 ||
-            response.status === 403
-          ) {
-            logout();
-            return;
-          }
-
-          if (
-            !response.ok ||
-            !data.success
-          ) {
-            throw new Error(
-              data.message ||
-              "Unable to verify the payment."
-            );
-          }
-
-          pendingPaymentsMessage.textContent =
-            data.message ||
-            "Payment verified successfully.";
-
-          pendingPaymentsMessage.className =
-            "form-message success";
-
-          await loadPendingManualPayments();
-
-        } catch (error) {
-          console.error(
-            "Verify manual payment error:",
-            error
-          );
-
-          pendingPaymentsMessage.textContent =
-            error.message ||
-            "Unable to verify the payment.";
-
-          pendingPaymentsMessage.className =
-            "form-message error";
-
-          button.disabled = false;
-          button.textContent =
-            originalText;
-        }
-      }
-    );
-  }
-);
-
   } catch (error) {
     console.error(
       "Load pending manual payments error:",
@@ -5774,6 +5669,112 @@ verifyButtons.forEach(
       "Refresh payments";
   }
 }
+
+pendingPaymentsContainer.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".verify-manual-payment-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const paymentId =
+      button.dataset.paymentId;
+
+    if (!paymentId) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Confirm that you have received and verified this payment?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    button.disabled = true;
+
+    const originalText =
+      button.textContent;
+
+    button.textContent =
+      "Verifying...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/restaurants/owner/manual-payments/${encodeURIComponent(
+            paymentId
+          )}/verify`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              Accept:
+                "application/json",
+            },
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        logout();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to verify the payment."
+        );
+      }
+
+      pendingPaymentsMessage.textContent =
+        data.message ||
+        "Payment verified successfully.";
+
+      pendingPaymentsMessage.className =
+        "form-message success";
+
+      await loadPendingManualPayments();
+
+    } catch (error) {
+      console.error(
+        "Verify manual payment error:",
+        error
+      );
+
+      pendingPaymentsMessage.textContent =
+        error.message ||
+        "Unable to verify the payment.";
+
+      pendingPaymentsMessage.className =
+        "form-message error";
+
+      button.disabled = false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
 
 async function loadOwnerOrders(
   page = currentOrdersPage
