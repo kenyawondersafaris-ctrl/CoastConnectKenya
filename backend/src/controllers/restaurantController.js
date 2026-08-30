@@ -2557,23 +2557,24 @@ async function updateOwnerRestaurantPaymentSettings(
         req.body.paymentEnabled
       );
 
-    if (
-      paymentEnabled &&
-      !["PAYBILL", "TILL"].includes(
-        paymentType
-      )
-    ) {
+ if (
+  paymentEnabled &&
+  !["PAYBILL", "TILL", "PHONE"].includes(
+    paymentType
+  )
+) {
       return res.status(400).json({
         success: false,
         message:
-          "Select PAYBILL or TILL as the M-Pesa payment type.",
+          "Select PAYBILL, TILL, or PHONE as the M-Pesa payment type."
       });
     }
 
-    if (
-      paymentEnabled &&
-      !businessNumber
-    ) {
+   if (
+  paymentEnabled &&
+  paymentType !== "PHONE" &&
+  !businessNumber
+) {
       return res.status(400).json({
         success: false,
         message:
@@ -2581,10 +2582,11 @@ async function updateOwnerRestaurantPaymentSettings(
       });
     }
 
-    if (
-      paymentEnabled &&
-      !phoneNumber
-    ) {
+   if (
+  paymentEnabled &&
+  paymentType === "PHONE" &&
+  !phoneNumber
+) {
       return res.status(400).json({
         success: false,
         message:
