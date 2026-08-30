@@ -2,6 +2,13 @@
 
 const pool = require("../config/db");
 
+const {
+  convertSuccessfulCheckoutToOrder,
+  emitSuccessfulRestaurantOrderEvents,
+} = require(
+  "../services/restaurantPaymentService"
+);
+
 const ALLOWED_SORTS = {
   recommended: `
     r.average_rating DESC,
@@ -3037,6 +3044,276 @@ async function getOwnerPendingManualPayments(
   }
 }
 
+async function verifyOwnerManualPayment(
+  req,
+  res
+) {
+  const client =
+    await pool.connect();
+
+  try {
+    const ownerId =
+      req.user.userId;
+
+    const paymentId =
+      req.params.paymentId;
+
+    await client.query(
+      "BEGIN"
+    );
+
+    const paymentResult =
+      await client.query(
+        `
+          SELECT
+            rp.id AS payment_id,
+            rp.checkout_session_id,
+            rp.restaurant_id,
+            rp.payment_reference,
+            rp.amount AS payment_amount,
+            rp.status AS payment_status,
+
+            cs.id AS session_id,
+            cs.session_token,
+
+            cs.restaurant_id
+              AS session_restaurant_id,
+
+            cs.customer_id
+              AS session_customer_id,
+
+            cs.customer_name,
+            cs.customer_phone,
+            cs.order_type,
+            cs.delivery_address,
+            cs.customer_notes,
+            cs.table_number,
+            cs.guest_count,
+            cs.subtotal,
+            cs.delivery_fee,
+            cs.delivery_zone_id,
+            cs.estimated_delivery_minutes,
+            cs.discount_amount,
+            cs.total_amount,
+            cs.promotion_id,
+            cs.promo_code,
+            cs.estimated_preparation_minutes,
+            cs.status
+              AS session_status,
+
+            cs.converted_order_id,
+
+            r.owner_id,
+            r.name AS restaurant_name
+
+          FROM restaurant_payments rp
+
+          INNER JOIN checkout_sessions cs
+            ON cs.id =
+              rp.checkout_session_id
+
+          INNER JOIN restaurants r
+            ON r.id =
+              rp.restaurant_id
+
+          WHERE rp.id =
+            $1::uuid
+
+            AND r.owner_id =
+              $2::uuid
+
+          LIMIT 1
+
+          FOR UPDATE OF rp, cs
+        `,
+        [
+          paymentId,
+          ownerId,
+        ]
+      );
+
+    if (
+      paymentResult.rows.length === 0
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Payment confirmation was not found.",
+      });
+    }
+
+    const payment =
+      paymentResult.rows[0];
+
+    if (
+      payment.payment_status !==
+      "PENDING_VERIFICATION"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "This payment has already been processed.",
+      });
+    }
+
+    /*
+    |----------------------------------------------------------------
+    | Already converted protection
+    |----------------------------------------------------------------
+    */
+
+    if (
+      payment.converted_order_id
+    ) {
+      await client.query(
+        `
+          UPDATE restaurant_payments
+
+          SET
+            order_id =
+              $1::uuid,
+
+            status =
+              'PAID',
+
+            paid_at =
+              COALESCE(
+                paid_at,
+                CURRENT_TIMESTAMP
+              ),
+
+            updated_at =
+              CURRENT_TIMESTAMP
+
+          WHERE id =
+            $2::uuid
+        `,
+        [
+          payment.converted_order_id,
+          payment.payment_id,
+        ]
+      );
+
+      await client.query(
+        "COMMIT"
+      );
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Payment was already verified.",
+        orderId:
+          payment.converted_order_id,
+      });
+    }
+
+     /*
+    |----------------------------------------------------------------
+    | Convert verified checkout into restaurant order
+    |----------------------------------------------------------------
+    */
+
+    const conversion =
+      await convertSuccessfulCheckoutToOrder({
+        client,
+        payment,
+        paymentMethod:
+          "MANUAL",
+      });
+
+    /*
+    |----------------------------------------------------------------
+    | Mark manual payment as paid
+    |----------------------------------------------------------------
+    */
+
+    await client.query(
+      `
+        UPDATE restaurant_payments
+
+        SET
+          order_id =
+            $1::uuid,
+
+          status =
+            'PAID',
+
+          paid_at =
+            CURRENT_TIMESTAMP,
+
+          updated_at =
+            CURRENT_TIMESTAMP
+
+        WHERE id =
+          $2::uuid
+      `,
+      [
+        conversion.order.id,
+        payment.payment_id,
+      ]
+    );
+
+    await client.query(
+      "COMMIT"
+    );
+
+    const io =
+      req.app.get("io");
+
+    emitSuccessfulRestaurantOrderEvents({
+      io,
+      order:
+        conversion.order,
+      sessionToken:
+        conversion.sessionToken,
+      restaurantId:
+        conversion.restaurantId,
+      customerId:
+        conversion.customerId,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Payment verified successfully. The order has been created.",
+      order:
+        conversion.order,
+    });
+  } catch (error) {
+    try {
+      await client.query(
+        "ROLLBACK"
+      );
+    } catch (rollbackError) {
+      console.error(
+        "Verify manual payment rollback error:",
+        rollbackError
+      );
+    }
+
+    console.error(
+      "Verify owner manual payment error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to verify the payment.",
+    });
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   getRestaurants,
   getRestaurantByIdentifier,
@@ -3049,8 +3326,9 @@ module.exports = {
   getOwnerRestaurantAnalytics,
   updateOwnerOrderAvailability,
   getOwnerRestaurantPaymentSettings,
-updateOwnerRestaurantPaymentSettings,
-getRestaurantPaymentInstructions,
-confirmRestaurantManualPayment,
-getOwnerPendingManualPayments,
+  updateOwnerRestaurantPaymentSettings,
+  getRestaurantPaymentInstructions,
+  confirmRestaurantManualPayment,
+  getOwnerPendingManualPayments,
+  verifyOwnerManualPayment,
 };

@@ -16,8 +16,9 @@ const {
   getOwnerRestaurantPaymentSettings,
   updateOwnerRestaurantPaymentSettings,
   getRestaurantPaymentInstructions,
-  confirmRestaurantManualPayment,
-    getOwnerPendingManualPayments,
+    confirmRestaurantManualPayment,
+  getOwnerPendingManualPayments,
+  verifyOwnerManualPayment,
 } = require("../controllers/restaurantController");
 
 const {
@@ -153,11 +154,11 @@ router.get(
   getRestaurantDeliveryZones
 );
 
-router.get(
-  "/owner/pending-manual-payments",
+router.post(
+  "/owner/manual-payments/:paymentId/verify",
   authenticate,
   requireRole("RESTAURANT_OWNER"),
-  getOwnerPendingManualPayments
+  verifyOwnerManualPayment
 );
 
 router.get(

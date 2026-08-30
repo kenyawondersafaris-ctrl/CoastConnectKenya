@@ -5589,48 +5589,167 @@ async function loadPendingManualPayments() {
       return;
     }
 
-    pendingPaymentsContainer.innerHTML =
-      payments.map(
-        (payment) => `
-          <article
-            class="pending-payment-item"
+   pendingPaymentsContainer.innerHTML =
+  payments.map(
+    (payment) => `
+      <article
+        class="pending-payment-item"
+      >
+        <div>
+          <strong>
+            ${escapeHtml(
+              payment.customerName ||
+              "Customer"
+            )}
+          </strong>
+
+          <p>
+            ${escapeHtml(
+              payment.customerPhone ||
+              ""
+            )}
+          </p>
+
+          <p>
+            Reference:
+            ${escapeHtml(
+              payment.paymentReference ||
+              ""
+            )}
+          </p>
+        </div>
+
+        <div
+          class="pending-payment-actions"
+        >
+          <div
+            class="pending-payment-amount"
           >
-            <div>
-              <strong>
-                ${escapeHtml(
-                  payment.customerName ||
-                  "Customer"
-                )}
-              </strong>
+            KES ${Number(
+              payment.amount || 0
+            ).toLocaleString(
+              "en-KE"
+            )}
+          </div>
 
-              <p>
-                ${escapeHtml(
-                  payment.customerPhone ||
-                  ""
-                )}
-              </p>
+          <button
+            type="button"
+            class="verify-manual-payment-button"
+            data-payment-id="${escapeHtml(
+              payment.id
+            )}"
+          >
+            Verify payment
+          </button>
+        </div>
+      </article>
+    `
+  ).join("");
 
-              <p>
-                Reference:
-                ${escapeHtml(
-                  payment.paymentReference ||
-                  ""
-                )}
-              </p>
-            </div>
+const verifyButtons =
+  pendingPaymentsContainer.querySelectorAll(
+    ".verify-manual-payment-button"
+  );
 
-            <div
-              class="pending-payment-amount"
-            >
-              KES ${Number(
-                payment.amount || 0
-              ).toLocaleString(
-                "en-KE"
-              )}
-            </div>
-          </article>
-        `
-      ).join("");
+verifyButtons.forEach(
+  (button) => {
+    button.addEventListener(
+      "click",
+      async () => {
+        const paymentId =
+          button.dataset.paymentId;
+
+        if (!paymentId) {
+          return;
+        }
+
+        const confirmed =
+          window.confirm(
+            "Confirm that you have received and verified this payment?"
+          );
+
+        if (!confirmed) {
+          return;
+        }
+
+        button.disabled = true;
+
+        const originalText =
+          button.textContent;
+
+        button.textContent =
+          "Verifying...";
+
+        try {
+          const response =
+            await fetch(
+              `${API_BASE_URL}/restaurants/owner/manual-payments/${encodeURIComponent(
+                paymentId
+              )}/verify`,
+              {
+                method: "POST",
+
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`,
+
+                  Accept:
+                    "application/json",
+                },
+              }
+            );
+
+          const data =
+            await response.json();
+
+          if (
+            response.status === 401 ||
+            response.status === 403
+          ) {
+            logout();
+            return;
+          }
+
+          if (
+            !response.ok ||
+            !data.success
+          ) {
+            throw new Error(
+              data.message ||
+              "Unable to verify the payment."
+            );
+          }
+
+          pendingPaymentsMessage.textContent =
+            data.message ||
+            "Payment verified successfully.";
+
+          pendingPaymentsMessage.className =
+            "form-message success";
+
+          await loadPendingManualPayments();
+
+        } catch (error) {
+          console.error(
+            "Verify manual payment error:",
+            error
+          );
+
+          pendingPaymentsMessage.textContent =
+            error.message ||
+            "Unable to verify the payment.";
+
+          pendingPaymentsMessage.className =
+            "form-message error";
+
+          button.disabled = false;
+          button.textContent =
+            originalText;
+        }
+      }
+    );
+  }
+);
 
   } catch (error) {
     console.error(
