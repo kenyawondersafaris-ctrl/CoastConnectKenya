@@ -7072,14 +7072,14 @@ const confirmed =
 
     const data = await response.json();
 
-   const data = await response.json();
-
 if (
   response.status === 401 ||
   response.status === 403
 ) {
-  logout();
-  return;
+  throw new Error(
+    data.message ||
+    "You are not authorized to update this order."
+  );
 }
 
 if (!response.ok) {
