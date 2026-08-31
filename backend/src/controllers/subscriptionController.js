@@ -61,9 +61,35 @@ async function getMySubscription(
   res
 ) {
   try {
-
     const userId =
       req.user.userId;
+
+    const userRole =
+      String(
+        req.user.role || ""
+      )
+        .trim()
+        .toUpperCase();
+
+    let businessType;
+
+    if (
+      userRole === "PROVIDER"
+    ) {
+      businessType =
+        "PROVIDER";
+    } else if (
+      userRole === "RESTAURANT_OWNER"
+    ) {
+      businessType =
+        "RESTAURANT";
+    } else {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Subscription status is only available to providers and restaurant owners.",
+      });
+    }
 
     const result =
       await pool.query(
@@ -81,54 +107,27 @@ async function getMySubscription(
             sp.name AS plan_name,
             sp.billing_period,
             sp.amount_kes,
-            sp.duration_days,
-
-            payment.status AS payment_status,
-            payment.failure_reason
+            sp.duration_days
 
           FROM business_subscriptions bs
 
           INNER JOIN subscription_plans sp
             ON sp.id = bs.plan_id
 
-          LEFT JOIN LATERAL (
-            SELECT
-              status,
-              failure_reason,
-              created_at
-            FROM subscription_payments
-            WHERE
-              subscription_id = bs.id
-            ORDER BY
-              created_at DESC
-            LIMIT 1
-          ) payment
-            ON true
-
           WHERE
             bs.user_id = $1
 
-            AND bs.status IN (
-              'ACTIVE',
-              'CANCELLED',
-              'EXPIRED',
-              'PENDING'
-            )
+            AND bs.business_type =
+              $2
 
-         ORDER BY
-  CASE
-    WHEN bs.status = 'ACTIVE' THEN 1
-    WHEN bs.status = 'PENDING' THEN 2
-    WHEN bs.status = 'EXPIRED' THEN 3
-    WHEN bs.status = 'CANCELLED' THEN 4
-    ELSE 5
-  END,
-  bs.created_at DESC
+          ORDER BY
+            bs.created_at DESC
 
           LIMIT 1
         `,
         [
           userId,
+          businessType,
         ]
       );
 
@@ -141,7 +140,6 @@ async function getMySubscription(
     });
 
   } catch (error) {
-
     console.error(
       "Get my subscription error:",
       error
@@ -152,7 +150,6 @@ async function getMySubscription(
       message:
         "Unable to load subscription status.",
     });
-
   }
 }
 
