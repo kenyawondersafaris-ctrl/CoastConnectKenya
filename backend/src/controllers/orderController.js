@@ -1018,6 +1018,8 @@ if (
         updatedOrder
       );
 
+        // Status notifications are created separately.
+
       if (
         updatedOrder.customerId
       ) {
