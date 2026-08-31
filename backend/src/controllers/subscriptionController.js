@@ -100,6 +100,19 @@ async function getMySubscription(
   }
 );
 
+const dbInfo =
+  await pool.query(`
+    SELECT
+      current_database() AS database_name,
+      current_user AS database_user,
+      inet_server_addr() AS server_address
+  `);
+
+console.log(
+  "SUBSCRIPTION DB DEBUG:",
+  dbInfo.rows[0]
+);
+
     const result =
       await pool.query(
         `
