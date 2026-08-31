@@ -1127,16 +1127,20 @@ function renderOwnerNotifications() {
 }
 
 function addOwnerNotification({
+  id = crypto.randomUUID(),
   icon = "🔔",
   title,
   message,
+  createdAt = new Date(),
 }) {
   ownerNotifications.unshift({
-    id: crypto.randomUUID(),
+    id,
     icon,
     title,
     message,
-    time: new Date().toLocaleTimeString(
+    time: new Date(
+      createdAt
+    ).toLocaleTimeString(
       "en-KE",
       {
         hour: "2-digit",
@@ -1151,6 +1155,21 @@ function addOwnerNotification({
   unreadOwnerNotifications += 1;
 
   renderOwnerNotifications();
+
+  if (
+    typeof showToast ===
+    "function"
+  ) {
+    showToast({
+      type: "info",
+      title:
+        title ||
+        "New notification",
+      message:
+        message ||
+        "You have a new restaurant notification.",
+    });
+  }
 }
 
 function toggleOwnerNotifications() {
@@ -7428,60 +7447,6 @@ async function updateOrderAvailability(
       false;
   }
 }
-
-async function loadOwnerNotifications() {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/restaurants/owner/notifications`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(
-        data.message ||
-          "Unable to load notifications."
-      );
-    }
-
-    ownerNotifications =
-      data.notifications.map(
-        (notification) => ({
-          id: notification.id,
-          icon: "🔔",
-          title: notification.title,
-          message: notification.message,
-          time: new Date(
-            notification.createdAt
-          ).toLocaleTimeString(
-            "en-KE",
-            {
-              hour: "2-digit",
-              minute: "2-digit",
-            }
-          ),
-        })
-      );
-
-    unreadOwnerNotifications =
-      data.unreadCount;
-
-    renderOwnerNotifications();
-
-  } catch (error) {
-    console.error(
-      "Load notifications error:",
-      error
-    );
-  }
-}
-
-
 async function saveChangedPassword(event) {
   event.preventDefault();
 
@@ -8827,127 +8792,6 @@ socket.on(
 );
 
 socket.on(
-  "restaurant-order-created",
-  async (order) => {
-    if (
-      !order?.id ||
-      String(order.restaurantId) !==
-        String(ownerRestaurant?.id)
-    ) {
-      return;
-    }
-
-    addOwnerNotification({
-      icon: "🧾",
-      title: "New customer order",
-      message:
-        `${order.orderNumber || "A new order"} has been received.`,
-    });
-
-    currentOrdersStatus = "";
-    currentOrdersPage = 1;
-
-    if (ordersStatusFilter) {
-      ordersStatusFilter.value = "";
-    }
-
-    await loadOwnerOrders(1);
-
-    pendingOrdersBadge.classList.add(
-      "has-new-order"
-    );
-
-    showMessage(
-      `New order ${order.orderNumber} received.`,
-      "success"
-    );
-
-    try {
-      const audio = new Audio(
-        "sounds/new-order.mp3"
-      );
-
-      await audio.play();
-    } catch (error) {
-    }
-  }
-);
-
-socket.on(
-  "restaurant-order-updated",
-  async (order) => {
-    if (
-      !order?.id ||
-      String(order.restaurantId) !==
-        String(ownerRestaurant?.id)
-    ) {
-      return;
-    }
-
-    const status =
-      String(order.status || "")
-        .toUpperCase();
-
-    const notificationDetails = {
-      ACCEPTED: {
-        icon: "✅",
-        title: "Order accepted",
-        message:
-          `${order.orderNumber} was accepted.`,
-      },
-
-      PREPARING: {
-        icon: "👨‍🍳",
-        title: "Order preparing",
-        message:
-          `${order.orderNumber} is being prepared.`,
-      },
-
-      READY: {
-        icon: "🍽️",
-        title: "Order ready",
-        message:
-          `${order.orderNumber} is ready.`,
-      },
-
-      COMPLETED: {
-        icon: "✔️",
-        title: "Order completed",
-        message:
-          `${order.orderNumber} was completed.`,
-      },
-
-      CANCELLED: {
-        icon: "❌",
-        title: "Order cancelled",
-        message:
-          `${order.orderNumber} was cancelled.`,
-      },
-
-      REJECTED: {
-        icon: "⚠️",
-        title: "Order rejected",
-        message:
-          `${order.orderNumber} was rejected.`,
-      },
-    };
-
-    const details =
-      notificationDetails[status];
-
-    if (details) {
-      addOwnerNotification(
-        details
-      );
-    }
-
-    await loadOwnerOrders(
-      currentOrdersPage
-    );
-  }
-);
-
-socket.on(
   "disconnect",
   (reason) => {
   }
@@ -8974,13 +8818,6 @@ socket.on(
     ) {
       return;
     }
-
-    addOwnerNotification({
-      icon: "🧾",
-      title: "New customer order",
-      message:
-        `${order.orderNumber || "A new order"} has been received.`,
-    });
 
     currentOrdersStatus = "";
     currentOrdersPage = 1;
@@ -9089,25 +8926,14 @@ socket.on(
 socket.on(
   "restaurant-notification-created",
   (notification) => {
-    ownerNotifications.unshift({
+    addOwnerNotification({
       id: notification.id,
       icon: "🔔",
       title: notification.title,
       message: notification.message,
-      time: new Date(
-        notification.createdAt
-      ).toLocaleTimeString(
-        "en-KE",
-        {
-          hour: "2-digit",
-          minute: "2-digit",
-        }
-      ),
+      createdAt:
+        notification.createdAt,
     });
-
-    unreadOwnerNotifications++;
-
-    renderOwnerNotifications();
   }
 );
 

@@ -268,10 +268,13 @@ async function findOwnerRestaurant(
 ) {
   const result = await client.query(
     `
-      SELECT id, name
-      FROM restaurants
-      WHERE owner_id = $1
-      LIMIT 1
+      SELECT
+  id,
+  name,
+  owner_id
+FROM restaurants
+WHERE owner_id = $1
+LIMIT 1
     `,
     [ownerId]
   );
@@ -2250,7 +2253,100 @@ async function createCustomerOrderReview(
       ]
     );
 
-    await client.query("COMMIT");
+   const statusNotificationDetails = {
+  ACCEPTED: {
+    type: "ORDER_ACCEPTED",
+    title: "Order accepted",
+    message:
+      `${updatedResult.rows[0].order_number} was accepted by the kitchen.`,
+  },
+
+  PREPARING: {
+    type: "ORDER_PREPARING",
+    title: "Order preparing",
+    message:
+      `${updatedResult.rows[0].order_number} is now being prepared.`,
+  },
+
+  READY: {
+    type: "ORDER_READY",
+    title: "Order ready",
+    message:
+      `${updatedResult.rows[0].order_number} is ready.`,
+  },
+
+  OUT_FOR_DELIVERY: {
+    type: "ORDER_OUT_FOR_DELIVERY",
+    title: "Order out for delivery",
+    message:
+      `${updatedResult.rows[0].order_number} is out for delivery.`,
+  },
+
+  COMPLETED: {
+    type: "ORDER_COMPLETED",
+    title: "Order completed",
+    message:
+      `${updatedResult.rows[0].order_number} has been completed.`,
+  },
+
+  CANCELLED: {
+    type: "ORDER_CANCELLED",
+    title: "Order cancelled",
+    message:
+      `${updatedResult.rows[0].order_number} was cancelled.`,
+  },
+
+  REJECTED: {
+    type: "ORDER_REJECTED",
+    title: "Order rejected",
+    message:
+      `${updatedResult.rows[0].order_number} was rejected.`,
+  },
+};
+
+let statusNotification = null;
+
+if (statusNotificationDetails[nextStatus]) {
+  statusNotification =
+    await createRestaurantNotification(
+      client,
+      {
+        restaurantId:
+          restaurant.id,
+
+        recipientUserId:
+          restaurant.owner_id,
+
+        orderId:
+          updatedResult.rows[0].id,
+
+        type:
+          statusNotificationDetails[nextStatus]
+            .type,
+
+        title:
+          statusNotificationDetails[nextStatus]
+            .title,
+
+        message:
+          statusNotificationDetails[nextStatus]
+            .message,
+
+        metadata: {
+          orderNumber:
+            updatedResult.rows[0]
+              .order_number,
+
+          status:
+            nextStatus,
+        },
+      }
+    );
+}
+
+await client.query(
+  "COMMIT"
+);
 
     return res.status(201).json({
       success: true,
