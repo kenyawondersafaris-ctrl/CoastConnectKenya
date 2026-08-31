@@ -2569,16 +2569,6 @@ function showRestaurantError(message) {
 socket.on(
   "checkout-payment-completed",
   (data) => {
-
-    socket.on(
-  "join-checkout-room",
-  (sessionToken) => {
-    socket.join(
-      `checkout:${sessionToken}`
-    );
-  }
-);
-
     if (
       !data ||
       !data.order ||
