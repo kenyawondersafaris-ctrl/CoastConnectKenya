@@ -91,6 +91,15 @@ async function getMySubscription(
       });
     }
 
+    console.log(
+  "SUBSCRIPTION DEBUG:",
+  {
+    userId,
+    userRole,
+    businessType,
+  }
+);
+
     const result =
       await pool.query(
         `
