@@ -306,6 +306,23 @@ async function loadTrackedOrder() {
 
 function renderTrackedOrder(order) {
   currentTrackedOrder = order;
+
+    const orderType =
+    String(
+      order.orderType || ""
+    )
+      .trim()
+      .toUpperCase();
+
+  const outForDeliveryStep =
+    document.querySelector(
+      '[data-status-step="OUT_FOR_DELIVERY"]'
+    );
+
+  if (outForDeliveryStep) {
+    outForDeliveryStep.hidden =
+      orderType !== "DELIVERY";
+  }
   if (
   order.hasReview &&
   trackingReviewSection
