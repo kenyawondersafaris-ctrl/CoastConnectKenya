@@ -115,8 +115,15 @@ async function getMySubscription(
               'PENDING'
             )
 
-          ORDER BY
-            bs.created_at DESC
+         ORDER BY
+  CASE
+    WHEN bs.status = 'ACTIVE' THEN 1
+    WHEN bs.status = 'PENDING' THEN 2
+    WHEN bs.status = 'EXPIRED' THEN 3
+    WHEN bs.status = 'CANCELLED' THEN 4
+    ELSE 5
+  END,
+  bs.created_at DESC
 
           LIMIT 1
         `,

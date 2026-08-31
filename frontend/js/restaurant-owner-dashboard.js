@@ -3854,11 +3854,14 @@ function openMenuItemForm(menuItem = null) {
   }
 
     if (
+  !menuItem &&
+  (
     !currentSubscription ||
     String(
       currentSubscription.status || ""
     ).toUpperCase() !== "ACTIVE"
-  ) {
+  )
+) {
     showMessage(
       "An active subscription is required to add menu items."
     );
