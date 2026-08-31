@@ -81,6 +81,51 @@ function getSessionToken() {
 }
 
 
+function joinCheckoutRoom() {
+  const sessionToken =
+    getSessionToken();
+
+  if (!sessionToken) {
+    return;
+  }
+
+  socket.emit(
+    "join-checkout-room",
+    sessionToken
+  );
+}
+
+
+socket.on(
+  "checkout-payment-completed",
+  (data) => {
+    if (
+      !data ||
+      !data.order ||
+      !data.order.trackingToken
+    ) {
+      return;
+    }
+
+    window.location.href =
+      `order-tracking.html?token=${encodeURIComponent(
+        data.order.trackingToken
+      )}`;
+  }
+);
+
+
+socket.on(
+  "connect",
+  () => {
+    joinCheckoutRoom();
+  }
+);
+
+
+joinCheckoutRoom();
+
+
 
 function showPaymentError(message) {
   paymentStatus.textContent =
