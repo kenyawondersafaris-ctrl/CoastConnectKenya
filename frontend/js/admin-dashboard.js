@@ -62,6 +62,62 @@ if (!isAdmin) {
 
 }
 
+const socket =
+  io(
+    "https://coastconnectkenya.onrender.com",
+    {
+      auth: {
+        token,
+      },
+    }
+  );
+
+socket.on(
+  "connect",
+  () => {
+    socket.emit(
+      "join-admin-room"
+    );
+  }
+);
+
+socket.on(
+  "admin-notification-created",
+  async (notification) => {
+    try {
+      await loadAdminNotifications();
+
+      if (
+        notification?.entityType ===
+        "CONTACT_MESSAGE" ||
+        notification?.entity_type ===
+        "CONTACT_MESSAGE"
+      ) {
+        showMessage(
+          notification.message ||
+            "New support message received.",
+          "success"
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Realtime admin notification error:",
+        error
+      );
+    }
+  }
+);
+
+socket.on(
+  "connect_error",
+  (error) => {
+    console.error(
+      "Admin Socket.IO connection error:",
+      error
+    );
+  }
+);
+
 const adminCustomersCount =
   document.getElementById(
     "adminCustomersCount"

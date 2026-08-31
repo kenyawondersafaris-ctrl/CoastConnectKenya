@@ -716,6 +716,47 @@ socket.on(
   });
 });
 
+  socket.on(
+    "join-admin-room",
+    () => {
+      try {
+        if (!socket.user) {
+          console.warn(
+            `Unauthorized admin room join attempt from socket ${socket.id}`
+          );
+
+          return;
+        }
+
+        const authenticatedRole =
+          String(
+            socket.user.role || ""
+          )
+            .trim()
+            .toUpperCase();
+
+        if (
+          authenticatedRole !== "ADMIN"
+        ) {
+          console.warn(
+            `Socket ${socket.id} attempted admin room access with role ${authenticatedRole}`
+          );
+
+          return;
+        }
+
+        socket.join(
+          "admin:notifications"
+        );
+      } catch (error) {
+        console.error(
+          "Admin room authorization error:",
+          error.message
+        );
+      }
+    }
+  );
+
 app.use((req, res) => {
   res.status(404).json({
     success: false,
