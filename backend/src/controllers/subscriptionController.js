@@ -153,6 +153,11 @@ async function getMySubscription(
         ]
       );
 
+      console.log(
+  "SUBSCRIPTION RESULT DEBUG:",
+  result.rows
+);
+
     return res.json({
       success: true,
 
