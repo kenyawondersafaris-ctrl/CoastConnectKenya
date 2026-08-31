@@ -712,9 +712,6 @@ socket.on(
   }
 );
 
-  socket.on("disconnect", () => {
-  });
-});
 
   socket.on(
     "join-admin-room",
@@ -756,6 +753,12 @@ socket.on(
       }
     }
   );
+
+    socket.on("disconnect", () => {
+  });
+
+  });
+
 
 app.use((req, res) => {
   res.status(404).json({
