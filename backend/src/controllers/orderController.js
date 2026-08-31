@@ -785,8 +785,6 @@ async function updateRestaurantOrderStatus(
     await pool.connect();
 
   try {
-    
-
     const orderId =
       cleanText(
         req.params.orderId
@@ -818,8 +816,6 @@ async function updateRestaurantOrderStatus(
     }
 
     await client.query("BEGIN");
-
-   
 
     const orderResult =
       await client.query(
@@ -861,8 +857,8 @@ async function updateRestaurantOrderStatus(
     const currentStatus =
       orderResult.rows[0].status;
 
-      const orderType =
-  orderResult.rows[0].order_type;
+    const orderType =
+      orderResult.rows[0].order_type;
 
     if (
       currentStatus === nextStatus
@@ -879,124 +875,220 @@ async function updateRestaurantOrderStatus(
     }
 
     const allowedStatuses =
-  ALLOWED_STATUS_TRANSITIONS[
-    currentStatus
-  ] || [];
+      ALLOWED_STATUS_TRANSITIONS[
+        currentStatus
+      ] || [];
 
-if (
-  !allowedStatuses.includes(
-    nextStatus
-  )
-) {
-  await client.query(
-    "ROLLBACK"
-  );
+    if (
+      !allowedStatuses.includes(
+        nextStatus
+      )
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
 
-  return res.status(400).json({
-    success: false,
-    message:
-      `Order cannot move from ${currentStatus} to ${nextStatus}.`,
-  });
-}
+      return res.status(400).json({
+        success: false,
+        message:
+          `Order cannot move from ${currentStatus} to ${nextStatus}.`,
+      });
+    }
 
-if (
-  orderType === "DELIVERY" &&
-  currentStatus === "READY" &&
-  nextStatus === "COMPLETED"
-) {
-  await client.query(
-    "ROLLBACK"
-  );
+    if (
+      orderType === "DELIVERY" &&
+      currentStatus === "READY" &&
+      nextStatus === "COMPLETED"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
 
-  return res.status(400).json({
-    success: false,
-    message:
-      "Delivery orders must be marked out for delivery before completion.",
-  });
-}
+      return res.status(400).json({
+        success: false,
+        message:
+          "Delivery orders must be marked out for delivery before completion.",
+      });
+    }
 
-if (
-  orderType !== "DELIVERY" &&
-  nextStatus === "OUT_FOR_DELIVERY"
-) {
-  await client.query(
-    "ROLLBACK"
-  );
+    if (
+      orderType !== "DELIVERY" &&
+      nextStatus === "OUT_FOR_DELIVERY"
+    ) {
+      await client.query(
+        "ROLLBACK"
+      );
 
-  return res.status(400).json({
-    success: false,
-    message:
-      "Only delivery orders can be marked out for delivery.",
-  });
-}
+      return res.status(400).json({
+        success: false,
+        message:
+          "Only delivery orders can be marked out for delivery.",
+      });
+    }
 
-   const updatedResult =
-  await client.query(
-    `
-      UPDATE restaurant_orders
+    const updatedResult =
+      await client.query(
+        `
+          UPDATE restaurant_orders
 
-      SET
-        status = $1::varchar,
+          SET
+            status = $1::varchar,
 
-        accepted_at =
-          CASE
-            WHEN $1::varchar = 'ACCEPTED'::varchar
-              THEN CURRENT_TIMESTAMP
-            ELSE accepted_at
-          END,
+            accepted_at =
+              CASE
+                WHEN $1::varchar = 'ACCEPTED'::varchar
+                  THEN CURRENT_TIMESTAMP
+                ELSE accepted_at
+              END,
 
-        completed_at =
-          CASE
-            WHEN $1::varchar = 'COMPLETED'::varchar
-              THEN CURRENT_TIMESTAMP
-            ELSE completed_at
-          END,
+            completed_at =
+              CASE
+                WHEN $1::varchar = 'COMPLETED'::varchar
+                  THEN CURRENT_TIMESTAMP
+                ELSE completed_at
+              END,
 
-        cancelled_at =
-          CASE
-            WHEN $1::varchar IN (
-              'CANCELLED'::varchar,
-              'REJECTED'::varchar
-            )
-              THEN CURRENT_TIMESTAMP
-            ELSE cancelled_at
-          END,
+            cancelled_at =
+              CASE
+                WHEN $1::varchar IN (
+                  'CANCELLED'::varchar,
+                  'REJECTED'::varchar
+                )
+                  THEN CURRENT_TIMESTAMP
+                ELSE cancelled_at
+              END,
 
-        updated_at =
-          CURRENT_TIMESTAMP
+            updated_at =
+              CURRENT_TIMESTAMP
 
-      WHERE id = $2::uuid
+          WHERE id = $2::uuid
 
-      RETURNING
-        id,
-        restaurant_id,
-        customer_id,
-        order_number,
-        customer_name,
-        customer_phone,
-        order_type,
-        delivery_address,
-        customer_notes,
-        subtotal,
-        delivery_fee,
-        total_amount,
-        status,
-        payment_status,
-        payment_method,
-        placed_at,
-        accepted_at,
-        completed_at,
-        cancelled_at,
-        created_at,
-        updated_at,
-        tracking_token,
-        estimated_preparation_minutes
-    `,
-    [
-      nextStatus,
-      orderId,
-    ]
-  );
+          RETURNING
+            id,
+            restaurant_id,
+            customer_id,
+            order_number,
+            customer_name,
+            customer_phone,
+            order_type,
+            delivery_address,
+            customer_notes,
+            subtotal,
+            delivery_fee,
+            total_amount,
+            status,
+            payment_status,
+            payment_method,
+            placed_at,
+            accepted_at,
+            completed_at,
+            cancelled_at,
+            created_at,
+            updated_at,
+            tracking_token,
+            estimated_preparation_minutes
+        `,
+        [
+          nextStatus,
+          orderId,
+        ]
+      );
+
+    const statusNotificationDetails = {
+      ACCEPTED: {
+        type: "ORDER_ACCEPTED",
+        title: "Order accepted",
+        message:
+          `${updatedResult.rows[0].order_number} was accepted by the kitchen.`,
+      },
+
+      PREPARING: {
+        type: "ORDER_PREPARING",
+        title: "Order preparing",
+        message:
+          `${updatedResult.rows[0].order_number} is now being prepared.`,
+      },
+
+      READY: {
+        type: "ORDER_READY",
+        title: "Order ready",
+        message:
+          `${updatedResult.rows[0].order_number} is ready.`,
+      },
+
+      OUT_FOR_DELIVERY: {
+        type: "ORDER_OUT_FOR_DELIVERY",
+        title: "Order out for delivery",
+        message:
+          `${updatedResult.rows[0].order_number} is out for delivery.`,
+      },
+
+      COMPLETED: {
+        type: "ORDER_COMPLETED",
+        title: "Order completed",
+        message:
+          `${updatedResult.rows[0].order_number} has been completed.`,
+      },
+
+      CANCELLED: {
+        type: "ORDER_CANCELLED",
+        title: "Order cancelled",
+        message:
+          `${updatedResult.rows[0].order_number} was cancelled.`,
+      },
+
+      REJECTED: {
+        type: "ORDER_REJECTED",
+        title: "Order rejected",
+        message:
+          `${updatedResult.rows[0].order_number} was rejected.`,
+      },
+    };
+
+    let statusNotification = null;
+
+    if (
+      statusNotificationDetails[nextStatus]
+    ) {
+      statusNotification =
+        await createRestaurantNotification(
+          client,
+          {
+            restaurantId:
+              restaurant.id,
+
+            recipientUserId:
+              restaurant.owner_id,
+
+            orderId:
+              updatedResult.rows[0].id,
+
+            type:
+              statusNotificationDetails[
+                nextStatus
+              ].type,
+
+            title:
+              statusNotificationDetails[
+                nextStatus
+              ].title,
+
+            message:
+              statusNotificationDetails[
+                nextStatus
+              ].message,
+
+            metadata: {
+              orderNumber:
+                updatedResult.rows[0]
+                  .order_number,
+
+              status:
+                nextStatus,
+            },
+          }
+        );
+    }
 
     await client.query(
       "COMMIT"
@@ -1018,7 +1110,14 @@ if (
         updatedOrder
       );
 
-        // Status notifications are created separately.
+      if (statusNotification) {
+        io.to(
+          `restaurant:${restaurant.id}`
+        ).emit(
+          "restaurant-notification-created",
+          statusNotification
+        );
+      }
 
       if (
         updatedOrder.customerId
@@ -1032,15 +1131,15 @@ if (
       }
 
       if (
-  updatedOrder.trackingToken
-) {
-  io.to(
-    `order:${updatedOrder.trackingToken}`
-  ).emit(
-    "customer-order-updated",
-    updatedOrder
-  );
-}
+        updatedOrder.trackingToken
+      ) {
+        io.to(
+          `order:${updatedOrder.trackingToken}`
+        ).emit(
+          "customer-order-updated",
+          updatedOrder
+        );
+      }
     }
 
     return res.status(200).json({
@@ -1054,10 +1153,11 @@ if (
       "ROLLBACK"
     );
 
-  console.error(
-  "Update restaurant order status error:",
-  error
-);
+    console.error(
+      "Update restaurant order status error:",
+      error
+    );
+
     return res.status(500).json({
       success: false,
       message:
@@ -2255,100 +2355,9 @@ async function createCustomerOrderReview(
       ]
     );
 
-   const statusNotificationDetails = {
-  ACCEPTED: {
-    type: "ORDER_ACCEPTED",
-    title: "Order accepted",
-    message:
-      `${updatedResult.rows[0].order_number} was accepted by the kitchen.`,
-  },
-
-  PREPARING: {
-    type: "ORDER_PREPARING",
-    title: "Order preparing",
-    message:
-      `${updatedResult.rows[0].order_number} is now being prepared.`,
-  },
-
-  READY: {
-    type: "ORDER_READY",
-    title: "Order ready",
-    message:
-      `${updatedResult.rows[0].order_number} is ready.`,
-  },
-
-  OUT_FOR_DELIVERY: {
-    type: "ORDER_OUT_FOR_DELIVERY",
-    title: "Order out for delivery",
-    message:
-      `${updatedResult.rows[0].order_number} is out for delivery.`,
-  },
-
-  COMPLETED: {
-    type: "ORDER_COMPLETED",
-    title: "Order completed",
-    message:
-      `${updatedResult.rows[0].order_number} has been completed.`,
-  },
-
-  CANCELLED: {
-    type: "ORDER_CANCELLED",
-    title: "Order cancelled",
-    message:
-      `${updatedResult.rows[0].order_number} was cancelled.`,
-  },
-
-  REJECTED: {
-    type: "ORDER_REJECTED",
-    title: "Order rejected",
-    message:
-      `${updatedResult.rows[0].order_number} was rejected.`,
-  },
-};
-
-let statusNotification = null;
-
-if (statusNotificationDetails[nextStatus]) {
-  statusNotification =
-    await createRestaurantNotification(
-      client,
-      {
-        restaurantId:
-          restaurant.id,
-
-        recipientUserId:
-          restaurant.owner_id,
-
-        orderId:
-          updatedResult.rows[0].id,
-
-        type:
-          statusNotificationDetails[nextStatus]
-            .type,
-
-        title:
-          statusNotificationDetails[nextStatus]
-            .title,
-
-        message:
-          statusNotificationDetails[nextStatus]
-            .message,
-
-        metadata: {
-          orderNumber:
-            updatedResult.rows[0]
-              .order_number,
-
-          status:
-            nextStatus,
-        },
-      }
+    await client.query(
+      "COMMIT"
     );
-}
-
-await client.query(
-  "COMMIT"
-);
 
     return res.status(201).json({
       success: true,
