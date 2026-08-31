@@ -1,9 +1,19 @@
 "use strict";
 
-const API_BASE_URL = "https://coastconnectkenya.onrender.com/api";
-const socket =io("https://coastconnectkenya.onrender.com");
+const API_BASE_URL =
+  "https://coastconnectkenya.onrender.com/api";
 
-const token = localStorage.getItem("coastConnectToken");
+const token =
+  localStorage.getItem("coastConnectToken");
+
+const socket = io(
+  "https://coastconnectkenya.onrender.com",
+  {
+    auth: {
+      token,
+    },
+  }
+);
 
 let currentUser = null;
 let ownerRestaurant = null;
@@ -8862,69 +8872,11 @@ socket.on(
 socket.on(
   "restaurant-order-updated",
   (order) => {
-    const status =
-      String(order.status || "")
-        .toUpperCase();
-
-    const notificationDetails = {
-      ACCEPTED: {
-        icon: "✅",
-        title: "Order accepted",
-        message:
-          `${order.orderNumber || "An order"} was accepted by the kitchen.`,
-      },
-
-      PREPARING: {
-        icon: "👨‍🍳",
-        title: "Order preparing",
-        message:
-          `${order.orderNumber || "An order"} is now being prepared.`,
-      },
-
-      READY: {
-        icon: "🍽️",
-        title: "Order ready",
-        message:
-          `${order.orderNumber || "An order"} is ready.`,
-      },
-
-      COMPLETED: {
-        icon: "✔️",
-        title: "Order completed",
-        message:
-          `${order.orderNumber || "An order"} has been completed.`,
-      },
-
-      CANCELLED: {
-        icon: "❌",
-        title: "Order cancelled",
-        message:
-          `${order.orderNumber || "An order"} was cancelled.`,
-      },
-
-      REJECTED: {
-        icon: "⚠️",
-        title: "Order rejected",
-        message:
-          `${order.orderNumber || "An order"} was rejected.`,
-      },
-    };
-
-    const details =
-      notificationDetails[status];
-
-    if (details) {
-      addOwnerNotification(
-        details
-      );
-    }
-
     loadOwnerOrders(
       currentOrdersPage
     );
   }
 );
-
 
 socket.on(
   "restaurant-notification-created",
