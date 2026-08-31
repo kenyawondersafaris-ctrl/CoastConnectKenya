@@ -117,10 +117,23 @@ async function getMySubscription(
           WHERE
             bs.user_id = $1
 
-            AND bs.business_type =
-              $2
+            AND bs.business_type = $2
 
           ORDER BY
+            CASE
+              WHEN
+                bs.status = 'ACTIVE'
+                AND bs.expires_at IS NOT NULL
+                AND bs.expires_at > CURRENT_TIMESTAMP
+              THEN 0
+
+              WHEN
+                bs.status = 'PENDING'
+              THEN 1
+
+              ELSE 2
+            END,
+
             bs.created_at DESC
 
           LIMIT 1
