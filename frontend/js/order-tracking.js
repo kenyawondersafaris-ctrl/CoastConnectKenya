@@ -319,10 +319,24 @@ function renderTrackedOrder(order) {
       '[data-status-step="OUT_FOR_DELIVERY"]'
     );
 
-  if (outForDeliveryStep) {
-    outForDeliveryStep.hidden =
-      orderType !== "DELIVERY";
+if (outForDeliveryStep) {
+  const showDeliveryStep =
+    orderType === "DELIVERY";
+
+  if (showDeliveryStep) {
+    outForDeliveryStep.hidden = false;
+    outForDeliveryStep.style.removeProperty(
+      "display"
+    );
+  } else {
+    outForDeliveryStep.hidden = true;
+    outForDeliveryStep.style.setProperty(
+      "display",
+      "none",
+      "important"
+    );
   }
+}
   if (
   order.hasReview &&
   trackingReviewSection
