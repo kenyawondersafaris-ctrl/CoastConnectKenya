@@ -2,6 +2,10 @@
 
 const pool = require("../config/db");
 
+const {
+  sendEmail,
+} = require("../services/emailService");
+
 function cleanText(value) {
   return String(value ?? "").trim();
 }
@@ -394,9 +398,96 @@ async function createMyProviderProfile(
         );
     }
 
-    await client.query(
-      "COMMIT"
+   await client.query(
+  "COMMIT"
+);
+
+if (created) {
+  const adminResult =
+    await pool.query(
+      `
+        SELECT
+          email
+        FROM users
+        WHERE role = 'ADMIN'
+          AND email IS NOT NULL
+      `
     );
+
+  for (
+    const admin of adminResult.rows
+  ) {
+    try {
+      await sendEmail({
+        to:
+          admin.email,
+
+        subject:
+          "New Provider Awaiting Approval - Coast Connect Kenya",
+
+        text:
+          `Hello Admin,
+
+A new provider has submitted a profile on Coast Connect Kenya and is awaiting approval.
+
+Provider:
+${user.full_name}
+
+Email:
+${user.email}
+
+Service area:
+${serviceArea}
+
+Please review the provider profile and verification details in the Admin Dashboard.
+
+Coast Connect Kenya`,
+
+        html:
+          `
+            <p>
+              Hello Admin,
+            </p>
+
+            <p>
+              A new provider has submitted a profile on
+              <strong>Coast Connect Kenya</strong>
+              and is awaiting approval.
+            </p>
+
+            <p>
+              <strong>Provider:</strong>
+              ${user.full_name}
+            </p>
+
+            <p>
+              <strong>Email:</strong>
+              ${user.email}
+            </p>
+
+            <p>
+              <strong>Service area:</strong>
+              ${serviceArea}
+            </p>
+
+            <p>
+              Please review the provider profile and
+              verification details in the Admin Dashboard.
+            </p>
+
+            <p>
+              <strong>Coast Connect Kenya</strong>
+            </p>
+          `,
+      });
+    } catch (emailError) {
+      console.error(
+        `New provider admin email error for ${admin.email}:`,
+        emailError
+      );
+    }
+  }
+}
 
     return res
       .status(

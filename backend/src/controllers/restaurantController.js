@@ -9,6 +9,10 @@ const {
   "../services/restaurantPaymentService"
 );
 
+const {
+  sendEmail,
+} = require("../services/emailService");
+
 const ALLOWED_SORTS = {
   recommended: `
     r.average_rating DESC,
@@ -1195,9 +1199,98 @@ async function createOwnerRestaurant(req, res) {
       [restaurantId]
     );
 
-    await client.query("COMMIT");
+   await client.query("COMMIT");
 
-    return res.status(201).json({
+const adminResult = await pool.query(
+  `
+    SELECT
+      email
+    FROM users
+    WHERE role = 'ADMIN'
+      AND email IS NOT NULL
+  `
+);
+
+for (const admin of adminResult.rows) {
+  try {
+    await sendEmail({
+      to: admin.email,
+
+      subject:
+        "New Restaurant Awaiting Approval - Coast Connect Kenya",
+
+      text:
+        `Hello Admin,
+
+A new restaurant has submitted a profile on Coast Connect Kenya and is awaiting approval.
+
+Restaurant:
+${name}
+
+Email:
+${email || "Not provided"}
+
+Phone:
+${phone || "Not provided"}
+
+Location:
+${county}, ${town}${area ? `, ${area}` : ""}
+
+Please review the restaurant profile and approval details in the Admin Dashboard.
+
+Coast Connect Kenya`,
+
+      html:
+        `
+          <p>
+            Hello Admin,
+          </p>
+
+          <p>
+            A new restaurant has submitted a profile on
+            <strong>Coast Connect Kenya</strong>
+            and is awaiting approval.
+          </p>
+
+          <p>
+            <strong>Restaurant:</strong>
+            ${name}
+          </p>
+
+          <p>
+            <strong>Email:</strong>
+            ${email || "Not provided"}
+          </p>
+
+          <p>
+            <strong>Phone:</strong>
+            ${phone || "Not provided"}
+          </p>
+
+          <p>
+            <strong>Location:</strong>
+            ${county}, ${town}${area ? `, ${area}` : ""}
+          </p>
+
+          <p>
+            Please review the restaurant profile and
+            approval details in the Admin Dashboard.
+          </p>
+
+          <p>
+            <strong>Coast Connect Kenya</strong>
+          </p>
+        `,
+    });
+  } catch (emailError) {
+    console.error(
+      `New restaurant admin email error for ${admin.email}:`,
+      emailError
+    );
+  }
+}
+
+return res.status(201).json({
       success: true,
       message:
         "Restaurant profile created successfully.",
