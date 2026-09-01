@@ -523,11 +523,10 @@ async function prepareBooking(
       );
     }
 
-    showMessage(
-      data.message ||
-        "Booking created successfully.",
-      "success"
-    );
+showMessage(
+  "Booking request sent. Please wait for the provider to review and accept your booking.",
+  "success"
+);
 
     bookingForm.reset();
 
