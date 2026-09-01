@@ -398,6 +398,7 @@ function formatPricingType(
     DAILY: "Per day",
     PER_VISIT: "Per visit",
     PER_TRIP: "Per trip",
+    PER_PERSON: "Per person",
   };
 
   return (

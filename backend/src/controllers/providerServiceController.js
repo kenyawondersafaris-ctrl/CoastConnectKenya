@@ -8,6 +8,7 @@ const ALLOWED_PRICING_TYPES = [
   "DAILY",
   "PER_VISIT",
   "PER_TRIP",
+  "PER_PERSON",
 ];
 
 function cleanText(value) {

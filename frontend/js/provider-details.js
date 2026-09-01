@@ -199,6 +199,9 @@ function formatPricingType(
 
     PER_TRIP:
       "Per trip",
+
+    PER_PERSON:
+      "Per person",
   };
 
   return (
