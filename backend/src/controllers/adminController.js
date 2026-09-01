@@ -2,6 +2,10 @@
 
 const pool = require("../config/db");
 
+const {
+  sendEmail,
+} = require("../services/emailService");
+
 async function getAdminOverview(
   req,
   res
@@ -137,6 +141,38 @@ async function approveProvider(
     const providerId =
       req.params.providerId;
 
+      const providerOwnerResult =
+  await pool.query(
+    `
+      SELECT
+        u.full_name,
+        u.email
+
+      FROM provider_profiles pp
+
+      INNER JOIN users u
+        ON u.id = pp.user_id
+
+      WHERE pp.id = $1
+
+      LIMIT 1
+    `,
+    [providerId]
+  );
+
+  if (
+  providerOwnerResult.rows.length === 0
+) {
+  return res.status(404).json({
+    success: false,
+    message:
+      "Provider owner account not found.",
+  });
+}
+
+
+const providerOwner =
+  providerOwnerResult.rows[0];
     const result =
       await pool.query(
         `
@@ -147,9 +183,10 @@ async function approveProvider(
           availability_status='AVAILABLE',
           updated_at=NOW()
 
-        WHERE id=$1
+       WHERE id = $1
+  AND verification_status = 'PENDING'
 
-        RETURNING id
+RETURNING id
         `,
         [providerId]
       );
@@ -162,6 +199,58 @@ async function approveProvider(
         message:"Provider not found."
       });
     }
+
+    try {
+  await sendEmail({
+    to:
+      providerOwner.email,
+
+    subject:
+      "Your Coast Connect Kenya provider account has been approved",
+
+    text:
+      `Hello ${providerOwner.full_name || "Provider"},
+
+Your Coast Connect Kenya provider account has been verified and approved.
+
+You can now subscribe to activate your account, add your services and prices, and make your services discoverable to customers on Coast Connect Kenya.
+
+We look forward to helping you connect with more customers.
+
+Coast Connect Kenya`,
+
+    html:
+      `
+        <p>
+          Hello ${providerOwner.full_name || "Provider"},
+        </p>
+
+        <p>
+          Your <strong>Coast Connect Kenya</strong>
+          provider account has been verified and approved.
+        </p>
+
+        <p>
+          You can now subscribe to activate your account,
+          add your services and prices, and make your services
+          discoverable to customers on Coast Connect Kenya.
+        </p>
+
+        <p>
+          We look forward to helping you connect with more customers.
+        </p>
+
+        <p>
+          <strong>Coast Connect Kenya</strong>
+        </p>
+      `,
+  });
+} catch (emailError) {
+  console.error(
+    "Provider approval email error:",
+    emailError
+  );
+}
 
     return res.json({
       success:true,
@@ -293,6 +382,39 @@ async function approveRestaurant(
     const restaurantId =
       req.params.restaurantId;
 
+      const restaurantOwnerResult =
+  await pool.query(
+    `
+      SELECT
+        r.name AS restaurant_name,
+        u.full_name,
+        u.email
+
+      FROM restaurants r
+
+      INNER JOIN users u
+        ON u.id = r.owner_id
+
+      WHERE r.id = $1
+
+      LIMIT 1
+    `,
+    [restaurantId]
+  );
+
+  if (
+  restaurantOwnerResult.rows.length === 0
+) {
+  return res.status(404).json({
+    success: false,
+    message:
+      "Restaurant owner account not found.",
+  });
+}
+
+const restaurantOwner =
+  restaurantOwnerResult.rows[0];
+
     const result =
       await pool.query(
         `
@@ -301,10 +423,10 @@ async function approveRestaurant(
         SET
           approval_status = 'APPROVED',
           updated_at = NOW()
+WHERE id = $1
+  AND approval_status = 'PENDING'
 
-        WHERE id = $1
-
-        RETURNING id
+RETURNING id
         `,
         [restaurantId]
       );
@@ -318,6 +440,62 @@ async function approveRestaurant(
           "Restaurant not found.",
       });
     }
+
+    try {
+  await sendEmail({
+    to:
+      restaurantOwner.email,
+
+    subject:
+      "Your Coast Connect Kenya restaurant has been approved",
+
+    text:
+      `Hello ${restaurantOwner.full_name || "Restaurant Owner"},
+
+Your restaurant, ${restaurantOwner.restaurant_name || "your restaurant"}, has been verified and approved on Coast Connect Kenya.
+
+You can now subscribe to activate your restaurant account, complete your restaurant setup, add your menu and prices, and make your restaurant discoverable to customers.
+
+We look forward to helping you connect with more customers.
+
+Coast Connect Kenya`,
+
+    html:
+      `
+        <p>
+          Hello ${restaurantOwner.full_name || "Restaurant Owner"},
+        </p>
+
+        <p>
+          Your restaurant,
+          <strong>
+            ${restaurantOwner.restaurant_name || "your restaurant"}
+          </strong>,
+          has been verified and approved on
+          <strong>Coast Connect Kenya</strong>.
+        </p>
+
+        <p>
+          You can now subscribe to activate your restaurant account,
+          complete your restaurant setup, add your menu and prices,
+          and make your restaurant discoverable to customers.
+        </p>
+
+        <p>
+          We look forward to helping you connect with more customers.
+        </p>
+
+        <p>
+          <strong>Coast Connect Kenya</strong>
+        </p>
+      `,
+  });
+} catch (emailError) {
+  console.error(
+    "Restaurant approval email error:",
+    emailError
+  );
+}
 
     return res.json({
       success: true,
