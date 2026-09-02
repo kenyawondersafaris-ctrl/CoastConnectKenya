@@ -1337,6 +1337,27 @@ select {
   min-width: 170px;
 }
 
+.mobile-download-link {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--primary) !important;
+  text-align: center;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-download-link:hover,
+.mobile-download-link:focus {
+  background: var(--background);
+  color: var(--primary-dark) !important;
+}
+
 /* Tablet */
 @media (max-width: 900px) {
   .payment-settings-status {
