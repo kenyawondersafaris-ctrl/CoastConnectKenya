@@ -141,6 +141,16 @@ const mobileJoinLink =
     "mobileJoinLink"
   );
 
+  const mobileNotificationButton =
+  document.getElementById(
+    "mobileNotificationButton"
+  );
+
+const mobileNotificationBadge =
+  document.getElementById(
+    "mobileNotificationBadge"
+  );
+
   const accountMenu =
   document.getElementById(
     "accountMenu"
@@ -391,6 +401,32 @@ logoutButton?.addEventListener(
   }
 );
 
+mobileNotificationButton?.addEventListener(
+  "click",
+  () => {
+    window.location.href =
+      "customer-account.html";
+  }
+);
+
+
+mobileMenuButton?.addEventListener(
+  "click",
+  () => {
+    const isOpen =
+      mainNavigation.classList.toggle("open");
+
+    mobileMenuButton.setAttribute(
+      "aria-expanded",
+      String(isOpen)
+    );
+
+    document.body.classList.toggle(
+      "menu-open",
+      isOpen
+    );
+  }
+);
 mobileLogoutButton?.addEventListener(
   "click",
   async () => {
@@ -547,82 +583,6 @@ if (
   if (currentYear) {
     currentYear.textContent = new Date().getFullYear();
   }
-
-  if (mobileMenuButton && mainNavigation) {
-    mobileMenuButton.addEventListener("click", () => {
-      const isOpen = mainNavigation.classList.toggle("open");
-
-      mobileMenuButton.setAttribute("aria-expanded", String(isOpen));
-      document.body.classList.toggle("menu-open", isOpen);
-    });
-
-    document.addEventListener("click", (event) => {
-  const isMenuOpen =
-    mainNavigation.classList.contains("open");
-
-  if (!isMenuOpen) {
-    return;
-  }
-
-  const clickedInsideMenu =
-    mainNavigation.contains(event.target);
-
-  const clickedMenuButton =
-    mobileMenuButton.contains(event.target);
-
-  if (
-    clickedInsideMenu ||
-    clickedMenuButton
-  ) {
-    return;
-  }
-
-  mainNavigation.classList.remove("open");
-
-  mobileMenuButton.setAttribute(
-    "aria-expanded",
-    "false"
-  );
-
-  document.body.classList.remove(
-    "menu-open"
-  );
-});
-
-    mainNavigation.querySelectorAll("a").forEach((link) => {
-  link.addEventListener("click", (event) => {
-    const destination =
-      link.getAttribute("href");
-
-    mainNavigation.classList.remove("open");
-
-    mobileMenuButton.setAttribute(
-      "aria-expanded",
-      "false"
-    );
-
-    document.body.classList.remove(
-      "menu-open"
-    );
-
-    if (
-      destination &&
-      destination !== "#"
-    ) {
-      window.location.href =
-        destination;
-    }
-  });
-});
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 860) {
-        mainNavigation.classList.remove("open");
-        mobileMenuButton.setAttribute("aria-expanded", "false");
-        document.body.classList.remove("menu-open");
-      }
-    });
-  }
-
  if (heroSearchForm) {
   heroSearchForm.addEventListener(
     "submit",
@@ -675,3 +635,7 @@ if (
   );
 }
 });
+
+
+
+

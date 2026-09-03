@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 const API_BASE_URL =
   "https://coastconnectkenya.onrender.com/api";
@@ -195,7 +195,7 @@ async function loadCurrentSubscription() {
     providerSubscriptionStatusContainer.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">
-          ⚠️
+          <span>&#9888;</span>
         </div>
 
         <h3>
@@ -222,7 +222,7 @@ function renderCurrentSubscription() {
     providerSubscriptionStatusContainer.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">
-          📋
+          &#128203;
         </div>
 
         <h3>
@@ -352,7 +352,7 @@ async function loadSubscriptionPlans() {
     providerSubscriptionPlansContainer.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">
-          ⚠️
+          <span>&#9888;</span>
         </div>
 
         <h3>
@@ -379,7 +379,7 @@ function renderSubscriptionPlans() {
     providerSubscriptionPlansContainer.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">
-          📋
+          &#128203;
         </div>
 
         <h3>
@@ -436,7 +436,7 @@ function renderSubscriptionPlans() {
               ${escapeHtml(
                 String(billingPeriod)
               )}
-              ·
+              &middot;
               ${escapeHtml(
                 String(durationDays)
               )} days
@@ -1184,7 +1184,7 @@ providerSubscriptionPaymentConfirm
           );
 
         setMessage(
-  providerSubscriptionMessage,
+        providerSubscriptionMessage,
           "M-Pesa payment prompt has been sent to your phone. Please complete the payment.",
           "success"
         );
@@ -1247,7 +1247,7 @@ providerSubscriptionPaymentConfirm
                   );
 
                   setMessage(
-  providerSubscriptionMessage,
+                   providerSubscriptionMessage,
                     "Payment completed successfully. Your subscription is now active.",
                     "success"
                   );
@@ -5044,7 +5044,7 @@ function showStartPinModal() {
         aria-labelledby="startPinModalTitle"
       >
         <div class="start-pin-modal__icon">
-          <span>Ã°Å¸â€Â</span>
+          <span>&#128205;</span>
         </div>
 
         <div class="start-pin-modal__content">
@@ -5579,3 +5579,15 @@ ${
       `;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
