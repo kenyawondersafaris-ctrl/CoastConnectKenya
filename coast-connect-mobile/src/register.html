@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Restaurant Partner Registration | Coast Connect Kenya</title>
+
+  <link rel="stylesheet" href="css/register.css" />
+</head>
+
+<body>
+  <main class="register-page">
+    <section class="register-card">
+      <a href="index.html" class="brand">
+        Coast Connect Kenya
+      </a>
+
+      <div class="register-heading">
+       <span
+  class="eyebrow"
+  id="registerEyebrow"
+>
+  Restaurant Partner Portal
+</span>
+
+        <h1 id="registerTitle">
+  Create your partner account
+</h1>
+
+       <p id="registerDescription">
+  Register as a restaurant owner and start managing your
+  restaurant, menu, availability, and future customer orders.
+</p>
+      </div>
+
+      <div
+        id="registerMessage"
+        class="register-message"
+        role="alert"
+        aria-live="polite"
+      ></div>
+
+      <form id="registerForm" class="register-form" novalidate>
+        <div class="form-group">
+          <label for="fullName">Full name</label>
+
+          <input
+            type="text"
+            id="fullName"
+            name="fullName"
+            placeholder="Enter your full name"
+            autocomplete="name"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email address</label>
+
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="owner@example.com"
+            autocomplete="email"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone number</label>
+
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            placeholder="e.g. 0712345678"
+            autocomplete="tel"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+
+          <div class="password-field">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="At least 8 characters"
+              autocomplete="new-password"
+              minlength="8"
+              required
+            />
+
+            <button
+              type="button"
+              id="togglePassword"
+              class="password-toggle"
+              aria-label="Show password"
+            >
+              Show
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm password</label>
+
+          <div class="password-field">
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="Repeat your password"
+              autocomplete="new-password"
+              minlength="8"
+              required
+            />
+
+            <button
+              type="button"
+              id="toggleConfirmPassword"
+              class="password-toggle"
+              aria-label="Show confirm password"
+            >
+              Show
+            </button>
+          </div>
+        </div>
+
+        <label class="terms-row">
+          <input
+            type="checkbox"
+            id="acceptTerms"
+            name="acceptTerms"
+          />
+
+          <span>
+            I agree to the
+            <a href="terms.html">Terms of Service</a>
+            and
+            <a href="privacy.html">Privacy Policy</a>.
+          </span>
+        </label>
+
+      <button
+  type="submit"
+  id="registerButton"
+  class="register-button"
+>
+  Create partner account
+</button>
+      </form>
+
+      <p class="register-footer">
+        Already have a partner account?
+        <a href="login.html">Sign in</a>
+      </p>
+
+      <a href="index.html" class="back-home">
+        Return to homepage
+      </a>
+    </section>
+  </main>
+
+  <script src="js/register.js"></script>
+</body>
+</html>

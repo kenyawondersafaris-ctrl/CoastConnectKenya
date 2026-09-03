@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    My Orders | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/customer-orders.css"
+  >
+</head>
+
+<body>
+
+<header class="page-header">
+
+  <div class="container">
+
+    <div>
+      <h1>
+        My Orders
+      </h1>
+
+      <p>
+        View your restaurant orders and track their progress.
+      </p>
+    </div>
+
+    <a
+      href="index.html"
+      class="back-button"
+    >
+      &larr; Back to home
+    </a>
+
+  </div>
+
+</header>
+
+
+<main class="container">
+
+  <div
+    id="ordersMessage"
+    class="page-message"
+    aria-live="polite"
+  ></div>
+
+
+  <!-- =====================================================
+       ORDER SUMMARY
+  ====================================================== -->
+
+  <section class="order-summary">
+
+    <div class="summary-card">
+      <h3>Active</h3>
+
+      <strong id="activeOrdersCount">
+        0
+      </strong>
+    </div>
+
+
+    <div class="summary-card">
+      <h3>Preparing</h3>
+
+      <strong id="preparingOrdersCount">
+        0
+      </strong>
+    </div>
+
+
+    <div class="summary-card">
+      <h3>Completed</h3>
+
+      <strong id="completedOrdersCount">
+        0
+      </strong>
+    </div>
+
+
+    <div class="summary-card">
+      <h3>Cancelled</h3>
+
+      <strong id="cancelledOrdersCount">
+        0
+      </strong>
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       ORDERS
+  ====================================================== -->
+
+  <section class="orders-section">
+
+    <div class="section-heading">
+
+      <div>
+        <h2>
+          Order History
+        </h2>
+
+        <p>
+          Your recent restaurant orders appear here.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div
+      id="customerOrdersGrid"
+      class="orders-grid"
+    >
+
+      <div class="orders-loading">
+        Loading your orders...
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<!-- =====================================================
+     REAL-TIME ORDER NOTIFICATION
+====================================================== -->
+
+<div
+  id="customerOrderNotification"
+  class="customer-order-notification"
+  hidden
+  aria-live="polite"
+>
+
+  <div class="customer-order-notification-icon">
+    🔔
+  </div>
+
+  <div>
+
+    <strong id="customerOrderNotificationTitle">
+      Order update
+    </strong>
+
+    <p id="customerOrderNotificationMessage">
+      Your restaurant order has been updated.
+    </p>
+
+  </div>
+
+</div>
+
+
+<script
+  src="https://coastconnectkenya.onrender.com/socket.io/socket.io.js"
+></script>
+
+<script src="js/customer-orders.js"></script>
+
+</body>
+
+</html>

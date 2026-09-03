@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    My Account | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/customer-account.css"
+  >
+</head>
+
+<body>
+
+<header class="page-header">
+
+  <div class="container header-container">
+
+    <div>
+      <h1>My Account</h1>
+
+      <p>
+        Manage your Coast Connect Kenya account.
+      </p>
+    </div>
+
+    <a
+      href="index.html"
+      class="back-button"
+    >
+      ← Back Home
+    </a>
+
+  </div>
+
+</header>
+
+
+<main class="container account-page">
+
+  <div
+    id="accountMessage"
+    class="page-message"
+    aria-live="polite"
+  ></div>
+
+
+  <!-- ==========================================
+       PROFILE SUMMARY
+  =========================================== -->
+
+  <section class="profile-summary-card">
+
+    <div class="profile-avatar">
+
+      <span id="profileInitials">
+        --
+      </span>
+
+    </div>
+
+
+    <div class="profile-summary-details">
+
+      <h2 id="profileDisplayName">
+        Loading...
+      </h2>
+
+      <p id="profileDisplayEmail">
+        Loading account...
+      </p>
+
+
+      <div class="profile-badges">
+
+        <span
+          id="verificationBadge"
+          class="account-badge"
+        >
+          Verification
+        </span>
+
+        <span
+          id="accountStatusBadge"
+          class="account-badge"
+        >
+          Account
+        </span>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ==========================================
+       QUICK ACTIONS
+  =========================================== -->
+
+  <section class="account-section">
+
+    <div class="section-heading">
+
+      <div>
+        <h2>Your Activity</h2>
+
+        <p>
+          Quickly access your orders and service bookings.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="account-actions-grid">
+
+      <a
+        href="customer-orders.html"
+        class="account-action-card"
+      >
+
+        <div class="action-icon">
+          🍽️
+        </div>
+
+        <div>
+          <h3>My Orders</h3>
+
+          <p>
+            View and track your restaurant orders.
+          </p>
+        </div>
+
+        <span class="action-arrow">
+          →
+        </span>
+
+      </a>
+
+
+      <a
+        href="customer-bookings.html"
+        class="account-action-card"
+      >
+
+        <div class="action-icon">
+          📅
+        </div>
+
+        <div>
+          <h3>My Bookings</h3>
+
+          <p>
+            Manage your service provider bookings.
+          </p>
+        </div>
+
+        <span class="action-arrow">
+          →
+        </span>
+
+      </a>
+
+    </div>
+
+  </section>
+
+
+  <!-- ==========================================
+       PROFILE DETAILS
+  =========================================== -->
+
+  <section class="account-section">
+
+    <div class="section-heading">
+
+      <div>
+        <h2>Profile Details</h2>
+
+        <p>
+          Keep your personal information up to date.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="account-card">
+
+      <form id="profileForm">
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="fullName">
+              Full Name
+            </label>
+
+            <input
+              id="fullName"
+              name="fullName"
+              type="text"
+              autocomplete="name"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="email">
+              Email Address
+            </label>
+
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              disabled
+            >
+
+            <small>
+              Your email address cannot be changed here.
+            </small>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="phone">
+              Phone Number
+            </label>
+
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              autocomplete="tel"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="memberSince">
+              Member Since
+            </label>
+
+            <input
+              id="memberSince"
+              type="text"
+              disabled
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            id="saveProfileButton"
+            type="submit"
+            class="primary-button"
+          >
+            Save Changes
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </section>
+
+
+  <!-- ==========================================
+       SECURITY
+  =========================================== -->
+
+  <section class="account-section">
+
+    <div class="section-heading">
+
+      <div>
+        <h2>Security</h2>
+
+        <p>
+          Change your account password.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="account-card">
+
+      <form id="passwordForm">
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="currentPassword">
+              Current Password
+            </label>
+
+            <input
+              id="currentPassword"
+              name="currentPassword"
+              type="password"
+              autocomplete="current-password"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="newPassword">
+              New Password
+            </label>
+
+            <input
+              id="newPassword"
+              name="newPassword"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              required
+            >
+
+            <small>
+              Use at least 8 characters.
+            </small>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="confirmNewPassword">
+              Confirm New Password
+            </label>
+
+            <input
+              id="confirmNewPassword"
+              name="confirmNewPassword"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              required
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            id="changePasswordButton"
+            type="submit"
+            class="secondary-button"
+          >
+            Change Password
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </section>
+
+
+  <!-- ==========================================
+       SESSION
+  =========================================== -->
+
+  <section class="account-section session-section">
+
+    <div>
+
+      <h2>Session</h2>
+
+      <p>
+        Sign out of your Coast Connect Kenya account on this device.
+      </p>
+
+    </div>
+
+
+    <button
+      id="logoutButton"
+      type="button"
+      class="logout-button"
+    >
+      Log Out
+    </button>
+
+  </section>
+
+</main>
+
+<script src="js/ui-feedback.js"></script>
+<script src="js/customer-account.js"></script>
+
+</body>
+
+</html>

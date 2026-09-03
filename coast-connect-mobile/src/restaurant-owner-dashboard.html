@@ -1,0 +1,3498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Restaurant Dashboard | Coast Connect Kenya</title>
+
+  <link
+    rel="stylesheet"
+    href="css/restaurant-owner-dashboard.css"
+  />
+</head>
+
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-brand">
+          <span class="brand-mark">CC</span>
+
+          <span class="brand-text">
+            Coast Connect
+            <small>Restaurant Portal</small>
+          </span>
+        </a>
+
+        <button
+          type="button"
+          id="closeSidebarButton"
+          class="sidebar-close"
+          aria-label="Close navigation"
+        >
+          ×
+        </button>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Dashboard navigation">
+        <a
+          href="#overview"
+          class="nav-link active"
+          data-section="overview"
+        >
+          <span class="nav-icon">⌂</span>
+          <span>Overview</span>
+        </a>
+
+        <a
+          href="#restaurant"
+          class="nav-link"
+          data-section="restaurant"
+        >
+          <span class="nav-icon">▣</span>
+          <span>Restaurant Profile</span>
+        </a>
+
+        <a
+          href="#menu"
+          class="nav-link"
+          data-section="menu"
+        >
+          <span class="nav-icon">☰</span>
+          <span>Menu Management</span>
+        </a>
+         <a
+  href="#promotions"
+  class="nav-link"
+  data-section="promotions"
+>
+  <span class="nav-icon">%</span>
+  <span>Promotions</span>
+</a>
+        <a
+  href="#gallery"
+  class="nav-link"
+  data-section="gallery"
+>
+  <span class="nav-icon">▧</span>
+  <span>Restaurant Gallery</span>
+</a>
+
+        <a
+          href="#orders"
+          class="nav-link"
+          data-section="orders"
+        >
+          <span class="nav-icon">▤</span>
+          <span>Orders</span>
+
+          <span
+            id="pendingOrdersBadge"
+            class="nav-badge"
+          >
+            0
+          </span>
+        </a><a
+  href="#reviews"
+  class="nav-link"
+  data-section="reviews"
+>
+  <span class="nav-icon">★</span>
+  <span>Customer Reviews</span>
+</a>
+
+<a
+  href="#staff"
+  class="nav-link"
+  data-section="staff"
+>
+  <span class="nav-icon">👥</span>
+  <span>Staff Management</span>
+
+  <span
+    id="staffCountBadge"
+    class="nav-badge"
+  >
+    0
+  </span>
+</a>
+
+        <a
+          href="#hours"
+          class="nav-link"
+          data-section="hours"
+        >
+          <span class="nav-icon">◷</span>
+          <span>Opening Hours</span>
+        </a>
+
+        <a
+  href="#delivery-zones"
+  class="nav-link"
+  data-section="delivery-zones"
+>
+  <span class="nav-icon">⌖</span>
+  <span>Delivery Zones</span>
+</a>
+
+        <a
+          href="#analytics"
+          class="nav-link"
+          data-section="analytics"
+        >
+          <span class="nav-icon">▥</span>
+          <span>Analytics</span>
+        </a>
+
+        <a
+  href="#payment-settings"
+  class="nav-link"
+  data-section="payment-settings"
+>
+  <span class="nav-icon">💳</span>
+  <span>Payment Settings</span>
+</a>
+
+        <a
+          href="#settings"
+          class="nav-link"
+          data-section="settings"
+        >
+          <span class="nav-icon">⚙</span>
+          <span>Settings</span>
+        </a>
+
+        <a
+  href="#subscription"
+  class="nav-link"
+  data-section="subscription"
+>
+  <span class="nav-icon">💳</span>
+  <span>Subscription & Billing</span>
+</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="owner-summary">
+          <div
+            id="ownerAvatar"
+            class="owner-avatar"
+          >
+            RO
+          </div>
+
+          <div class="owner-details">
+            <strong id="sidebarOwnerName">
+              Restaurant Owner
+            </strong>
+
+            <span id="sidebarOwnerEmail">
+              owner@example.com
+            </span>
+          </div>
+        </div>
+
+
+      </div>
+
+
+    </aside>
+
+    <div
+      id="sidebarOverlay"
+      class="sidebar-overlay"
+    ></div>
+
+    <main class="dashboard-main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button
+            type="button"
+            id="openSidebarButton"
+            class="menu-button"
+            aria-label="Open navigation"
+          >
+            ☰
+          </button>
+
+          <div>
+            <p class="topbar-label">
+              Restaurant Partner Portal
+            </p>
+
+            <h1 id="pageTitle">Overview</h1>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <button
+            type="button"
+            id="viewRestaurantButton"
+            class="secondary-button"
+            disabled
+          >
+            View public page
+          </button>
+           
+
+                <div class="owner-notifications">
+  <button
+    type="button"
+    id="ownerNotificationsButton"
+    class="owner-notifications-button"
+    aria-label="Open notifications"
+  >
+    🔔
+
+    <span
+      id="ownerNotificationsBadge"
+      class="owner-notifications-badge"
+      hidden
+    >
+      0
+    </span>
+  </button>
+
+  <div
+    id="ownerNotificationsPanel"
+    class="owner-notifications-panel"
+    hidden
+  >
+    <div class="owner-notifications-header">
+      <div>
+        <strong>Notifications</strong>
+        <span>Live restaurant activity</span>
+      </div>
+
+      <button
+        type="button"
+        id="clearOwnerNotificationsButton"
+        class="owner-notifications-clear"
+      >
+        Clear
+      </button>
+    </div>
+
+    <div
+      id="ownerNotificationsContainer"
+      class="owner-notifications-container"
+    >
+      <div class="owner-notifications-empty">
+        No new notifications.
+      </div>
+    </div>
+  </div>
+</div>
+
+     <div
+    class="restaurant-account-menu"
+    id="restaurantAccountMenu"
+>
+
+    <button
+        type="button"
+        class="restaurant-account-button"
+        id="restaurantAccountButton"
+        aria-expanded="false"
+    >
+
+        <span
+            class="restaurant-account-avatar"
+            id="restaurantAccountAvatar"
+        >
+            R
+        </span>
+
+        <span
+            class="restaurant-account-name"
+            id="restaurantAccountName"
+        >
+            Restaurant Owner
+        </span>
+
+        <span class="restaurant-account-chevron">
+            ▾
+        </span>
+
+    </button>
+
+    <div
+        class="restaurant-account-dropdown"
+        id="restaurantAccountDropdown"
+        hidden
+    >
+
+        <div class="restaurant-account-user">
+
+            <strong id="restaurantDropdownName">
+                Restaurant Owner
+            </strong>
+
+            <span id="restaurantDropdownEmail">
+                owner@example.com
+            </span>
+
+        </div>
+
+      <a
+    href="#overview"
+    data-section="overview"
+    id="restaurantDashboardLink"
+>
+    Dashboard
+</a>
+
+        <a href="index.html">
+            View Marketplace
+        </a>
+
+        <button
+            type="button"
+            id="topbarLogoutButton"
+            class="restaurant-account-logout"
+        >
+            Log out
+        </button>
+
+    </div>
+
+</div>
+        </div>
+      </header>
+
+      <div
+        id="dashboardMessage"
+        class="dashboard-message"
+        role="alert"
+        aria-live="polite"
+      ></div>
+
+      <div class="dashboard-content">
+        <section
+          id="overviewSection"
+          class="dashboard-section active"
+          data-section-panel="overview"
+        >
+          <div class="welcome-card">
+            <div>
+              <span class="section-eyebrow">
+                Restaurant overview
+              </span>
+
+              <h2>
+                Welcome back,
+                <span id="welcomeOwnerName">
+                  Restaurant Owner
+                </span>
+              </h2>
+
+              <p>
+                Manage your restaurant profile, menu,
+                operating hours, and customer orders from
+                one place.
+              </p>
+            </div>
+
+            <div class="restaurant-status">
+              <span
+                id="approvalStatusBadge"
+                class="status-badge status-pending"
+              >
+                No restaurant added
+              </span>
+
+              <span
+                id="openStatusBadge"
+                class="status-badge status-closed"
+              >
+                Closed
+              </span>
+            </div>
+          </div>
+
+          <article class="panel-card order-availability-card">
+  <div class="order-availability-content">
+    <div>
+      <span class="section-eyebrow">
+        Live order availability
+      </span>
+
+      <h3 id="orderAvailabilityTitle">
+        Orders are paused
+      </h3>
+
+      <p id="orderAvailabilityDescription">
+        Kitchen temporarily closed
+      </p>
+    </div>
+
+    <div class="order-availability-actions">
+      <span
+        id="orderAvailabilityBadge"
+        class="status-badge status-closed"
+      >
+        Paused
+      </span>
+
+      <button
+        type="button"
+        id="toggleOrderAvailabilityButton"
+        class="primary-button"
+      >
+        Resume Orders
+      </button>
+    </div>
+  </div>
+
+  <div
+    id="pauseOrdersForm"
+    class="pause-orders-form"
+    hidden
+  >
+    <label for="pauseOrdersReason">
+      Reason for pausing orders
+    </label>
+
+    <select id="pauseOrdersReason">
+      <option value="">
+        Choose a reason
+      </option>
+
+      <option value="Kitchen temporarily closed">
+        Kitchen temporarily closed
+      </option>
+
+      <option value="Restaurant is fully booked">
+        Restaurant is fully booked
+      </option>
+
+      <option value="Power outage">
+        Power outage
+      </option>
+
+      <option value="Kitchen maintenance">
+        Kitchen maintenance
+      </option>
+
+      <option value="Unavailable ingredients">
+        Unavailable ingredients
+      </option>
+
+      <option value="Other">
+        Other
+      </option>
+    </select>
+
+    <input
+      type="text"
+      id="customPauseOrdersReason"
+      maxlength="200"
+      placeholder="Enter a reason"
+      hidden
+    />
+
+    <div class="form-actions">
+      <button
+        type="button"
+        id="cancelPauseOrdersButton"
+        class="secondary-button"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        id="confirmPauseOrdersButton"
+        class="logout-button"
+      >
+        Pause Orders
+      </button>
+    </div>
+  </div>
+</article>
+
+          <div class="stats-grid">
+            <article class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">
+                  Menu items
+                </span>
+
+                <span class="stat-icon">☰</span>
+              </div>
+
+              <strong id="menuItemsCount">0</strong>
+
+              <span class="stat-description">
+                Items listed on your menu
+              </span>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">
+                  Pending orders
+                </span>
+
+                <span class="stat-icon">▤</span>
+              </div>
+
+              <strong id="pendingOrdersCount">0</strong>
+
+              <span class="stat-description">
+                Orders requiring attention
+              </span>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">
+                  Total orders
+                </span>
+
+                <span class="stat-icon">✓</span>
+              </div>
+
+              <strong id="totalOrdersCount">0</strong>
+
+              <span class="stat-description">
+                Orders received so far
+              </span>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">
+                  Average rating
+                </span>
+
+                <span class="stat-icon">★</span>
+              </div>
+
+              <strong id="averageRating">0.0</strong>
+
+              <span class="stat-description">
+                Based on customer reviews
+              </span>
+            </article>
+          </div>
+
+          <div class="overview-grid">
+            <article class="panel-card">
+              <div class="panel-heading">
+                <div>
+                  <span class="section-eyebrow">
+                    Restaurant setup
+                  </span>
+
+                  <h3>Complete your restaurant profile</h3>
+                </div>
+
+                <span
+                  id="setupProgressText"
+                  class="progress-label"
+                >
+                  0%
+                </span>
+              </div>
+
+              <div class="progress-track">
+                <div
+                  id="setupProgressBar"
+                  class="progress-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+
+              <div class="setup-checklist">
+                <button
+                  type="button"
+                  class="setup-item"
+                  data-target-section="restaurant"
+                >
+                  <span
+                    id="profileSetupCheck"
+                    class="check-circle"
+                  >
+                    1
+                  </span>
+
+                  <span>
+                    <strong>Restaurant profile</strong>
+                    <small>
+                      Add your name, location, cuisine, and
+                      contact details.
+                    </small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="setup-item"
+                  data-target-section="menu"
+                >
+                  <span
+                    id="menuSetupCheck"
+                    class="check-circle"
+                  >
+                    2
+                  </span>
+
+                  <span>
+                    <strong>Add menu items</strong>
+                    <small>
+                      Create categories, prices, descriptions,
+                      and availability.
+                    </small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="setup-item"
+                  data-target-section="hours"
+                >
+                  <span
+                    id="hoursSetupCheck"
+                    class="check-circle"
+                  >
+                    3
+                  </span>
+
+                  <span>
+                    <strong>Set opening hours</strong>
+                    <small>
+                      Tell customers when your restaurant is
+                      accepting orders.
+                    </small>
+                  </span>
+                </button>
+              </div>
+            </article>
+
+            <article class="panel-card">
+              <div class="panel-heading">
+                <div>
+                  <span class="section-eyebrow">
+                    Quick actions
+                  </span>
+
+                  <h3>Manage your restaurant</h3>
+                </div>
+              </div>
+
+              <div class="quick-actions">
+                <button
+                  type="button"
+                  class="quick-action"
+                  data-target-section="restaurant"
+                >
+                  <span class="quick-action-icon">＋</span>
+
+                  <span>
+                    <strong>Add restaurant details</strong>
+                    <small>
+                      Create or update your public profile.
+                    </small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="quick-action"
+                  data-target-section="menu"
+                >
+                  <span class="quick-action-icon">☰</span>
+
+                  <span>
+                    <strong>Manage menu</strong>
+                    <small>
+                      Add, edit, feature, or remove menu items.
+                    </small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="quick-action"
+                  data-target-section="orders"
+                >
+                  <span class="quick-action-icon">▤</span>
+
+                  <span>
+                    <strong>Review orders</strong>
+                    <small>
+                      Process incoming customer orders.
+                    </small>
+                  </span>
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+      <section
+  id="restaurantSection"
+  class="dashboard-section"
+  data-section-panel="restaurant"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Restaurant profile
+      </span>
+
+      <h2>Manage your public restaurant details</h2>
+
+      <p>
+        Add accurate information so customers can discover,
+        contact, and understand your restaurant.
+      </p>
+    </div>
+  </div>
+
+  <form
+    id="restaurantProfileForm"
+    class="restaurant-profile-form"
+    novalidate
+  >
+    <article class="panel-card">
+      <div class="form-section-heading">
+        <div>
+          <h3>Basic information</h3>
+
+          <p>
+            Enter the main information customers will see.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group form-group-full">
+          <label for="restaurantName">
+            Restaurant name
+            <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            id="restaurantName"
+            name="name"
+            maxlength="150"
+            placeholder="Example: Coast Breeze Restaurant"
+            required
+          />
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="restaurantDescription">
+            Description
+          </label>
+
+          <textarea
+            id="restaurantDescription"
+            name="description"
+            rows="5"
+            maxlength="1500"
+            placeholder="Describe your food, atmosphere, specialties, and what makes your restaurant unique."
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantPhone">
+            Phone number
+          </label>
+
+          <input
+            type="tel"
+            id="restaurantPhone"
+            name="phone"
+            maxlength="30"
+            placeholder="Example: 0712 345 678"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantWhatsapp">
+            WhatsApp number
+          </label>
+
+          <input
+            type="tel"
+            id="restaurantWhatsapp"
+            name="whatsapp"
+            maxlength="30"
+            placeholder="Example: 0712 345 678"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantEmail">
+            Restaurant email
+          </label>
+
+          <input
+            type="email"
+            id="restaurantEmail"
+            name="email"
+            maxlength="150"
+            placeholder="restaurant@example.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantPriceRange">
+            Price range
+          </label>
+
+          <select
+            id="restaurantPriceRange"
+            name="priceRange"
+          >
+            <option value="">
+              Select price range
+            </option>
+
+            <option value="budget">
+              Budget
+            </option>
+
+            <option value="moderate">
+              Moderate
+            </option>
+
+            <option value="premium">
+              Premium
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="restaurantCuisines">
+            Cuisines
+          </label>
+
+          <input
+            type="text"
+            id="restaurantCuisines"
+            name="cuisines"
+            placeholder="Example: Swahili, Seafood, Grill"
+          />
+
+          <small>
+            Separate multiple cuisines using commas.
+          </small>
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="restaurantCoverImage">
+            Cover image URL
+          </label>
+
+          <input
+            type="url"
+            id="restaurantCoverImage"
+            name="coverImageUrl"
+            placeholder="https://example.com/restaurant-image.jpg"
+          />
+        </div>
+      </div>
+    </article>
+
+    <article class="panel-card">
+      <div class="form-section-heading">
+        <div>
+          <h3>Location</h3>
+
+          <p>
+            Help customers find your restaurant accurately.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="restaurantCounty">
+            County
+            <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            id="restaurantCounty"
+            name="county"
+            maxlength="100"
+            placeholder="Example: Mombasa"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantTown">
+            Town
+            <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            id="restaurantTown"
+            name="town"
+            maxlength="100"
+            placeholder="Example: Nyali"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantArea">
+            Area
+          </label>
+
+          <input
+            type="text"
+            id="restaurantArea"
+            name="area"
+            maxlength="100"
+            placeholder="Example: Links Road"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantAddress">
+            Street address
+          </label>
+
+          <input
+            type="text"
+            id="restaurantAddress"
+            name="address"
+            placeholder="Building, road, landmark, or directions"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantLatitude">
+            Latitude
+          </label>
+
+          <input
+            type="number"
+            id="restaurantLatitude"
+            name="latitude"
+            step="any"
+            min="-90"
+            max="90"
+            placeholder="-4.0435"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="restaurantLongitude">
+            Longitude
+          </label>
+
+          <input
+            type="number"
+            id="restaurantLongitude"
+            name="longitude"
+            step="any"
+            min="-180"
+            max="180"
+            placeholder="39.6682"
+          />
+        </div>
+      </div>
+    </article>
+
+    <article class="panel-card">
+      <div class="form-section-heading">
+        <div>
+          <h3>Restaurant services</h3>
+
+          <p>
+            Select the services and food options you provide.
+          </p>
+        </div>
+      </div>
+
+      <div class="checkbox-grid">
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="restaurantIsHalal"
+            name="isHalal"
+          />
+
+          <span>
+            <strong>Halal food available</strong>
+
+            <small>
+              Show customers that your restaurant offers
+              halal food.
+            </small>
+          </span>
+        </label>
+
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="restaurantOffersDelivery"
+            name="offersDelivery"
+          />
+
+          <span>
+            <strong>Delivery available</strong>
+
+            <small>
+              Show customers that delivery is available.
+            </small>
+          </span>
+        </label>
+      </div>
+    </article>
+
+    <div
+      id="restaurantFormMessage"
+      class="form-message"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+    <div class="form-actions">
+      <button
+        type="submit"
+        id="saveRestaurantButton"
+        class="primary-button"
+      >
+        Create restaurant profile
+      </button>
+    </div>
+  </form>
+</section>
+
+       <section
+  id="menuSection"
+  class="dashboard-section"
+  data-section-panel="menu"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Menu management
+      </span>
+
+      <h2>Manage your restaurant menu</h2>
+
+      <p>
+        Add menu items, prices, categories, preparation
+        time, featured status, and availability.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      id="addMenuItemButton"
+      class="primary-button"
+    >
+      Add menu item
+    </button>
+  </div>
+
+  <div
+    id="menuFormPanel"
+    class="panel-card menu-form-panel"
+    hidden
+  >
+    <div class="form-section-heading menu-form-heading">
+      <div>
+        <h3 id="menuFormTitle">
+          Add menu item
+        </h3>
+
+        <p>
+          Enter accurate details customers will see on the
+          restaurant menu.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        id="closeMenuFormButton"
+        class="secondary-button"
+      >
+        Close
+      </button>
+    </div>
+
+    <form
+      id="menuItemForm"
+      class="menu-item-form"
+      novalidate
+    >
+      <input
+        type="hidden"
+        id="editingMenuItemId"
+      />
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="menuItemName">
+            Item name
+            <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            id="menuItemName"
+            maxlength="150"
+            placeholder="Example: Grilled King Fish"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="menuItemCategory">
+            Category
+          </label>
+
+          <select id="menuItemCategory">
+            <option value="">
+              Select category
+            </option>
+            <option value="Breakfast">
+              Breakfast
+            </option>
+            <option value="Lunch">
+              Lunch
+            </option>
+            <option value="Dinner">
+              Dinner
+            </option>
+            <option value="Swahili Dishes">
+              Swahili dishes
+            </option>
+            <option value="Seafood">
+              Seafood
+            </option>
+            <option value="Grill">
+              Grill
+            </option>
+            <option value="Fast Food">
+              Fast food
+            </option>
+            <option value="Vegetarian">
+              Vegetarian
+            </option>
+            <option value="Desserts">
+              Desserts
+            </option>
+            <option value="Drinks">
+              Drinks
+            </option>
+            <option value="Other">
+              Other
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="menuItemPrice">
+            Price in KSh
+            <span>*</span>
+          </label>
+
+          <input
+            type="number"
+            id="menuItemPrice"
+            min="0"
+            step="0.01"
+            placeholder="650"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="menuItemPreparationMinutes">
+            Preparation time
+          </label>
+
+          <input
+            type="number"
+            id="menuItemPreparationMinutes"
+            min="0"
+            step="1"
+            placeholder="20"
+          />
+
+          <small>
+            Enter the estimated number of minutes.
+          </small>
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="menuItemDescription">
+            Description
+          </label>
+
+          <textarea
+            id="menuItemDescription"
+            rows="4"
+            maxlength="1000"
+            placeholder="Describe the ingredients, portion, flavour, or serving style."
+          ></textarea>
+        </div>
+
+       <div class="form-group form-group-full">
+  <label for="menuItemImage">
+    Food image
+  </label>
+
+  <input
+    type="file"
+    id="menuItemImage"
+    accept="image/*"
+  />
+
+  <input
+    type="hidden"
+    id="menuItemImageUrl"
+  />
+
+  <div
+    id="menuImagePreview"
+    class="menu-image-preview"
+    hidden
+  >
+    <img
+      id="menuPreviewImage"
+      src=""
+      alt="Food preview"
+    />
+  </div>
+
+  <small>
+    Upload a JPG, PNG or WebP image.
+  </small>
+</div>
+
+        <div class="form-group">
+          <label for="menuItemDisplayOrder">
+            Display order
+          </label>
+
+          <input
+            type="number"
+            id="menuItemDisplayOrder"
+            min="0"
+            step="1"
+            value="0"
+          />
+
+          <small>
+            Lower numbers appear first.
+          </small>
+        </div>
+      </div>
+
+      <div class="checkbox-grid menu-checkbox-grid">
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="menuItemIsAvailable"
+            checked
+          />
+
+          <span>
+            <strong>Available now</strong>
+
+            <small>
+              Customers can currently order this item.
+            </small>
+          </span>
+        </label>
+
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="menuItemIsFeatured"
+          />
+
+          <span>
+            <strong>Featured item</strong>
+
+            <small>
+              Highlight this item on the restaurant page.
+            </small>
+          </span>
+        </label>
+      </div>
+
+      <div
+        id="menuFormMessage"
+        class="form-message"
+        role="alert"
+        aria-live="polite"
+      ></div>
+
+      <div class="form-actions menu-form-actions">
+        <button
+          type="button"
+          id="cancelMenuFormButton"
+          class="secondary-button"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          id="saveMenuItemButton"
+          class="primary-button"
+        >
+          Save menu item
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <article class="panel-card">
+    <div class="menu-list-header">
+      <div>
+        <h3>Menu items</h3>
+
+        <p id="menuItemsSummary">
+          Your restaurant menu will appear here.
+        </p>
+      </div>
+    </div>
+
+    <div
+      id="menuItemsContainer"
+      class="menu-items-container"
+    >
+      <div class="empty-state">
+        <div class="empty-icon">☰</div>
+
+        <h3>No menu items yet</h3>
+
+        <p>
+          Add your first menu item to start building your
+          restaurant menu.
+        </p>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section
+  class="dashboard-section"
+  data-section-panel="promotions"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-label">
+        Restaurant marketing
+      </span>
+
+      <h2>Promotions & Discounts</h2>
+
+      <p>
+        Create promo codes, percentage discounts,
+        fixed discounts, and free-delivery offers.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      id="addPromotionButton"
+      class="primary-button"
+    >
+      Add Promotion
+    </button>
+  </div>
+
+  <div
+    id="promotionFormPanel"
+    class="dashboard-form-panel"
+    hidden
+  >
+    <div class="form-panel-header">
+      <div>
+        <h3 id="promotionFormTitle">
+          Create promotion
+        </h3>
+
+        <p>
+          Configure the offer, eligibility, dates,
+          and usage limits.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        id="closePromotionFormButton"
+        class="icon-button"
+        aria-label="Close promotion form"
+      >
+        ×
+      </button>
+    </div>
+
+    <form id="promotionForm">
+      <input
+        type="hidden"
+        id="editingPromotionId"
+      >
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="promotionName">
+            Promotion name
+          </label>
+
+          <input
+            type="text"
+            id="promotionName"
+            maxlength="150"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="promotionType">
+            Promotion type
+          </label>
+
+          <select
+            id="promotionType"
+            required
+          >
+            <option value="PERCENTAGE">
+              Percentage discount
+            </option>
+
+            <option value="FIXED_AMOUNT">
+              Fixed amount discount
+            </option>
+
+            <option value="FREE_DELIVERY">
+              Free delivery
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="promotionCode">
+            Promo code
+          </label>
+
+          <input
+            type="text"
+            id="promotionCode"
+            maxlength="60"
+            placeholder="COAST10"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="promotionDiscountValue">
+            Discount value
+          </label>
+
+          <input
+            type="number"
+            id="promotionDiscountValue"
+            min="0"
+            step="0.01"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="promotionMinimumOrder">
+            Minimum order amount
+          </label>
+
+          <input
+            type="number"
+            id="promotionMinimumOrder"
+            min="0"
+            step="0.01"
+            value="0"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="promotionMaximumDiscount">
+            Maximum discount
+          </label>
+
+          <input
+            type="number"
+            id="promotionMaximumDiscount"
+            min="0"
+            step="0.01"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="promotionTotalUsageLimit">
+            Total usage limit
+          </label>
+
+          <input
+            type="number"
+            id="promotionTotalUsageLimit"
+            min="1"
+            step="1"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="promotionPerCustomerLimit">
+            Per-customer limit
+          </label>
+
+          <input
+            type="number"
+            id="promotionPerCustomerLimit"
+            min="1"
+            step="1"
+            value="1"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="promotionStartsAt">
+            Starts at
+          </label>
+
+          <input
+            type="datetime-local"
+            id="promotionStartsAt"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="promotionEndsAt">
+            Ends at
+          </label>
+
+          <input
+            type="datetime-local"
+            id="promotionEndsAt"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="promotionDescription">
+          Description
+        </label>
+
+        <textarea
+          id="promotionDescription"
+          rows="4"
+          maxlength="1000"
+        ></textarea>
+      </div>
+
+      <label class="checkbox-field">
+        <input
+          type="checkbox"
+          id="promotionIsActive"
+          checked
+        >
+
+        <span>
+          Promotion is active
+        </span>
+      </label>
+
+      <p
+        id="promotionFormMessage"
+        class="form-message"
+        aria-live="polite"
+      ></p>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          id="cancelPromotionFormButton"
+          class="secondary-button"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          id="savePromotionButton"
+          class="primary-button"
+        >
+          Save Promotion
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="dashboard-card">
+    <div class="card-header">
+      <div>
+        <h3>Restaurant promotions</h3>
+
+        <p id="promotionsSummary">
+          Your promotions will appear here.
+        </p>
+      </div>
+    </div>
+
+    <div id="promotionsContainer">
+      <div class="empty-state">
+        <div class="empty-icon">%</div>
+
+        <h3>No promotions yet</h3>
+
+        <p>
+          Create your first discount or promo code.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section
+  id="gallerySection"
+  class="dashboard-section"
+  data-section-panel="gallery"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Restaurant gallery
+      </span>
+
+      <h2>Manage your restaurant photos</h2>
+
+      <p>
+        Upload up to 12 images, add captions, choose a cover
+        photo, and control the order shown to customers.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      id="addGalleryImageButton"
+      class="primary-button"
+    >
+      Add gallery image
+    </button>
+  </div>
+
+  <div
+    id="galleryFormPanel"
+    class="panel-card gallery-form-panel"
+    hidden
+  >
+    <div class="form-section-heading">
+      <div>
+        <h3 id="galleryFormTitle">
+          Add gallery image
+        </h3>
+
+        <p>
+          Choose a restaurant photo and add optional details.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        id="closeGalleryFormButton"
+        class="secondary-button"
+      >
+        Close
+      </button>
+    </div>
+
+    <form
+      id="galleryImageForm"
+      class="gallery-image-form"
+      novalidate
+    >
+      <input
+        type="hidden"
+        id="editingGalleryImageId"
+      />
+
+      <input
+        type="hidden"
+        id="galleryImageUrl"
+      />
+
+      <input
+        type="hidden"
+        id="galleryPublicId"
+      />
+
+      <div class="form-grid">
+        <div class="form-group form-group-full">
+          <label for="galleryImageFile">
+            Restaurant image
+            <span>*</span>
+          </label>
+
+          <input
+            type="file"
+            id="galleryImageFile"
+            accept="image/jpeg,image/png,image/webp"
+          />
+
+          <small>
+            Upload a JPG, PNG, or WebP image up to 5 MB.
+          </small>
+
+          <div
+            id="galleryImagePreview"
+            class="gallery-image-preview"
+            hidden
+          >
+            <img
+              id="galleryPreviewImage"
+              src=""
+              alt="Restaurant gallery preview"
+            />
+          </div>
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="galleryCaption">
+            Caption
+          </label>
+
+          <input
+            type="text"
+            id="galleryCaption"
+            maxlength="150"
+            placeholder="Example: Ocean-view dining area"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="galleryDisplayOrder">
+            Display order
+          </label>
+
+          <input
+            type="number"
+            id="galleryDisplayOrder"
+            min="0"
+            step="1"
+            value="0"
+          />
+
+          <small>
+            Lower numbers appear first.
+          </small>
+        </div>
+      </div>
+
+      <div class="checkbox-grid">
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="galleryIsCover"
+          />
+
+          <span>
+            <strong>Use as cover image</strong>
+
+            <small>
+              This becomes the main image shown for the
+              restaurant.
+            </small>
+          </span>
+        </label>
+      </div>
+
+      <div
+        id="galleryFormMessage"
+        class="form-message"
+        role="alert"
+        aria-live="polite"
+      ></div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          id="cancelGalleryFormButton"
+          class="secondary-button"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          id="saveGalleryImageButton"
+          class="primary-button"
+        >
+          Save gallery image
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <article class="panel-card">
+    <div class="menu-list-header">
+      <div>
+        <h3>Gallery images</h3>
+
+        <p id="galleryImagesSummary">
+          Your restaurant photos will appear here.
+        </p>
+      </div>
+    </div>
+
+    <div
+      id="galleryImagesContainer"
+      class="gallery-images-container"
+    >
+      <div class="empty-state">
+        <div class="empty-icon">▧</div>
+
+        <h3>No gallery images yet</h3>
+
+        <p>
+          Add restaurant photos to make your public profile
+          more attractive.
+        </p>
+      </div>
+    </div>
+  </article>
+</section>
+
+       <section
+  id="ordersSection"
+  class="dashboard-section"
+  data-section-panel="orders"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Customer orders
+      </span>
+
+      <h2>Manage incoming orders</h2>
+
+      <p>
+        Review customer orders and move them through
+        preparation, collection, delivery, and completion.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      id="refreshOrdersButton"
+      class="secondary-button"
+    >
+      Refresh orders
+    </button>
+  </div>
+
+  <div class="order-stats-grid">
+    <article class="order-stat-card">
+      <span>Pending</span>
+      <strong id="ordersPendingCount">0</strong>
+    </article>
+
+    <article class="order-stat-card">
+      <span>Accepted</span>
+      <strong id="ordersAcceptedCount">0</strong>
+    </article>
+
+    <article class="order-stat-card">
+      <span>Preparing</span>
+      <strong id="ordersPreparingCount">0</strong>
+    </article>
+
+    <article class="order-stat-card">
+      <span>Ready</span>
+      <strong id="ordersReadyCount">0</strong>
+    </article>
+
+    <article class="order-stat-card">
+      <span>Completed</span>
+      <strong id="ordersCompletedCount">0</strong>
+    </article>
+  </div>
+
+   <article
+    class="panel-card pending-payments-card"
+  >
+    <div class="orders-toolbar">
+      <div>
+        <h3>Pending payment verification</h3>
+
+        <p id="pendingPaymentsSummary">
+          Checking for customer payment confirmations.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        id="refreshPendingPaymentsButton"
+        class="secondary-button"
+      >
+        Refresh payments
+      </button>
+    </div>
+
+    <div
+      id="pendingPaymentsMessage"
+      class="form-message"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+    <div
+      id="pendingPaymentsContainer"
+      class="pending-payments-container"
+    >
+      <div class="empty-state">
+        <h3>Loading payment confirmations</h3>
+
+        <p>
+          Please wait while pending manual payments are loaded.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  
+
+
+  <article class="panel-card">
+    <div class="orders-toolbar">
+      <div>
+        <h3>Restaurant orders</h3>
+
+        <p id="ordersSummary">
+          Loading your restaurant orders.
+        </p>
+      </div>
+
+      <div class="orders-filter-group">
+        <label for="ordersStatusFilter">
+          Filter by status
+        </label>
+
+        <select id="ordersStatusFilter">
+          <option value="">All orders</option>
+          <option value="PENDING">Pending</option>
+          <option value="ACCEPTED">Accepted</option>
+          <option value="PREPARING">Preparing</option>
+          <option value="READY">Ready</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELLED">Cancelled</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+    </div>
+
+    <div
+      id="ordersMessage"
+      class="form-message"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+    <div
+      id="ordersContainer"
+      class="orders-container"
+    >
+      <div class="empty-state">
+        <div class="empty-icon">▤</div>
+
+        <h3>Loading orders</h3>
+
+        <p>
+          Please wait while your restaurant orders are loaded.
+        </p>
+      </div>
+    </div>
+
+    <div
+      id="ordersPagination"
+      class="orders-pagination"
+      hidden
+    >
+      <button
+        type="button"
+        id="previousOrdersPageButton"
+        class="secondary-button"
+      >
+        Previous
+      </button>
+
+      <span id="ordersPageInfo">
+        Page 1
+      </span>
+
+      <button
+        type="button"
+        id="nextOrdersPageButton"
+        class="secondary-button"
+      >
+        Next
+      </button>
+    </div>
+  </article>
+</section>
+
+<section
+  id="reviewsSection"
+  class="dashboard-section"
+  data-section-panel="reviews"
+>
+
+  <div class="section-header">
+
+    <div>
+
+      <span class="section-eyebrow">
+        Customer feedback
+      </span>
+
+      <h2>
+        Customer Reviews
+      </h2>
+
+      <p>
+        See what customers are saying about your restaurant.
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="stats-grid">
+
+    <article class="stat-card">
+
+      <div class="stat-header">
+
+        <span class="stat-label">
+          Average Rating
+        </span>
+
+        <span class="stat-icon">
+          ★
+        </span>
+
+      </div>
+
+      <strong id="reviewsAverageRating">
+        0.0
+      </strong>
+
+    </article>
+
+    <article class="stat-card">
+
+      <div class="stat-header">
+
+        <span class="stat-label">
+          Total Reviews
+        </span>
+
+        <span class="stat-icon">
+          💬
+        </span>
+
+      </div>
+
+      <strong id="reviewsTotalCount">
+        0
+      </strong>
+
+    </article>
+
+  </div>
+
+  <article class="panel-card">
+
+    <div class="menu-list-header">
+
+      <div>
+
+        <h3>
+          Latest Reviews
+        </h3>
+
+        <p>
+          Reviews from completed customer orders.
+        </p>
+
+      </div>
+
+    </div>
+
+    <div
+      id="restaurantReviewsContainer"
+      class="restaurant-reviews-container"
+    >
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          ★
+        </div>
+
+        <h3>
+          No reviews yet
+        </h3>
+
+        <p>
+          Customer reviews will appear here after completed orders are rated.
+        </p>
+
+      </div>
+
+    </div>
+
+  </article>
+
+</section>
+
+<section
+  id="staffSection"
+  class="dashboard-section"
+  data-section-panel="staff"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Restaurant team
+      </span>
+
+      <h2>Manage restaurant staff</h2>
+
+      <p>
+        Add managers, cashiers, and kitchen staff without
+        sharing your restaurant owner account.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      id="addStaffButton"
+      class="primary-button"
+    >
+      Add Staff Member
+    </button>
+  </div>
+
+  <div
+    id="staffFormPanel"
+    class="panel-card staff-form-panel"
+    hidden
+  >
+    <div class="form-section-heading staff-form-heading">
+      <div>
+        <h3>Add staff member</h3>
+
+        <p>
+          Enter the employee details and select their role.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        id="closeStaffFormButton"
+        class="secondary-button"
+      >
+        Close
+      </button>
+    </div>
+
+    <form
+      id="staffForm"
+      class="restaurant-profile-form"
+      novalidate
+    >
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="staffFullName">
+            Full name
+            <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            id="staffFullName"
+            maxlength="150"
+            placeholder="Example: Amina Hassan"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="staffRole">
+            Staff role
+            <span>*</span>
+          </label>
+
+          <select id="staffRole" required>
+            <option value="">
+              Select role
+            </option>
+
+            <option value="MANAGER">
+              Manager
+            </option>
+
+            <option value="CASHIER">
+              Cashier
+            </option>
+
+            <option value="KITCHEN_STAFF">
+              Kitchen Staff
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="staffEmail">
+            Email address
+          </label>
+
+          <input
+            type="email"
+            id="staffEmail"
+            maxlength="150"
+            placeholder="employee@example.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="staffPhone">
+            Phone number
+          </label>
+
+          <input
+            type="tel"
+            id="staffPhone"
+            maxlength="30"
+            placeholder="0712 345 678"
+          />
+        </div>
+      </div>
+
+      <div
+        id="staffFormMessage"
+        class="form-message"
+        role="alert"
+        aria-live="polite"
+      ></div>
+
+      <div class="form-actions staff-form-actions">
+        <button
+          type="button"
+          id="cancelStaffFormButton"
+          class="secondary-button"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          id="saveStaffButton"
+          class="primary-button"
+        >
+          Add Staff Member
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <article class="panel-card">
+    <div class="menu-list-header">
+      <div>
+        <h3>Team members</h3>
+
+        <p id="staffSummary">
+          Loading restaurant staff.
+        </p>
+      </div>
+    </div>
+
+    <div
+      id="staffContainer"
+      class="staff-container"
+    >
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+
+        <h3>Loading staff</h3>
+
+        <p>
+          Please wait while your restaurant team is loaded.
+        </p>
+      </div>
+    </div>
+  </article>
+</section>
+
+        <section
+  id="hoursSection"
+  class="dashboard-section"
+  data-section-panel="hours"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Opening hours
+      </span>
+
+      <h2>Manage your restaurant schedule</h2>
+
+      <p>
+        Tell customers exactly when your restaurant is open
+        for orders.
+      </p>
+    </div>
+  </div>
+
+  <form
+    id="openingHoursForm"
+    class="restaurant-profile-form"
+    novalidate
+  >
+    <article class="panel-card">
+
+      <div class="form-section-heading">
+        <div>
+          <h3>Business hours</h3>
+
+          <p>
+            Configure your weekly operating schedule.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="openingTime">
+            Opening time
+          </label>
+
+          <input
+            type="time"
+            id="openingTime"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="closingTime">
+            Closing time
+          </label>
+
+          <input
+            type="time"
+            id="closingTime"
+          />
+        </div>
+
+      </div>
+
+      <div class="checkbox-grid">
+
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="openMonday"
+          />
+
+          <span>
+            <strong>Monday</strong>
+            <small>Open on Monday</small>
+          </span>
+        </label>
+
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="openTuesday"
+          />
+
+          <span>
+            <strong>Tuesday</strong>
+            <small>Open on Tuesday</small>
+          </span>
+        </label>
+
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="openWednesday"
+          />
+
+          <span>
+            <strong>Wednesday</strong>
+            <small>Open on Wednesday</small>
+          </span>
+        </label>
+
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="openThursday"
+          />
+
+          <span>
+            <strong>Thursday</strong>
+            <small>Open on Thursday</small>
+          </span>
+        </label>
+
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="openFriday"
+          />
+
+          <span>
+            <strong>Friday</strong>
+            <small>Open on Friday</small>
+          </span>
+        </label>
+
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="openSaturday"
+          />
+
+          <span>
+            <strong>Saturday</strong>
+            <small>Open on Saturday</small>
+          </span>
+        </label>
+
+        <label class="checkbox-card">
+          <input
+            type="checkbox"
+            id="openSunday"
+          />
+
+          <span>
+            <strong>Sunday</strong>
+            <small>Open on Sunday</small>
+          </span>
+        </label>
+
+      </div>
+
+    </article>
+
+    <div
+      id="openingHoursMessage"
+      class="form-message"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+    <div class="form-actions">
+
+      <button
+        type="submit"
+        id="saveOpeningHoursButton"
+        class="primary-button"
+      >
+        Save Opening Hours
+      </button>
+
+    </div>
+
+  </form>
+</section>
+
+<section
+  id="deliveryZonesSection"
+  class="dashboard-section"
+  data-section-panel="delivery-zones"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Restaurant delivery
+      </span>
+
+      <h2>Delivery Zones</h2>
+
+      <p>
+        Configure your delivery areas, minimum order amounts,
+        delivery fees and estimated delivery times.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      id="addDeliveryZoneButton"
+      class="primary-button"
+    >
+      Add Delivery Zone
+    </button>
+  </div>
+
+  <div
+    id="deliveryZoneFormPanel"
+    class="panel-card"
+    hidden
+  >
+    <div class="form-section-heading">
+      <div>
+        <h3 id="deliveryZoneFormTitle">
+          Add Delivery Zone
+        </h3>
+
+        <p>
+          Create a delivery area for your restaurant.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        id="closeDeliveryZoneFormButton"
+        class="secondary-button"
+      >
+        Close
+      </button>
+    </div>
+
+    <form
+      id="deliveryZoneForm"
+      class="restaurant-profile-form"
+      novalidate
+    >
+
+      <input
+        type="hidden"
+        id="editingDeliveryZoneId"
+      >
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="deliveryZoneName">
+            Zone Name
+          </label>
+
+          <input
+            type="text"
+            id="deliveryZoneName"
+            maxlength="150"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="deliveryZoneMinimumOrder">
+            Minimum Order (KSh)
+          </label>
+
+          <input
+            type="number"
+            id="deliveryZoneMinimumOrder"
+            min="0"
+            step="0.01"
+            value="0"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="deliveryZoneFee">
+            Delivery Fee (KSh)
+          </label>
+
+          <input
+            type="number"
+            id="deliveryZoneFee"
+            min="0"
+            step="0.01"
+            value="0"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="deliveryZoneMinutes">
+            Delivery Time (Minutes)
+          </label>
+
+          <input
+            type="number"
+            id="deliveryZoneMinutes"
+            min="1"
+          >
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="deliveryZoneDescription">
+            Description
+          </label>
+
+          <textarea
+            id="deliveryZoneDescription"
+            rows="3"
+          ></textarea>
+        </div>
+
+      </div>
+
+      <label class="checkbox-card">
+
+        <input
+          type="checkbox"
+          id="deliveryZoneActive"
+          checked
+        >
+
+        <span>
+
+          <strong>
+            Active
+          </strong>
+
+          <small>
+            Customers can order within this delivery zone.
+          </small>
+
+        </span>
+
+      </label>
+
+      <div
+        id="deliveryZoneMessage"
+        class="form-message"
+      ></div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          id="cancelDeliveryZoneButton"
+          class="secondary-button"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          id="saveDeliveryZoneButton"
+          class="primary-button"
+        >
+          Save Delivery Zone
+        </button>
+
+      </div>
+
+    </form>
+  </div>
+
+  <article class="panel-card">
+
+    <div class="menu-list-header">
+
+      <div>
+
+        <h3>
+          Delivery Zones
+        </h3>
+
+        <p id="deliveryZonesSummary">
+          Your delivery zones will appear here.
+        </p>
+
+      </div>
+
+    </div>
+
+    <div
+      id="deliveryZonesContainer"
+      class="menu-items-container"
+    >
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          🚚
+        </div>
+
+        <h3>
+          No delivery zones yet
+        </h3>
+
+        <p>
+          Create your first delivery zone.
+        </p>
+
+      </div>
+
+    </div>
+
+  </article>
+
+</section>
+
+        <section
+          id="analyticsSection"
+          class="dashboard-section"
+          data-section-panel="analytics"
+        >
+          <div class="section-header">
+            <div>
+              <span class="section-eyebrow">
+                Restaurant analytics
+              </span>
+
+              <h2>Track restaurant performance</h2>
+
+              <p>
+                Review order activity, revenue, menu
+                performance, and customer ratings.
+              </p>
+            </div>
+          </div>
+
+        <div class="stats-grid">
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        Total Revenue
+      </span>
+      <span class="stat-icon">💰</span>
+    </div>
+
+    <strong id="analyticsTotalRevenue">
+      KSh 0
+    </strong>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        Total Orders
+      </span>
+      <span class="stat-icon">🧾</span>
+    </div>
+
+    <strong id="analyticsTotalOrders">
+      0
+    </strong>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        Paid Orders
+      </span>
+      <span class="stat-icon">✅</span>
+    </div>
+
+    <strong id="analyticsPaidOrders">
+      0
+    </strong>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        Average Order
+      </span>
+      <span class="stat-icon">📊</span>
+    </div>
+
+    <strong id="analyticsAverageOrder">
+      KSh 0
+    </strong>
+  </article>
+
+</div>
+
+<div class="stats-grid">
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        Completed
+      </span>
+      <span class="stat-icon">✔</span>
+    </div>
+
+    <strong id="analyticsCompletedOrders">
+      0
+    </strong>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        Pending
+      </span>
+      <span class="stat-icon">⏳</span>
+    </div>
+
+    <strong id="analyticsPendingOrders">
+      0
+    </strong>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        Cancelled
+      </span>
+      <span class="stat-icon">❌</span>
+    </div>
+
+    <strong id="analyticsCancelledOrders">
+      0
+    </strong>
+  </article>
+
+</div>
+
+<div class="stats-grid">
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        Today
+      </span>
+
+      <span class="stat-icon">
+        ☀
+      </span>
+    </div>
+
+    <strong id="analyticsTodayRevenue">
+      KSh 0
+    </strong>
+
+    <span
+      id="analyticsTodayOrders"
+      class="stat-description"
+    >
+      0 orders
+    </span>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        This Week
+      </span>
+
+      <span class="stat-icon">
+        📅
+      </span>
+    </div>
+
+    <strong id="analyticsWeekRevenue">
+      KSh 0
+    </strong>
+
+    <span
+      id="analyticsWeekOrders"
+      class="stat-description"
+    >
+      0 orders
+    </span>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">
+        This Month
+      </span>
+
+      <span class="stat-icon">
+        📆
+      </span>
+    </div>
+
+    <strong id="analyticsMonthRevenue">
+      KSh 0
+    </strong>
+
+    <span
+      id="analyticsMonthOrders"
+      class="stat-description"
+    >
+      0 orders
+    </span>
+  </article>
+
+</div>
+
+<article class="panel-card analytics-chart-card">
+
+  <div class="menu-list-header">
+
+    <div>
+
+      <h3>
+        Revenue Trend
+      </h3>
+
+      <p>
+        Daily revenue from paid orders.
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="analytics-chart-container">
+
+    <canvas
+      id="revenueTrendChart"
+    ></canvas>
+
+  </div>
+
+</article>
+
+<article class="panel-card analytics-best-selling-card">
+  <div class="menu-list-header">
+    <div>
+      <h3>Best-selling menu items</h3>
+
+      <p>
+        Ranked by quantity sold from paid orders.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="bestSellingItemsContainer"
+    class="best-selling-items-container"
+  >
+    <div class="empty-state">
+      <div class="empty-icon">🍽</div>
+
+      <h3>No sales data yet</h3>
+
+      <p>
+        Paid menu-item sales will appear here.
+      </p>
+    </div>
+  </div>
+</article>
+        </section>
+
+ <section
+  id="subscriptionSection"
+  class="dashboard-section"
+  data-section-panel="subscription"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Subscription
+      </span>
+
+      <h2>
+        Manage your restaurant subscription
+      </h2>
+
+      <p>
+        View your current plan and renew your
+        subscription securely.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="subscriptionStatusContainer"
+    class="subscription-status-container"
+  >
+    <div class="empty-state">
+      <div class="empty-icon">
+        ⏳
+      </div>
+
+      <h3>
+        Loading subscription...
+      </h3>
+
+      <p>
+        Please wait while we load your subscription details.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="subscriptionPlansContainer"
+    class="subscription-plans-container"
+  >
+  </div>
+</section>
+
+<section
+  id="paymentSettingsSection"
+  class="dashboard-section"
+  data-section-panel="payment-settings"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-eyebrow">
+        Payment settings
+      </span>
+
+      <h2>Configure how customers pay</h2>
+
+      <p>
+        Add the M-Pesa PayBill or Till details customers
+        should use when paying for food orders.
+      </p>
+    </div>
+  </div>
+
+  <form
+    id="restaurantPaymentSettingsForm"
+    class="restaurant-payment-settings-form"
+    novalidate
+  >
+    <article class="panel-card">
+      <div class="form-section-heading">
+        <div>
+          <h3>M-Pesa payment details</h3>
+
+          <p>
+            Choose the payment method registered to your
+            restaurant and enter its details.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="restaurantMpesaPaymentType">
+            Payment type
+          </label>
+
+          <select
+            id="restaurantMpesaPaymentType"
+          >
+            <option value="">
+              Select payment type
+            </option>
+
+            <option value="PAYBILL">
+              M-Pesa PayBill
+            </option>
+
+            <option value="TILL">
+              M-Pesa Till Number
+            </option>
+
+            <option value="PHONE">
+  M-Pesa Phone Number
+</option>
+          </select>
+        </div>
+
+        <div
+  class="form-group"
+  id="restaurantMpesaBusinessNumberGroup"
+>
+  <label for="restaurantMpesaBusinessNumber">
+            PayBill or Till number
+          </label>
+
+          <input
+            type="text"
+            id="restaurantMpesaBusinessNumber"
+            placeholder="Enter PayBill or Till number"
+            inputmode="numeric"
+            autocomplete="off"
+          >
+        </div>
+
+        <div
+          class="form-group"
+          id="restaurantMpesaAccountNumberGroup"
+        >
+          <label for="restaurantMpesaAccountNumber">
+            Account number
+          </label>
+
+          <input
+            type="text"
+            id="restaurantMpesaAccountNumber"
+            placeholder="Enter account number"
+            autocomplete="off"
+          >
+
+          <small class="form-help-text">
+            Required for PayBill payments. For Till payments,
+            this can be left empty.
+          </small>
+        </div>
+
+        <div
+  class="form-group"
+  id="restaurantMpesaPhoneNumberGroup"
+>
+  <label for="restaurantMpesaPhoneNumber">
+    M-Pesa Phone Number
+  </label>
+
+  <input
+    type="tel"
+    id="restaurantMpesaPhoneNumber"
+    placeholder="e.g. 0712345678"
+    autocomplete="tel"
+  />
+
+  <small class="form-hint">
+    Phone number associated with this restaurant's M-Pesa payment account.
+  </small>
+</div>
+
+        <div class="form-group">
+          <label class="toggle-label">
+            <input
+              type="checkbox"
+              id="restaurantMpesaPaymentEnabled"
+            >
+
+            <span>
+              Enable M-Pesa payments
+            </span>
+          </label>
+
+          <small class="form-help-text">
+            When enabled, customers can use these details
+            during checkout.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="primary-button"
+          id="saveRestaurantPaymentSettings"
+        >
+          Save payment settings
+        </button>
+      </div>
+    </article>
+  </form>
+</section>
+
+        <section
+          id="settingsSection"
+          class="dashboard-section"
+          data-section-panel="settings"
+        >
+          <div class="section-header">
+            <div>
+              <span class="section-eyebrow">
+                Account settings
+              </span>
+
+              <h2>Manage your partner account</h2>
+
+              <p>
+                Update account information, security, and
+                notification preferences.
+              </p>
+            </div>
+          </div>
+
+          <article class="panel-card">
+
+  <div class="form-section-heading">
+
+    <div>
+
+      <h3>
+        Owner Account
+      </h3>
+
+      <p>
+        Manage your personal partner account information.
+      </p>
+
+    </div>
+
+ 
+
+  </div>
+
+  <form
+    id="ownerAccountForm"
+    class="restaurant-profile-form"
+    novalidate
+  >
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label for="ownerAccountFullName">
+          Full name
+        </label>
+
+        <input
+          type="text"
+          id="ownerAccountFullName"
+          maxlength="150"
+          required
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label for="ownerAccountEmail">
+          Email address
+        </label>
+
+        <input
+          type="email"
+          id="ownerAccountEmail"
+          readonly
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label for="ownerAccountPhone">
+          Phone number
+        </label>
+
+        <input
+          type="tel"
+          id="ownerAccountPhone"
+          maxlength="30"
+        >
+
+      </div>
+
+    </div>
+
+    <div
+      id="ownerAccountMessage"
+      class="form-message"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+    <div class="form-actions">
+
+      <button
+        type="submit"
+        id="saveOwnerAccountButton"
+        class="primary-button"
+      >
+        Save Changes
+      </button>
+
+    </div>
+
+  </form>
+
+</article>
+
+   <article class="panel-card">
+
+  <div class="form-section-heading">
+
+    <div>
+
+      <h3>
+        Change Password
+      </h3>
+
+      <p>
+        Update your password to keep your account secure.
+      </p>
+
+    </div>
+
+  </div>
+
+  <form
+    id="changePasswordForm"
+    class="restaurant-profile-form"
+    novalidate
+  >
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label for="currentPassword">
+          Current password
+        </label>
+
+        <input
+          type="password"
+          id="currentPassword"
+          autocomplete="current-password"
+          required
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label for="newPassword">
+          New password
+        </label>
+
+        <input
+          type="password"
+          id="newPassword"
+          minlength="8"
+          autocomplete="new-password"
+          required
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label for="confirmPassword">
+          Confirm new password
+        </label>
+
+        <input
+          type="password"
+          id="confirmPassword"
+          minlength="8"
+          autocomplete="new-password"
+          required
+        >
+
+      </div>
+
+    </div>
+
+    <div
+      id="changePasswordMessage"
+      class="form-message"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+    <div class="form-actions">
+
+      <button
+        type="submit"
+        id="changePasswordButton"
+        class="primary-button"
+      >
+        Change Password
+      </button>
+
+    </div>
+
+  </form>
+
+</article>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div
+  id="restaurantSubscriptionPaymentModal"
+  class="subscription-payment-modal"
+  aria-hidden="true"
+>
+  <div
+    class="subscription-payment-modal-backdrop"
+  ></div>
+
+  <div
+    class="subscription-payment-modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="restaurantSubscriptionPaymentTitle"
+  >
+    <button
+      type="button"
+      class="subscription-payment-modal-close"
+      id="restaurantSubscriptionPaymentClose"
+      aria-label="Close payment dialog"
+    >
+      ×
+    </button>
+
+    <div class="subscription-payment-modal-header">
+      <span>
+        Subscription Payment
+      </span>
+
+      <h2
+        id="restaurantSubscriptionPaymentTitle"
+      >
+        Pay with M-Pesa
+      </h2>
+
+      <p
+        id="restaurantSubscriptionPaymentDescription"
+      >
+        Enter the M-Pesa number you would like to use for this payment.
+      </p>
+    </div>
+
+    <div class="subscription-payment-phone">
+      <label for="restaurantSubscriptionPhone">
+        M-Pesa phone number
+      </label>
+
+      <input
+        type="tel"
+        id="restaurantSubscriptionPhone"
+        placeholder="07********"
+        autocomplete="tel"
+      >
+    </div>
+
+    <div class="subscription-payment-modal-actions">
+      <button
+        type="button"
+        class="secondary-button"
+        id="restaurantSubscriptionPaymentCancel"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        id="restaurantSubscriptionPaymentConfirm"
+      >
+        Continue
+      </button>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/ui-feedback.js"></script>
+  <script src="js/restaurant-owner-dashboard.js"></script>
+</body>
+</html>

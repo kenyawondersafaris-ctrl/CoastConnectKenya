@@ -1,0 +1,2310 @@
+"use strict";
+
+const API_BASE_URL =
+  "https://coastconnectkenya.onrender.com/api";
+
+const token =
+  localStorage.getItem(
+    "coastConnectToken"
+  );
+
+const socket =
+  io("https://coastconnectkenya.onrender.com", {
+    auth: {
+      token,
+    },
+  });
+
+
+  const reviewRatings =
+  {};
+
+let storedUser = null;
+
+try {
+  storedUser =
+    JSON.parse(
+      localStorage.getItem(
+        "coastConnectUser"
+      ) || "null"
+    );
+} catch (error) {
+  console.error(
+    "Stored user parse error:",
+    error
+  );
+}
+
+const bookingsMessage =
+  document.getElementById(
+    "bookingsMessage"
+  );
+
+const customerBookingsGrid =
+  document.getElementById(
+    "customerBookingsGrid"
+  );
+
+const pendingCount =
+  document.getElementById(
+    "pendingCount"
+  );
+
+const confirmedCount =
+  document.getElementById(
+    "confirmedCount"
+  );
+
+const progressCount =
+  document.getElementById(
+    "progressCount"
+  );
+
+const completedCount =
+  document.getElementById(
+    "completedCount"
+  );
+
+  const mpesaPaymentModal =
+  document.getElementById(
+    "mpesaPaymentModal"
+  );
+
+const closePaymentModal =
+  document.getElementById(
+    "closePaymentModal"
+  );
+
+const cancelPaymentButton =
+  document.getElementById(
+    "cancelPaymentButton"
+  );
+
+const confirmPaymentButton =
+  document.getElementById(
+    "confirmPaymentButton"
+  );
+
+const paymentProviderName =
+  document.getElementById(
+    "paymentProviderName"
+  );
+
+const paymentAmount =
+  document.getElementById(
+    "paymentAmount"
+  );
+
+const paymentPhoneNumber =
+  document.getElementById(
+    "paymentPhoneNumber"
+  );
+
+  const customerBookingNotification =
+  document.getElementById(
+    "customerBookingNotification"
+  );
+
+const customerBookingNotificationTitle =
+  document.getElementById(
+    "customerBookingNotificationTitle"
+  );
+
+const customerBookingNotificationMessage =
+  document.getElementById(
+    "customerBookingNotificationMessage"
+  );
+
+  const paymentDisputeModal =
+  document.getElementById(
+    "paymentDisputeModal"
+  );
+
+const paymentDisputeForm =
+  document.getElementById(
+    "paymentDisputeForm"
+  );
+
+const paymentDisputePaymentId =
+  document.getElementById(
+    "paymentDisputePaymentId"
+  );
+
+const paymentDisputeReason =
+  document.getElementById(
+    "paymentDisputeReason"
+  );
+
+const paymentDisputeDescription =
+  document.getElementById(
+    "paymentDisputeDescription"
+  );
+
+
+
+  function openPaymentDisputeModal(
+  paymentId
+) {
+  if (
+    !paymentDisputeModal ||
+    !paymentDisputePaymentId ||
+    !paymentDisputeReason ||
+    !paymentDisputeDescription
+  ) {
+    return;
+  }
+
+  paymentDisputePaymentId.value =
+    paymentId;
+
+  paymentDisputeReason.value =
+    "";
+
+  paymentDisputeDescription.value =
+    "";
+
+  paymentDisputeModal.hidden =
+    false;
+
+  paymentDisputeReason.focus();
+}
+
+function closePaymentDisputeModal() {
+  if (!paymentDisputeModal) {
+    return;
+  }
+
+  paymentDisputeModal.hidden =
+    true;
+}
+
+
+
+document.addEventListener(
+  "click",
+  (event) => {
+    if (
+      event.target.closest(
+        ".payment-dispute-modal__close"
+      ) ||
+      event.target.closest(
+        ".payment-dispute-modal__cancel"
+      ) ||
+      event.target.classList.contains(
+        "payment-dispute-modal__backdrop"
+      )
+    ) {
+      closePaymentDisputeModal();
+    }
+  }
+);
+
+
+paymentDisputeForm?.addEventListener(
+  "submit",
+  async (event) => {
+    event.preventDefault();
+
+    const paymentId =
+      paymentDisputePaymentId?.value;
+
+    const reason =
+      paymentDisputeReason?.value.trim();
+
+    const description =
+      paymentDisputeDescription?.value.trim();
+
+    if (
+      !paymentId ||
+      !reason ||
+      !description
+    ) {
+      return;
+    }
+
+    const submitButton =
+      paymentDisputeForm.querySelector(
+        ".payment-dispute-modal__submit"
+      );
+
+    const originalText =
+      submitButton?.textContent;
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent =
+        "Submitting...";
+    }
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/provider-payments/disputes`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                paymentId,
+                reason,
+                description,
+              }),
+          }
+        );
+
+      if (
+        response.status === 401
+      ) {
+        clearSessionAndRedirect();
+        return;
+      }
+
+      const data =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+            "Unable to open the dispute."
+        );
+      }
+
+      closePaymentDisputeModal();
+
+      await Promise.all([
+        loadCustomerBookings(),
+        loadCustomerPaymentDisputes(),
+      ]);
+
+      renderCustomerBookings();
+
+    } catch (error) {
+      console.error(
+        "Open payment dispute error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+          "Unable to open the dispute.",
+        "error"
+      );
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent =
+          originalText ||
+          "Submit Dispute";
+      }
+    }
+  }
+);
+
+  let customerBookingNotificationTimeout =
+  null;
+
+function showCustomerBookingNotification(
+  status
+) {
+  if (
+    !customerBookingNotification ||
+    !customerBookingNotificationTitle ||
+    !customerBookingNotificationMessage
+  ) {
+    return;
+  }
+
+  const normalizedStatus =
+    String(status || "")
+      .trim()
+      .toUpperCase();
+
+  customerBookingNotification.className =
+    "customer-booking-notification";
+
+  if (normalizedStatus === "CONFIRMED") {
+    customerBookingNotificationTitle.textContent =
+      "Booking accepted";
+
+    customerBookingNotificationMessage.textContent =
+      "Your provider has accepted your service request.";
+
+    customerBookingNotification.classList.add(
+      "success"
+    );
+  } else if (
+    normalizedStatus === "IN_PROGRESS"
+  ) {
+    customerBookingNotificationTitle.textContent =
+      "Service started";
+
+    customerBookingNotificationMessage.textContent =
+      "Your provider has started the job.";
+
+    customerBookingNotification.classList.add(
+      "warning"
+    );
+  } else if (
+    normalizedStatus === "COMPLETED"
+  ) {
+    customerBookingNotificationTitle.textContent =
+      "Service completed";
+
+    customerBookingNotificationMessage.textContent =
+      "Your provider has marked the service as completed.";
+
+    customerBookingNotification.classList.add(
+      "success"
+    );
+  } else if (
+    normalizedStatus === "REJECTED" ||
+    normalizedStatus === "CANCELLED"
+  ) {
+    customerBookingNotificationTitle.textContent =
+      normalizedStatus === "REJECTED"
+        ? "Booking rejected"
+        : "Booking cancelled";
+
+    customerBookingNotificationMessage.textContent =
+      "This booking is no longer active.";
+
+    customerBookingNotification.classList.add(
+      "error"
+    );
+  } else {
+    return;
+  }
+
+  customerBookingNotification.hidden =
+    false;
+
+  if (
+    customerBookingNotificationTimeout
+  ) {
+    clearTimeout(
+      customerBookingNotificationTimeout
+    );
+  }
+
+  customerBookingNotificationTimeout =
+    setTimeout(
+      () => {
+        customerBookingNotification.hidden =
+          true;
+      },
+      6000
+    );
+}
+
+let selectedPaymentBooking =
+  null;
+
+let customerBookings = [];
+let customerPaymentDisputes = [];
+
+document.addEventListener(
+  "DOMContentLoaded",
+  initializeCustomerBookings
+);
+
+async function initializeCustomerBookings() {
+  if (!token || !storedUser) {
+    sessionStorage.setItem(
+      "coastConnectReturnUrl",
+      `${window.location.pathname}${window.location.search}`
+    );
+
+    window.location.replace(
+      "login.html"
+    );
+
+    return;
+  }
+
+  const roles =
+    getUserRoles();
+
+  if (
+    !roles.includes("CUSTOMER")
+  ) {
+    window.location.replace(
+      "index.html"
+    );
+
+    return;
+  }
+
+await Promise.all([
+  loadCustomerBookings(),
+  loadCustomerPaymentDisputes(),
+]);
+
+renderCustomerBookings();
+
+initializeCustomerBookingSocket();
+}
+
+function getUserRoles() {
+  if (
+    Array.isArray(
+      storedUser?.roles
+    )
+  ) {
+    return storedUser.roles
+      .map((role) =>
+        String(role || "")
+          .trim()
+          .toUpperCase()
+      )
+      .filter(Boolean);
+  }
+
+  const role =
+    String(
+      storedUser?.role || ""
+    )
+      .trim()
+      .toUpperCase();
+
+  return role
+    ? [role]
+    : [];
+}
+
+
+
+function showMessage(
+  message = "",
+  type = ""
+) {
+  if (!bookingsMessage) {
+    return;
+  }
+
+  bookingsMessage.textContent =
+    message;
+
+  bookingsMessage.className =
+    type
+      ? `page-message ${type}`
+      : "page-message";
+}
+
+function showPremiumAlert(
+  title = "Notice",
+  message = ""
+) {
+  const existingModal =
+    document.getElementById(
+      "premiumAlertModal"
+    );
+
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const modal =
+    document.createElement("div");
+
+  modal.id =
+    "premiumAlertModal";
+
+  modal.className =
+    "premium-alert-modal";
+
+  modal.innerHTML =
+    `
+      <div
+        class="premium-alert-backdrop"
+      ></div>
+
+      <div
+        class="premium-alert-dialog"
+        role="alertdialog"
+        aria-modal="true"
+      >
+        <div
+          class="premium-alert-icon"
+        >
+          !
+        </div>
+
+        <h3>
+          ${escapeHtml(title)}
+        </h3>
+
+        <p>
+          ${escapeHtml(message)}
+        </p>
+
+        <button
+          type="button"
+          class="premium-alert-close"
+        >
+          Got it
+        </button>
+      </div>
+    `;
+
+  document.body.appendChild(
+    modal
+  );
+
+  const closeModal =
+    () => {
+      modal.classList.remove(
+        "is-visible"
+      );
+
+      setTimeout(
+        () => {
+          modal.remove();
+        },
+        200
+      );
+    };
+
+  modal
+    .querySelector(
+      ".premium-alert-close"
+    )
+    ?.addEventListener(
+      "click",
+      closeModal
+    );
+
+  modal
+    .querySelector(
+      ".premium-alert-backdrop"
+    )
+    ?.addEventListener(
+      "click",
+      closeModal
+    );
+
+  requestAnimationFrame(
+    () => {
+      modal.classList.add(
+        "is-visible"
+      );
+    }
+  );
+}
+
+function clearSessionAndRedirect() {
+  localStorage.removeItem(
+    "coastConnectToken"
+  );
+
+  localStorage.removeItem(
+    "coastConnectUser"
+  );
+
+  sessionStorage.setItem(
+    "coastConnectReturnUrl",
+    `${window.location.pathname}${window.location.search}`
+  );
+
+  window.location.replace(
+    "login.html"
+  );
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatMoney(value) {
+  return new Intl.NumberFormat(
+    "en-KE",
+    {
+      style: "currency",
+      currency: "KES",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }
+  ).format(
+    Number(value || 0)
+  );
+}
+
+function formatBookingDate(value) {
+  if (!value) {
+    return "Not specified";
+  }
+
+  const datePart =
+    String(value).slice(
+      0,
+      10
+    );
+
+  const parts =
+    datePart.split("-");
+
+  if (parts.length !== 3) {
+    return datePart;
+  }
+
+  const [
+    year,
+    month,
+    day,
+  ] = parts;
+
+  return `${day}/${month}/${year}`;
+}
+
+function formatBookingTime(value) {
+  if (!value) {
+    return "Not specified";
+  }
+
+  const [
+    hourValue,
+    minuteValue,
+  ] = String(value)
+    .split(":");
+
+  const hour =
+    Number(hourValue);
+
+  if (
+    Number.isNaN(hour)
+  ) {
+    return String(value);
+  }
+
+  const suffix =
+    hour >= 12
+      ? "PM"
+      : "AM";
+
+  const displayHour =
+    hour % 12 || 12;
+
+  return `${displayHour}:${minuteValue || "00"} ${suffix}`;
+}
+
+function normalizeStatus(value) {
+  return String(value || "")
+    .trim()
+    .toUpperCase();
+}
+
+function formatStatus(value) {
+  return normalizeStatus(value)
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(
+      /\b\w/g,
+      (letter) =>
+        letter.toUpperCase()
+    );
+}
+
+async function loadCustomerBookings() {
+  customerBookingsGrid.innerHTML =
+    `
+      <p>
+        Loading bookings...
+      </p>
+    `;
+
+  showMessage();
+
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/bookings/me`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    if (
+      response.status === 401
+    ) {
+      clearSessionAndRedirect();
+
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to load bookings."
+      );
+    }
+
+    customerBookings =
+      Array.isArray(
+        data.bookings
+      )
+        ? data.bookings
+        : [];
+
+    updateSummaryCounts();
+    renderCustomerBookings();
+  } catch (error) {
+    console.error(
+      "Load customer bookings error:",
+      error
+    );
+
+    customerBookingsGrid.innerHTML =
+      `
+        <p>
+          Unable to load bookings.
+        </p>
+      `;
+
+    showMessage(
+      error.message ||
+        "Unable to load bookings.",
+      "error"
+    );
+  }
+}
+
+async function loadCustomerPaymentDisputes() {
+  try {
+    const response =
+      await fetch(
+        `${API_BASE_URL}/provider-payments/customer/disputes`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      response.status === 401
+    ) {
+      clearSessionAndRedirect();
+      return;
+    }
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "Unable to load payment disputes."
+      );
+    }
+
+    customerPaymentDisputes =
+      Array.isArray(data.disputes)
+        ? data.disputes
+        : [];
+
+  } catch (error) {
+    console.error(
+      "Load customer payment disputes error:",
+      error
+    );
+
+    customerPaymentDisputes = [];
+  }
+}
+
+function updateSummaryCounts() {
+  const counts = {
+    PENDING: 0,
+    CONFIRMED: 0,
+    IN_PROGRESS: 0,
+    COMPLETED: 0,
+  };
+
+  customerBookings.forEach(
+    (booking) => {
+      const status =
+        normalizeStatus(
+          booking.booking_status
+        );
+
+      if (
+        Object.hasOwn(
+          counts,
+          status
+        )
+      ) {
+        counts[status] += 1;
+      }
+    }
+  );
+
+  pendingCount.textContent =
+    counts.PENDING;
+
+  confirmedCount.textContent =
+    counts.CONFIRMED;
+
+  progressCount.textContent =
+    counts.IN_PROGRESS;
+
+  completedCount.textContent =
+    counts.COMPLETED;
+}
+
+function renderCustomerBookings() {
+  if (
+    customerBookings.length === 0
+  ) {
+    customerBookingsGrid.innerHTML =
+      `
+        <div class="bookings-empty-state">
+          <h3>
+            No bookings yet
+          </h3>
+
+          <p>
+            Browse available providers and book a service.
+          </p>
+        </div>
+      `;
+
+    return;
+  }
+
+  customerBookingsGrid.innerHTML =
+    customerBookings
+      .map(
+        (booking) => {
+
+  const bookingDispute =
+  customerPaymentDisputes.find(
+    (dispute) =>
+      dispute.booking_id === booking.id &&
+      dispute.status !== "RESOLVED"
+  ) ||
+  customerPaymentDisputes.find(
+    (dispute) =>
+      dispute.booking_id === booking.id
+  );   const bookingStatus =
+            normalizeStatus(
+              booking.booking_status
+            );
+
+          const paymentStatus =
+            normalizeStatus(
+              booking.payment_status
+            );
+
+          const canOpenDispute =
+           !bookingDispute &&
+            bookingStatus === "COMPLETED" &&
+            (
+              paymentStatus === "PAID" ||
+              paymentStatus === "PARTIALLY_PAID"
+            );
+
+          return `
+            <article
+              class="customer-booking-card"
+              data-booking-id="${escapeHtml(
+                booking.id
+              )}"
+            >
+
+              <div class="booking-card-header">
+
+                <div>
+                  <span class="booking-category">
+                    Service booking
+                  </span>
+
+                  <h3>
+                    ${escapeHtml(
+                      booking.title ||
+                      "Booked service"
+                    )}
+                  </h3>
+                </div>
+
+                <span
+                  class="booking-status-badge status-${escapeHtml(
+                    bookingStatus.toLowerCase()
+                  )}"
+                >
+                  ${escapeHtml(
+                    formatStatus(
+                      bookingStatus
+                    )
+                  )}
+                </span>
+
+              </div>
+
+              <div class="booking-card-body">
+
+                <div class="booking-detail">
+                  <span>
+                    Provider
+                  </span>
+
+                  <strong>
+                    ${escapeHtml(
+                      booking.provider_name ||
+                      "Provider unavailable"
+                    )}
+                  </strong>
+                </div>
+
+                <div class="booking-detail">
+                  <span>
+                    Date
+                  </span>
+
+                  <strong>
+                    ${escapeHtml(
+                      formatBookingDate(
+                        booking.booking_date
+                      )
+                    )}
+                  </strong>
+                </div>
+
+                <div class="booking-detail">
+                  <span>
+                    Time
+                  </span>
+
+                  <strong>
+                    ${escapeHtml(
+                      formatBookingTime(
+                        booking.start_time
+                      )
+                    )}
+                  </strong>
+                </div>
+
+                <div class="booking-detail">
+                  <span>
+                    Booking ID
+                  </span>
+
+                  <strong>
+                    ${escapeHtml(
+                      String(
+                        booking.id
+                      ).slice(0, 8)
+                    )}
+                  </strong>
+                </div>
+
+                <div class="booking-detail full-width">
+                  <span>
+                    Service address
+                  </span>
+
+                  <p>
+                    ${escapeHtml(
+                      booking.service_address ||
+                      "Not specified"
+                    )}
+                  </p>
+                </div>
+
+                ${
+                  booking.instructions
+                    ? `
+                      <div class="booking-detail full-width">
+                        <span>
+                          Instructions
+                        </span>
+
+                        <p>
+                          ${escapeHtml(
+                            booking.instructions
+                          )}
+                        </p>
+                      </div>
+                    `
+                    : ""
+                }
+
+              </div>
+
+              ${
+                bookingStatus ===
+                "AWAITING_CUSTOMER_CONFIRMATION"
+                  ? `
+                    <div class="booking-completion-confirmation">
+
+                      <strong>
+                        Your provider has marked this job as completed.
+                      </strong>
+
+                      <p>
+                        Please confirm that the service was completed
+                        successfully before making the remaining payment.
+                      </p>
+
+                      <button
+                        type="button"
+                        class="confirm-booking-completion-button"
+                        data-booking-id="${escapeHtml(
+                          booking.id
+                        )}"
+                      >
+                        Confirm Job Completed
+                      </button>
+
+                    </div>
+                  `
+                  : ""
+              }
+
+              <div class="booking-card-footer">
+
+                <div class="booking-price">
+
+                  <span>
+                    Estimated price
+                  </span>
+
+                  <strong>
+                    ${formatMoney(
+                      booking.estimated_price
+                    )}
+                  </strong>
+
+                </div>
+
+                <div class="booking-payment-actions">
+
+                  ${
+                    bookingStatus === "CONFIRMED" &&
+                    paymentStatus === "PARTIALLY_PAID"
+                      ? `
+                        <div class="service-start-pin-card">
+
+                          <div class="service-start-pin-card__icon">
+                            🔐
+                          </div>
+
+                          <div class="service-start-pin-card__content">
+
+                            <span class="service-start-pin-card__eyebrow">
+                              SERVICE SECURITY
+                            </span>
+
+                            <strong class="service-start-pin-card__title">
+                              Generate Start PIN
+                            </strong>
+
+                            <p class="service-start-pin-card__text">
+                              Generate a one-time PIN and give it to your
+                              provider when they arrive to start the service.
+                            </p>
+
+                            <button
+                              type="button"
+                              class="generate-start-pin-button"
+                              data-booking-id="${escapeHtml(
+                                booking.id
+                              )}"
+                            >
+                              Generate Start PIN
+                            </button>
+
+                            <div
+                              class="service-start-pin-result"
+                              data-start-pin-result="${escapeHtml(
+                                booking.id
+                              )}"
+                              hidden
+                            ></div>
+
+                          </div>
+
+                        </div>
+                      `
+                      : ""
+                  }
+
+                  <span
+                    class="payment-status-badge payment-${escapeHtml(
+                      paymentStatus.toLowerCase()
+                    )}"
+                  >
+                    ${escapeHtml(
+                      formatStatus(
+                        paymentStatus
+                      )
+                    )}
+                  </span>
+
+                  ${
+                    (
+                      bookingStatus === "CONFIRMED" &&
+                      paymentStatus === "UNPAID"
+                    ) ||
+                    (
+                      bookingStatus === "COMPLETED" &&
+                      paymentStatus === "PARTIALLY_PAID"
+                    )
+                      ? `
+                        <button
+                          type="button"
+                          class="pay-provider-booking-button"
+                          data-booking-id="${escapeHtml(
+                            booking.id
+                          )}"
+                          data-provider-name="${escapeHtml(
+                            booking.provider_name || ""
+                          )}"
+                        >
+                          ${
+                            paymentStatus ===
+                            "PARTIALLY_PAID"
+                              ? "Pay Remaining 50%"
+                              : "Pay 50% Deposit"
+                          }
+                        </button>
+                      `
+                      : ""
+                  }
+
+                </div>
+
+              </div>
+
+                            ${
+                bookingDispute
+                  ? `
+                    <div class="customer-dispute-status-card">
+
+                      <div class="customer-dispute-status-card__header">
+                        <span>
+                          PAYMENT DISPUTE
+                        </span>
+
+                        <strong>
+                          ${escapeHtml(
+                            formatStatus(
+                              bookingDispute.status ||
+                              "OPEN"
+                            )
+                          )}
+                        </strong>
+                      </div>
+
+                      <p>
+                        <strong>Reason:</strong>
+                        ${escapeHtml(
+                          bookingDispute.dispute_reason ||
+                          "Not provided"
+                        )}
+                      </p>
+
+                      <p>
+                        <strong>Your Description:</strong>
+                        ${escapeHtml(
+                          bookingDispute.description ||
+                          "Not provided"
+                        )}
+                      </p>
+
+                     ${
+  bookingDispute.resolution_notes
+    ? `
+      <p>
+        <strong>
+          ${
+            bookingDispute.status === "RESOLVED"
+              ? "Admin Resolution:"
+              : "Provider Response:"
+          }
+        </strong>
+
+        ${escapeHtml(
+          bookingDispute.resolution_notes
+        )}
+      </p>
+    `
+    : ""
+}
+                      ${
+                        bookingDispute.evidence
+                          ? `
+                            <p>
+                              <strong>Provider Evidence:</strong>
+                              ${escapeHtml(
+                                bookingDispute.evidence
+                              )}
+                            </p>
+                          `
+                          : ""
+                      }
+
+                    </div>
+                  `
+                  : ""
+              }
+
+              ${
+                canOpenDispute
+                  ? `
+                    <div
+                      class="booking-dispute-section"
+                      data-booking-id="${escapeHtml(
+                        booking.id
+                      )}"
+                    >
+
+                      <div class="booking-dispute-section__content">
+
+                        <span class="booking-dispute-section__eyebrow">
+                          PAYMENT PROTECTION
+                        </span>
+
+                        <h4>
+                          Have an issue with this service?
+                        </h4>
+
+                        <p>
+                          If there is a problem with the completed service
+                          or payment, you can open a dispute for admin review.
+                        </p>
+
+                      </div>
+
+                      <button
+                        type="button"
+                        class="open-payment-dispute-button"
+                        data-booking-id="${escapeHtml(
+                          booking.id
+                          
+                        )}"
+                        data-provider-name="${escapeHtml(
+                          booking.provider_name || ""
+                        )}"
+
+                        data-payment-id="${escapeHtml(
+                        booking.payment_id || ""
+                      )}"
+                      >
+                        Open Dispute
+                      </button>
+
+                    </div>
+                  `
+                  : ""
+              }
+
+              ${
+                bookingStatus === "COMPLETED"
+                  ? `
+                    <div
+                      class="booking-review-section"
+                      data-booking-id="${escapeHtml(
+                        booking.id
+                      )}"
+                    >
+
+                      <h4>
+                        Leave a Review
+                      </h4>
+
+                      <div class="review-rating-group">
+
+                        <label>
+                          Rate your experience
+                        </label>
+
+                        <div
+                          class="star-rating"
+                          data-booking-id="${escapeHtml(
+                            booking.id
+                          )}"
+                        >
+
+                          <span data-rating="1">★</span>
+                          <span data-rating="2">★</span>
+                          <span data-rating="3">★</span>
+                          <span data-rating="4">★</span>
+                          <span data-rating="5">★</span>
+
+                        </div>
+
+                      </div>
+
+                      <textarea
+                        class="review-comment-input"
+                        data-booking-id="${escapeHtml(
+                          booking.id
+                        )}"
+                        rows="4"
+                        maxlength="2000"
+                        placeholder="Share your experience with this provider..."
+                      ></textarea>
+
+                      <button
+                        type="button"
+                        class="submit-review-button"
+                        data-booking-id="${escapeHtml(
+                          booking.id
+                        )}"
+                      >
+                        Submit Review
+                      </button>
+
+                      <div
+                        class="review-message"
+                        data-review-message="${escapeHtml(
+                          booking.id
+                        )}"
+                      ></div>
+
+                    </div>
+                  `
+                  : ""
+              }
+
+            </article>
+          `;
+        }
+      )
+      .join("");
+}
+
+customerBookingsGrid.addEventListener(
+  "click",
+  (event) => {
+    const button =
+      event.target.closest(
+        ".pay-provider-booking-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const bookingId =
+      button.dataset.bookingId;
+
+    selectedPaymentBooking =
+      customerBookings.find(
+        (booking) =>
+          booking.id === bookingId
+      );
+
+    if (!selectedPaymentBooking) {
+      showMessage(
+        "Booking information could not be found.",
+        "error"
+      );
+
+      return;
+    }
+
+    paymentProviderName.textContent =
+      selectedPaymentBooking.provider_name ||
+      "Service provider";
+
+    const paymentStageAmount =
+  Number(
+    selectedPaymentBooking.estimated_price ||
+    0
+  ) * 0.5;
+
+paymentAmount.textContent =
+  formatMoney(
+    paymentStageAmount
+  );
+    paymentPhoneNumber.value =
+      storedUser?.phone || "";
+
+      const selectedPaymentStatus =
+  normalizeStatus(
+    selectedPaymentBooking.payment_status
+  );
+
+confirmPaymentButton.textContent =
+  selectedPaymentStatus ===
+    "PARTIALLY_PAID"
+    ? "Pay Remaining 50%"
+    : "Pay 50% Deposit";
+
+    mpesaPaymentModal.hidden =
+      false;
+
+    paymentPhoneNumber.focus();
+  }
+);
+
+function closeMpesaPaymentModal() {
+  mpesaPaymentModal.hidden =
+    true;
+
+  selectedPaymentBooking =
+    null;
+
+  paymentPhoneNumber.value =
+    "";
+
+  confirmPaymentButton.disabled =
+    false;
+
+ confirmPaymentButton.textContent =
+  "Pay 50% Deposit";
+}
+
+closePaymentModal?.addEventListener(
+  "click",
+  closeMpesaPaymentModal
+);
+
+cancelPaymentButton?.addEventListener(
+  "click",
+  closeMpesaPaymentModal
+);
+
+confirmPaymentButton?.addEventListener(
+  "click",
+  async () => {
+    if (!selectedPaymentBooking) {
+      showMessage(
+        "No booking selected for payment.",
+        "error"
+      );
+
+      return;
+    }
+
+    const phoneNumber =
+      String(
+        paymentPhoneNumber.value ||
+        ""
+      ).trim();
+
+    if (!phoneNumber) {
+      showMessage(
+        "Enter your M-Pesa phone number.",
+        "error"
+      );
+
+      paymentPhoneNumber.focus();
+
+      return;
+    }
+
+    confirmPaymentButton.disabled =
+      true;
+
+    confirmPaymentButton.textContent =
+      "Sending STK...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/provider-payments/payment-attempt`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                bookingId:
+                  selectedPaymentBooking.id,
+
+                phoneNumber,
+              }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401
+      ) {
+        clearSessionAndRedirect();
+
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to start payment."
+        );
+      }
+
+      showMessage(
+        data.message ||
+        "M-Pesa prompt sent. Check your phone.",
+        "success"
+      );
+
+      closeMpesaPaymentModal();
+
+      await loadCustomerBookings();
+   } catch (error) {
+  console.error(
+    "Provider payment error:",
+    error
+  );
+
+showPremiumAlert(
+  "Payment Unavailable",
+  error.message ||
+  "Unable to start payment."
+);
+
+  confirmPaymentButton.disabled =
+    false;
+
+  confirmPaymentButton.textContent =
+    "Pay Now";
+}
+  }
+);
+
+function initializeCustomerBookingSocket() {
+
+  function joinCustomerRoom() {
+    const customerId =
+  String(
+    storedUser?.userId ||
+    storedUser?.id ||
+    ""
+  ).trim();
+
+    if (!customerId) {
+      console.warn(
+        "Cannot join customer room: customer ID missing."
+      );
+
+      return;
+    }
+
+    socket.emit(
+      "join-customer-room",
+      customerId
+    );
+  }
+
+  socket.on(
+    "connect",
+    () => {
+
+      joinCustomerRoom();
+    }
+  );
+
+  /*
+    The socket may already be connected
+    before this function runs.
+  */
+  if (socket.connected) {
+    joinCustomerRoom();
+  }
+
+  socket.on(
+  "customer-room-joined",
+  (data) => {
+  }
+);
+
+socket.on(
+  "customer-booking-start-requested",
+  async (booking) => {
+    await loadCustomerBookings();
+
+    showMessage(
+      "Your provider is ready to start. Please generate your Start PIN.",
+      "success"
+    );
+  }
+);
+
+socket.on(
+  "customer-booking-started",
+  async (booking) => {
+    try {
+      await loadCustomerBookings();
+    } catch (error) {
+      console.error(
+        "Customer booking refresh error:",
+        error
+      );
+    }
+  }
+);
+
+  socket.on(
+    "customer-booking-status-updated",
+    async (booking) => {
+
+      await loadCustomerBookings();
+
+      showMessage(
+        `Booking is now ${booking.bookingStatus}.`,
+        "success"
+      );
+
+      showCustomerBookingNotification(
+        booking.bookingStatus
+      );
+    }
+  );
+
+  socket.on(
+  "provider-payment-completed",
+  async (payment) => {
+
+    const booking =
+  customerBookings.find(
+    (item) =>
+      item.id === payment.bookingId
+  );
+
+if (booking) {
+  booking.payment_status =
+    payment.paymentStatus;
+
+  renderCustomerBookings();
+}
+
+    await Promise.all([
+  loadCustomerBookings(),
+  loadCustomerPaymentDisputes(),
+]);
+
+    if (
+      payment.paymentStage ===
+      "DEPOSIT"
+    ) {
+      showMessage(
+        "Deposit payment completed successfully.",
+        "success"
+      );
+    } else if (
+      payment.paymentStage ===
+      "BALANCE"
+    ) {
+      showMessage(
+        "Remaining balance paid successfully.",
+        "success"
+      );
+    } else {
+      showMessage(
+        "Payment completed successfully.",
+        "success"
+      );
+    }
+  }
+);
+}
+
+customerBookingsGrid?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".open-payment-dispute-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const paymentId =
+      button.dataset.paymentId;
+
+    if (!paymentId) {
+      showMessage(
+        "Payment information could not be found.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    openPaymentDisputeModal(
+  paymentId
+);
+
+return;
+
+    const originalText =
+      button.textContent;
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Opening Dispute...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/provider-payments/disputes`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                paymentId,
+                reason:
+                  reason.trim(),
+                description:
+                  description.trim(),
+              }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401
+      ) {
+        clearSessionAndRedirect();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to open the dispute."
+        );
+      }
+
+      showMessage(
+        data.message ||
+          "Payment dispute opened successfully.",
+        "success"
+      );
+
+      await loadCustomerBookings();
+
+    } catch (error) {
+      console.error(
+        "Open payment dispute error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+          "Unable to open the dispute.",
+        "error"
+      );
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
+customerBookingsGrid?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".submit-review-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const bookingId =
+      button.dataset.bookingId;
+
+    const ratingSelect =
+      document.querySelector(
+        `.review-rating-select[data-booking-id="${bookingId}"]`
+      );
+
+    const commentInput =
+      document.querySelector(
+        `.review-comment-input[data-booking-id="${bookingId}"]`
+      );
+
+    const messageElement =
+      document.querySelector(
+        `[data-review-message="${bookingId}"]`
+      );
+
+    const rating =
+  reviewRatings[
+    bookingId
+  ];
+
+    const comment =
+      commentInput?.value.trim() ||
+      "";
+
+    if (
+      !Number.isInteger(rating) ||
+      rating < 1 ||
+      rating > 5
+    ) {
+      if (messageElement) {
+        messageElement.textContent =
+          "Please select a rating.";
+
+        messageElement.className =
+          "review-message error";
+      }
+
+      return;
+    }
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Submitting...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/bookings/${encodeURIComponent(
+            bookingId
+          )}/review`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                rating,
+                comment:
+                  comment || null,
+              }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401
+      ) {
+        clearSessionAndRedirect();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to submit review."
+        );
+      }
+
+      if (messageElement) {
+        messageElement.textContent =
+          "Review submitted successfully.";
+
+        messageElement.className =
+          "review-message success";
+      }
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        "Reviewed";
+    } catch (error) {
+      console.error(
+        "Submit review error:",
+        error
+      );
+
+      if (messageElement) {
+        messageElement.textContent =
+          error.message ||
+          "Unable to submit review.";
+
+        messageElement.className =
+          "review-message error";
+      }
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "Submit Review";
+    }
+  }
+);
+
+customerBookingsGrid?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".confirm-booking-completion-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const bookingId =
+      button.dataset.bookingId;
+
+    if (!bookingId) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Confirm that the provider has completed the service successfully?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const originalText =
+      button.textContent;
+
+    button.disabled = true;
+
+    button.textContent =
+      "Confirming...";
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/bookings/${encodeURIComponent(
+            bookingId
+          )}/confirm-completion`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+
+              Accept:
+                "application/json",
+            },
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (
+        response.status === 401
+      ) {
+        clearSessionAndRedirect();
+        return;
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to confirm job completion."
+        );
+      }
+
+      showMessage(
+        "Job completion confirmed successfully. You can now make the remaining payment.",
+        "success"
+      );
+
+      await loadCustomerBookings();
+
+    } catch (error) {
+      console.error(
+        "Confirm booking completion error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+          "Unable to confirm job completion.",
+        "error"
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);
+
+customerBookingsGrid.addEventListener(
+  "click",
+  (event) => {
+
+    const star =
+      event.target.closest(
+        ".star-rating span"
+      );
+
+    if (!star) {
+      return;
+    }
+
+    const container =
+      star.parentElement;
+
+    const bookingId =
+      container.dataset.bookingId;
+
+    const rating =
+      Number(
+        star.dataset.rating
+      );
+
+    reviewRatings[
+      bookingId
+    ] = rating;
+
+    container
+      .querySelectorAll("span")
+      .forEach(
+        (item) => {
+
+          item.classList.toggle(
+            "active",
+            Number(
+              item.dataset.rating
+            ) <= rating
+          );
+
+        }
+      );
+
+  }
+);
+
+customerBookingsGrid?.addEventListener(
+  "click",
+  async (event) => {
+    const button =
+      event.target.closest(
+        ".generate-start-pin-button"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const bookingId =
+      button.dataset.bookingId;
+
+    if (!bookingId) {
+      return;
+    }
+
+    const resultElement =
+      document.querySelector(
+        `.service-start-pin-result[data-start-pin-result="${bookingId}"]`
+      );
+
+    const originalText =
+      button.textContent;
+
+    button.disabled = true;
+    button.textContent =
+      "Generating...";
+
+    if (resultElement) {
+      resultElement.hidden = true;
+      resultElement.textContent = "";
+    }
+
+    try {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/bookings/${encodeURIComponent(
+            bookingId
+          )}/start-pin`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              Accept:
+                "application/json",
+            },
+          }
+        );
+
+     if (response.status === 401) {
+  clearSessionAndRedirect();
+  return;
+}
+
+      const data =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "Unable to generate the service PIN."
+        );
+      }
+
+      const startPin =
+        String(
+          data.startPin || ""
+        ).trim();
+
+      if (
+        !/^\d{6}$/.test(
+          startPin
+        )
+      ) {
+        throw new Error(
+          "The server returned an invalid service PIN."
+        );
+      }
+
+      if (resultElement) {
+        resultElement.innerHTML = `
+          <div class="service-start-pin-card__success">
+            <span class="service-start-pin-card__success-label">
+              YOUR SERVICE PIN
+            </span>
+
+            <strong
+              class="service-start-pin-card__pin"
+              aria-label="Service start PIN"
+            >
+              ${escapeHtml(
+                startPin
+              )}
+            </strong>
+
+            <span class="service-start-pin-card__hint">
+              Give this 6-digit PIN to your provider when they arrive.
+            </span>
+          </div>
+        `;
+
+        resultElement.hidden =
+          false;
+      }
+
+      button.textContent =
+        "PIN Generated";
+
+      button.disabled =
+        true;
+    } catch (error) {
+      console.error(
+        "Generate start PIN error:",
+        error
+      );
+
+      showMessage(
+        error.message ||
+          "Unable to generate the service PIN.",
+        "error"
+      );
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+);

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Provider Details | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/provider-details.css"
+  >
+</head>
+
+<body>
+
+  <header class="details-header">
+    <div class="details-header-inner">
+
+      <a
+        href="providers.html"
+        class="details-brand"
+      >
+        <span class="details-brand-icon">
+          CC
+        </span>
+
+        <span>
+          <strong>Coast Connect</strong>
+          <small>Local Services</small>
+        </span>
+      </a>
+
+      <a
+        href="providers.html"
+        class="back-link"
+      >
+        Back to providers
+      </a>
+
+    </div>
+  </header>
+
+  <main class="details-main">
+
+    <div
+      id="providerDetailsMessage"
+      class="details-message"
+      role="status"
+      aria-live="polite"
+    ></div>
+
+    <section
+      id="providerDetailsContent"
+      class="provider-details-layout"
+      hidden
+    >
+
+      <article class="provider-profile-card">
+
+        <div class="provider-profile-top">
+
+          <div
+            id="providerProfileAvatar"
+            class="provider-profile-avatar"
+          >
+            P
+          </div>
+
+          <div class="provider-profile-identity">
+
+            <span
+              id="providerVerificationBadge"
+              class="verification-badge"
+            >
+              Verification pending
+            </span>
+
+            <h1 id="providerFullName">
+              Provider
+            </h1>
+
+            <p id="providerServiceArea">
+              Service area
+            </p>
+
+          </div>
+
+        </div>
+
+        <div class="provider-profile-meta">
+
+          <div>
+            <span>Experience</span>
+
+            <strong id="providerExperienceYears">
+              0 years
+            </strong>
+          </div>
+
+          <div>
+            <span>Rating</span>
+
+            <strong id="providerAverageRating">
+              0.0
+            </strong>
+          </div>
+
+          <div>
+            <span>Reviews</span>
+
+            <strong id="providerTotalReviews">
+              0
+            </strong>
+          </div>
+
+          <div>
+            <span>Availability</span>
+
+            <strong
+              id="providerAvailabilityStatus"
+              class="availability-badge"
+            >
+              Offline
+            </strong>
+          </div>
+
+        </div>
+
+        <div class="provider-bio-section">
+
+          <span class="section-label">
+            About provider
+          </span>
+
+          <h2>
+            Professional profile
+          </h2>
+
+          <p id="providerBio">
+            No professional bio provided.
+          </p>
+
+        </div>
+
+      </article>
+
+      <aside class="provider-contact-card">
+
+        <span class="section-label">
+          Provider contact
+        </span>
+
+        <h2>
+          Contact information
+        </h2>
+
+        <div class="contact-list">
+
+          <div>
+            <span>Email</span>
+
+            <strong id="providerEmail">
+              Not available
+            </strong>
+          </div>
+
+          <div>
+            <span>Phone</span>
+
+            <strong id="providerPhone">
+              Not available
+            </strong>
+          </div>
+
+        </div>
+
+        <p>
+          Contact details are shown for service coordination.
+          Complete your booking through Coast Connect for proper tracking.
+        </p>
+
+      </aside>
+
+    </section>
+
+    <section
+      id="providerServicesSection"
+      class="provider-services-section"
+      hidden
+    >
+
+      <div class="services-heading">
+
+        <div>
+          <span class="section-label">
+            Available services
+          </span>
+
+          <h2>
+            Services offered
+          </h2>
+
+          <p>
+            Choose the service that matches what you need.
+          </p>
+        </div>
+
+      </div>
+
+      <div
+        id="providerServicesList"
+        class="provider-services-grid"
+      ></div>
+
+    </section>
+
+    <section
+  id="providerReviewsSection"
+  class="provider-reviews-section"
+  hidden
+>
+  <div class="reviews-heading">
+    <div>
+      <span class="section-label">
+        Customer Reviews
+      </span>
+
+      <h2>
+        What customers say
+      </h2>
+
+      <p>
+        Reviews from completed Coast Connect bookings.
+      </p>
+    </div>
+
+    <div class="reviews-summary">
+      <strong id="reviewsAverageRating">
+        0.0
+      </strong>
+
+      <span>
+        ⭐
+      </span>
+
+      <small>
+        <span id="reviewsTotalCount">0</span>
+        reviews
+      </small>
+    </div>
+  </div>
+
+  <div
+    id="providerReviewsList"
+    class="provider-reviews-list"
+  ></div>
+</section>
+
+  </main>
+
+  <script src="js/provider-details.js"></script>
+</body>
+</html>

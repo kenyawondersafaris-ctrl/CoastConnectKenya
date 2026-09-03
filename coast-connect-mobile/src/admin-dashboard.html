@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Admin Dashboard | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/admin-dashboard.css"
+  >
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+  <aside
+  class="admin-sidebar"
+  id="adminSidebar"
+>
+
+<button
+  type="button"
+  class="admin-sidebar-close"
+  id="adminSidebarCloseButton"
+  aria-label="Close admin navigation"
+>
+  ×
+</button>
+
+    <div class="admin-brand">
+      <span class="admin-brand-mark">
+        CC
+      </span>
+
+      <div>
+        <strong>
+          Coast Connect
+        </strong>
+
+        <small>
+          Admin Portal
+        </small>
+      </div>
+    </div>
+
+    <nav class="admin-navigation">
+
+      <button
+        type="button"
+        class="admin-nav-link active"
+        data-admin-section="overview"
+      >
+        Overview
+      </button>
+
+      <button
+        type="button"
+        class="admin-nav-link"
+        data-admin-section="providers"
+      >
+        Providers
+      </button>
+
+      <button
+  type="button"
+  class="admin-nav-link"
+  data-admin-section="provider-verifications"
+>
+  Professional Verifications
+</button>
+
+      <button
+        type="button"
+        class="admin-nav-link"
+        data-admin-section="restaurants"
+      >
+        Restaurants
+      </button>
+
+      <button
+        type="button"
+        class="admin-nav-link"
+        data-admin-section="users"
+      >
+        Users
+      </button>
+
+      <button
+  type="button"
+  class="admin-nav-link"
+  data-admin-section="payouts"
+>
+  Provider Payouts
+</button>
+
+<button
+  type="button"
+  class="admin-nav-link"
+  data-admin-section="payout-history"
+>
+  Paid History
+</button>
+
+<button
+  type="button"
+  class="admin-nav-link"
+  data-admin-section="refunds"
+>
+  Refunds
+</button>
+
+<button
+  type="button"
+  class="admin-nav-link"
+  data-admin-section="payment-disputes"
+>
+  Payment Disputes & Refunds
+</button>
+
+<button
+  type="button"
+  class="admin-nav-link"
+  data-admin-section="support"
+>
+  💬 Support Messages
+</button>
+
+    </nav>
+
+    <div class="admin-sidebar-footer">
+
+      <div class="admin-user-summary">
+
+        <div
+          class="admin-avatar"
+          id="adminAvatar"
+        >
+          A
+        </div>
+
+        <div>
+          <strong id="adminName">
+            Administrator
+          </strong>
+
+          <span id="adminEmail">
+            admin@coastconnect.co.ke
+          </span>
+        </div>
+
+      </div>
+
+      <button
+        type="button"
+        id="adminLogoutButton"
+        class="admin-logout-button"
+      >
+        Log out
+      </button>
+
+    </div>
+
+  </aside>
+
+  <div
+  class="admin-sidebar-overlay"
+  id="adminSidebarOverlay"
+  hidden
+></div>
+
+  <main class="admin-main">
+
+    <header class="admin-topbar">
+
+    <div class="admin-topbar-left">
+
+  <button
+    type="button"
+    class="admin-mobile-menu-button"
+    id="adminMobileMenuButton"
+    aria-label="Open admin navigation"
+    aria-expanded="false"
+    aria-controls="adminSidebar"
+  >
+    ☰
+  </button>
+
+  <div>
+    <p class="admin-eyebrow">
+      Platform Administration
+    </p>
+
+    <h1 id="adminPageTitle">
+      Overview
+    </h1>
+  </div>
+
+</div>
+
+     <div class="admin-topbar-actions">
+
+  <!-- We'll add the notification bell here next -->
+
+  <div class="admin-notification-center">
+
+  <button
+    type="button"
+    class="admin-notification-button"
+    id="adminNotificationButton"
+    aria-label="Notifications"
+    aria-expanded="false"
+  >
+    🔔
+
+    <span
+      id="adminNotificationBadge"
+      class="admin-notification-badge"
+      hidden
+    >
+      0
+    </span>
+
+  </button>
+
+  <div
+  class="admin-notification-dropdown"
+  id="adminNotificationDropdown"
+  hidden
+>
+
+  <div class="admin-notification-header">
+
+    <div>
+      <strong>
+        Notifications
+      </strong>
+
+      <span id="adminNotificationSummary">
+        No unread notifications
+      </span>
+    </div>
+
+    <button
+      type="button"
+      class="admin-mark-all-read-button"
+      id="adminMarkAllReadButton"
+    >
+      Mark all read
+    </button>
+
+  </div>
+
+  <div
+    class="admin-notification-list"
+    id="adminNotificationList"
+  >
+    <p>
+      Loading notifications...
+    </p>
+  </div>
+
+</div>
+
+</div>
+
+  <a
+    href="index.html"
+    class="admin-marketplace-link"
+  >
+    View Marketplace
+  </a>
+</div>
+
+
+
+    </header>
+
+    <div
+      id="adminMessage"
+      class="admin-message"
+      aria-live="polite"
+    ></div>
+
+    <div class="admin-content">
+
+      <section
+        class="admin-section active"
+        data-admin-panel="overview"
+      >
+
+        <div class="admin-stats-grid">
+
+          <article class="admin-stat-card">
+            <span>
+              Customers
+            </span>
+
+            <strong id="adminCustomersCount">
+              0
+            </strong>
+          </article>
+
+          <article class="admin-stat-card">
+            <span>
+              Providers
+            </span>
+
+            <strong id="adminProvidersCount">
+              0
+            </strong>
+          </article>
+
+          <article class="admin-stat-card">
+            <span>
+              Restaurants
+            </span>
+
+            <strong id="adminRestaurantsCount">
+              0
+            </strong>
+          </article>
+
+          <article class="admin-stat-card">
+            <span>
+              Pending approvals
+            </span>
+
+            <strong id="adminPendingApprovalsCount">
+              0
+            </strong>
+          </article>
+
+        </div>
+
+      </section>
+
+      <section
+        class="admin-section"
+        data-admin-panel="providers"
+        hidden
+      >
+
+        <div class="admin-section-heading">
+          <div>
+            <h2>
+              Provider Approvals
+            </h2>
+
+            <p>
+              Review provider accounts before they become publicly trusted.
+            </p>
+          </div>
+        </div>
+
+        <div
+          id="adminProvidersContainer"
+          class="admin-list"
+        >
+          <p>
+            Loading providers...
+          </p>
+        </div>
+
+      </section>
+
+      <section
+  class="admin-section"
+  data-admin-panel="payment-disputes"
+  hidden
+>
+  <div class="admin-section-heading">
+    <div>
+      <h2>
+        Payment Disputes & Refunds
+      </h2>
+
+      <p>
+        Review customer payment disputes, record decisions and track manual refunds.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="adminPaymentDisputesContainer"
+    class="admin-list"
+  >
+    <p>
+      Loading payment disputes...
+    </p>
+  </div>
+</section>
+
+      <section
+  class="admin-section"
+  data-admin-panel="provider-verifications"
+  hidden
+>
+  <div class="admin-section-heading">
+    <div>
+      <h2>
+        Professional Verifications
+      </h2>
+
+      <p>
+        Review provider qualifications, experience and supporting documents.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="adminProviderVerificationsContainer"
+    class="admin-list"
+  >
+    <p>
+      Loading professional verification requests...
+    </p>
+  </div>
+</section>
+
+      <section
+        class="admin-section"
+        data-admin-panel="restaurants"
+        hidden
+      >
+
+        <div class="admin-section-heading">
+          <div>
+            <h2>
+              Restaurant Approvals
+            </h2>
+
+            <p>
+              Review restaurant profiles before public approval.
+            </p>
+          </div>
+        </div>
+
+        <div
+          id="adminRestaurantsContainer"
+          class="admin-list"
+        >
+          <p>
+            Loading restaurants...
+          </p>
+        </div>
+
+      </section>
+
+      <section
+        class="admin-section"
+        data-admin-panel="users"
+        hidden
+      >
+
+        <div class="admin-section-heading">
+          <div>
+            <h2>
+              User Accounts
+            </h2>
+
+            <p>
+              Monitor customer, provider and restaurant owner accounts.
+            </p>
+          </div>
+        </div>
+
+        <div
+          id="adminUsersContainer"
+          class="admin-list"
+        >
+          <p>
+            Loading users...
+          </p>
+        </div>
+
+      </section>
+
+      <section
+  class="admin-section"
+  data-admin-panel="payouts"
+  hidden
+>
+  <div class="admin-section-heading">
+    <div>
+      <h2>
+        Provider Payouts
+      </h2>
+
+      <p>
+        Review provider earnings and record manual payments made by Coast Connect.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="adminPayoutsContainer"
+    class="admin-list"
+  >
+    <p>
+      Loading provider payouts...
+    </p>
+  </div>
+</section>
+
+<section
+  class="admin-section"
+  data-admin-panel="refunds"
+  hidden
+>
+  <div class="admin-section-heading">
+    <div>
+      <h2>
+        Customer Refunds
+      </h2>
+
+      <p>
+        Record customer refunds that have been completed manually.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="adminRefundsContainer"
+    class="admin-list"
+  >
+    <p>
+      Loading refundable payments...
+    </p>
+  </div>
+</section>
+
+<section
+  class="admin-section"
+  data-admin-panel="payout-history"
+  hidden
+>
+  <div class="admin-section-heading">
+    <div>
+      <h2>
+        Paid History
+      </h2>
+
+      <p>
+        Review provider payments already paid manually by Coast Connect.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="adminPayoutHistoryContainer"
+    class="admin-list"
+  >
+    <p>
+      Loading paid provider payouts...
+    </p>
+  </div>
+</section>
+
+<section
+  class="admin-section"
+  data-admin-panel="support"
+  hidden
+>
+
+  <div class="admin-section-heading">
+
+    <div>
+      <h2>
+        Support Messages
+      </h2>
+
+      <p>
+        Messages submitted through the Contact page.
+      </p>
+    </div>
+
+  </div>
+
+  <div
+    id="adminSupportMessagesContainer"
+    class="admin-list"
+  >
+  </div>
+
+</section>
+
+    </div>
+
+  </main>
+
+</div>
+
+<div
+  id="manualPayoutModal"
+  class="manual-payout-modal"
+  hidden
+>
+  <div
+    class="manual-payout-modal__backdrop"
+    data-manual-payout-close
+  ></div>
+
+  <div
+    class="manual-payout-modal__dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="manualPayoutModalTitle"
+  >
+    <div class="manual-payout-modal__header">
+      <div>
+        <span class="manual-payout-modal__eyebrow">
+          PROVIDER SETTLEMENT
+        </span>
+
+        <h2 id="manualPayoutModalTitle">
+          Record provider payout
+        </h2>
+
+        <p>
+          Record the payment you have already made to the provider.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="manual-payout-modal__close"
+        data-manual-payout-close
+        aria-label="Close"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="manual-payout-modal__summary">
+      <div>
+        <span>Provider</span>
+        <strong id="manualPayoutProviderName">
+          —
+        </strong>
+      </div>
+
+      <div>
+        <span>Amount</span>
+        <strong id="manualPayoutAmount">
+          KES 0.00
+        </strong>
+      </div>
+    </div>
+
+    <div class="manual-payout-modal__form">
+      <label for="manualPayoutMethod">
+        Payment method
+      </label>
+
+      <select
+        id="manualPayoutMethod"
+      >
+        <option value="">
+          Select payment method
+        </option>
+        <option value="BANK">
+          Bank transfer
+        </option>
+        <option value="MPESA">
+          M-Pesa
+        </option>
+        <option value="CASH">
+          Cash
+        </option>
+        <option value="OTHER">
+          Other
+        </option>
+      </select>
+
+      <label for="manualPayoutReference">
+        Payment reference
+      </label>
+
+      <input
+        id="manualPayoutReference"
+        type="text"
+        maxlength="150"
+        placeholder="e.g. Bank transaction or M-Pesa reference"
+        autocomplete="off"
+      />
+
+      <label for="manualPayoutNotes">
+        Notes
+        <span>(optional)</span>
+      </label>
+
+      <textarea
+        id="manualPayoutNotes"
+        rows="4"
+        maxlength="1000"
+        placeholder="Add any useful settlement notes..."
+      ></textarea>
+    </div>
+
+    <div
+      id="manualPayoutModalError"
+      class="manual-payout-modal__error"
+      hidden
+      aria-live="polite"
+    ></div>
+
+    <div class="manual-payout-modal__actions">
+      <button
+        type="button"
+        class="secondary-button"
+        data-manual-payout-close
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        id="confirmManualPayoutButton"
+        class="admin-mark-payout-paid-button"
+      >
+        Mark as Paid
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  id="providerVerificationModal"
+  class="admin-modal"
+  hidden
+>
+  <div class="admin-modal-backdrop"></div>
+
+  <div
+    class="admin-modal-content"
+    role="dialog"
+    aria-modal="true"
+  >
+
+    <button
+      type="button"
+      id="closeProviderVerificationModal"
+      class="admin-modal-close"
+    >
+      ×
+    </button>
+
+    <div id="providerVerificationModalContent">
+      <p>
+        Loading verification details...
+      </p>
+    </div>
+
+  </div>
+</div>
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+<script src="js/ui-feedback.js"></script>
+<script src="js/admin-dashboard.js"></script>
+
+</body>
+</html>

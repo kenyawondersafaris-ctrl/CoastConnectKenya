@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Discover verified restaurants across Mombasa, Diani, Nyali, Kilifi, Malindi, Watamu and other Coastal Kenya destinations."
+  >
+
+  <meta
+    name="keywords"
+    content="restaurants Coastal Kenya, Mombasa restaurants, Diani restaurants, Nyali restaurants, Malindi restaurants, Watamu restaurants"
+  >
+
+  <meta name="author" content="Coast Connect Kenya">
+
+  <title>Restaurants in Coastal Kenya | Coast Connect Kenya</title>
+
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/restaurants.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-container">
+
+      <a
+        href="index.html"
+        class="brand"
+        aria-label="Coast Connect Kenya homepage"
+      >
+        <span class="brand-icon">CC</span>
+
+        <span class="brand-text">
+          <strong>Coast Connect</strong>
+          <small>Kenya</small>
+        </span>
+      </a>
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+        id="mobileMenuButton"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="mainNavigation"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav
+        class="main-navigation"
+        id="mainNavigation"
+        aria-label="Main navigation"
+      >
+        <a href="index.html">Home</a>
+        <a href="providers.html">Services</a>
+         <a href="restaurants.html" class="active">Restaurants</a>
+        <a href="destinations.html">Destinations</a>
+        <a href="about.html">About</a>
+      </nav>
+
+      <div class="header-actions">
+
+  <a
+    href="login.html"
+    class="login-link"
+    id="loginLink"
+  >
+    Log in
+  </a>
+
+  <a
+    href="register.html"
+    class="primary-button"
+    id="joinLink"
+  >
+    Get Started
+  </a>
+
+  <a
+    href="customer-bookings.html"
+    class="primary-button"
+    id="dashboardLink"
+    hidden
+  >
+    My Bookings
+  </a>
+
+</div>
+
+    </div>
+  </header>
+
+  <main>
+
+    <section class="restaurant-hero">
+      <div class="container restaurant-hero-container">
+
+        <div class="restaurant-hero-content">
+          <span class="section-label">Restaurant discovery</span>
+
+          <h1>Find the best places to eat across Coastal Kenya</h1>
+
+          <p>
+            Browse verified restaurants, compare menus and prices, check
+            opening hours and discover trusted dining experiences near you.
+          </p>
+        </div>
+
+        <form
+          class="restaurant-search-form"
+          id="restaurantSearchForm"
+          role="search"
+        >
+
+          <div class="restaurant-search-field">
+            <label for="restaurantSearch">
+              Restaurant or cuisine
+            </label>
+
+            <input
+              type="search"
+              id="restaurantSearch"
+              name="search"
+              placeholder="Search restaurant, dish or cuisine"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="restaurant-search-field">
+            <label for="restaurantLocation">
+              Location
+            </label>
+
+            <select
+              id="restaurantLocation"
+              name="location"
+            >
+              <option value="">All coastal locations</option>
+              <option value="mombasa">Mombasa</option>
+              <option value="nyali">Nyali</option>
+              <option value="bamburi">Bamburi</option>
+              <option value="shanzu">Shanzu</option>
+              <option value="diani">Diani</option>
+              <option value="kilifi">Kilifi</option>
+              <option value="malindi">Malindi</option>
+              <option value="watamu">Watamu</option>
+              <option value="lamu">Lamu</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            class="search-button restaurant-submit-button"
+          >
+            Search restaurants
+          </button>
+
+        </form>
+
+      </div>
+    </section>
+
+    <section class="restaurant-discovery-section">
+      <div class="container restaurant-layout">
+
+        <aside
+          class="restaurant-filters"
+          id="restaurantFilters"
+          aria-label="Restaurant filters"
+        >
+
+          <div class="filter-header">
+            <div>
+              <span class="filter-eyebrow">Refine results</span>
+              <h2>Filters</h2>
+            </div>
+
+            <button
+              type="button"
+              class="clear-filters-button"
+              id="clearFiltersButton"
+            >
+              Clear all
+            </button>
+          </div>
+
+          <div class="filter-group">
+            <label for="filterLocation">Location</label>
+
+            <select id="filterLocation">
+              <option value="">All locations</option>
+              <option value="mombasa">Mombasa</option>
+              <option value="nyali">Nyali</option>
+              <option value="bamburi">Bamburi</option>
+              <option value="shanzu">Shanzu</option>
+              <option value="diani">Diani</option>
+              <option value="kilifi">Kilifi</option>
+              <option value="malindi">Malindi</option>
+              <option value="watamu">Watamu</option>
+              <option value="lamu">Lamu</option>
+            </select>
+          </div>
+
+          <fieldset class="filter-group">
+            <legend>Cuisine</legend>
+
+            <label class="filter-checkbox">
+              <input
+                type="checkbox"
+                name="cuisine"
+                value="swahili"
+              >
+              <span>Swahili</span>
+            </label>
+
+            <label class="filter-checkbox">
+              <input
+                type="checkbox"
+                name="cuisine"
+                value="seafood"
+              >
+              <span>Seafood</span>
+            </label>
+
+            <label class="filter-checkbox">
+              <input
+                type="checkbox"
+                name="cuisine"
+                value="african"
+              >
+              <span>African</span>
+            </label>
+
+            <label class="filter-checkbox">
+              <input
+                type="checkbox"
+                name="cuisine"
+                value="indian"
+              >
+              <span>Indian</span>
+            </label>
+
+            <label class="filter-checkbox">
+              <input
+                type="checkbox"
+                name="cuisine"
+                value="italian"
+              >
+              <span>Italian</span>
+            </label>
+
+            <label class="filter-checkbox">
+              <input
+                type="checkbox"
+                name="cuisine"
+                value="fast-food"
+              >
+              <span>Fast food</span>
+            </label>
+
+            <label class="filter-checkbox">
+              <input
+                type="checkbox"
+                name="cuisine"
+                value="cafe"
+              >
+              <span>Cafés and bakeries</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="filter-group">
+            <legend>Price range</legend>
+
+            <label class="filter-radio">
+              <input
+                type="radio"
+                name="priceRange"
+                value=""
+                checked
+              >
+              <span>Any price</span>
+            </label>
+
+            <label class="filter-radio">
+              <input
+                type="radio"
+                name="priceRange"
+                value="budget"
+              >
+              <span>Budget friendly</span>
+            </label>
+
+            <label class="filter-radio">
+              <input
+                type="radio"
+                name="priceRange"
+                value="moderate"
+              >
+              <span>Moderately priced</span>
+            </label>
+
+            <label class="filter-radio">
+              <input
+                type="radio"
+                name="priceRange"
+                value="premium"
+              >
+              <span>Premium dining</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="filter-group">
+            <legend>Minimum rating</legend>
+
+            <label class="filter-radio">
+              <input
+                type="radio"
+                name="rating"
+                value=""
+                checked
+              >
+              <span>Any rating</span>
+            </label>
+
+            <label class="filter-radio">
+              <input
+                type="radio"
+                name="rating"
+                value="4"
+              >
+              <span>4.0 and above</span>
+            </label>
+
+            <label class="filter-radio">
+              <input
+                type="radio"
+                name="rating"
+                value="4.5"
+              >
+              <span>4.5 and above</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="filter-group">
+            <legend>Availability</legend>
+
+            <label class="filter-checkbox">
+              <input
+                type="checkbox"
+                id="openNowFilter"
+              >
+              <span>Open now</span>
+            </label>
+
+            <label class="filter-checkbox">
+              <input
+                type="checkbox"
+                id="verifiedFilter"
+              >
+              <span>Verified restaurants only</span>
+            </label>
+          </fieldset>
+
+          <button
+            type="button"
+            class="primary-button apply-filters-button"
+            id="applyFiltersButton"
+          >
+            Apply filters
+          </button>
+
+        </aside>
+
+        <div class="restaurant-results">
+
+          <div class="results-toolbar">
+
+            <div>
+              <p class="results-label">Restaurant results</p>
+
+              <h2>
+                <span id="restaurantResultCount">0</span>
+                restaurants found
+              </h2>
+            </div>
+
+            <div class="results-actions">
+
+              <button
+                type="button"
+                class="mobile-filter-button"
+                id="mobileFilterButton"
+                aria-expanded="false"
+                aria-controls="restaurantFilters"
+              >
+                Filters
+              </button>
+
+              <label class="sort-control">
+                <span>Sort by</span>
+
+                <select id="restaurantSort">
+                  <option value="recommended">Recommended</option>
+                  <option value="rating-desc">Highest rated</option>
+                  <option value="newest">Newest</option>
+                  <option value="price-low">Price: low to high</option>
+                  <option value="price-high">Price: high to low</option>
+                </select>
+              </label>
+
+            </div>
+
+          </div>
+
+          <div
+            class="active-filters"
+            id="activeFilters"
+            aria-live="polite"
+          ></div>
+
+          <div
+            class="restaurant-status"
+            id="restaurantStatus"
+            role="status"
+            aria-live="polite"
+          >
+            Loading restaurants...
+          </div>
+
+          <div
+            class="restaurant-grid"
+            id="restaurantGrid"
+          ></div>
+
+          <div
+            class="restaurant-empty-state"
+            id="restaurantEmptyState"
+            hidden
+          >
+            <div class="empty-state-icon" aria-hidden="true">🍽️</div>
+
+            <h3>No restaurants found</h3>
+
+            <p>
+              Try changing your search, location or filters to view more
+              restaurant options.
+            </p>
+
+            <button
+              type="button"
+              class="secondary-button"
+              id="resetSearchButton"
+            >
+              Reset search
+            </button>
+          </div>
+
+          <nav
+            class="pagination"
+            id="restaurantPagination"
+            aria-label="Restaurant result pages"
+          ></nav>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="restaurant-owner-section">
+      <div class="container restaurant-owner-container">
+
+        <div>
+          <span class="section-label">For restaurant owners</span>
+
+          <h2>Reach more customers across Coastal Kenya</h2>
+
+          <p>
+            Create a verified restaurant profile, publish your menu, manage
+            prices and opening hours, and connect with customers searching for
+            places to eat.
+          </p>
+        </div>
+
+        <a
+          href="register.html?role=restaurant-owner"
+          class="primary-button"
+        >
+          List your restaurant
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+
+      <div class="footer-brand">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">CC</span>
+
+          <span class="brand-text">
+            <strong>Coast Connect</strong>
+            <small>Kenya</small>
+          </span>
+        </a>
+
+        <p>
+          Connecting customers with trusted restaurants and local services
+          across Coastal Kenya.
+        </p>
+      </div>
+
+      <div class="footer-column">
+        <h3>Explore</h3>
+        <a href="restaurants.html">Restaurants</a>
+        <a href="services.html">Local services</a>
+        <a href="destinations.html">Destinations</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>Business</h3>
+        <a href="register.html?role=provider">Become a provider</a>
+        <a href="register.html?role=restaurant-owner">List a restaurant</a>
+        <a href="login.html">Business login</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>Company</h3>
+        <a href="about.html">About us</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="terms.html">Terms of service</a>
+      </div>
+
+    </div>
+
+    <div class="container footer-bottom">
+      <p>
+        &copy; <span id="currentYear"></span> Coast Connect Kenya.
+        All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/restaurants.js"></script>
+</body>
+</html>

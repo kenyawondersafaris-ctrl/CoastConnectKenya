@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Destinations | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/styles.css"
+  >
+  <link
+    rel="stylesheet"
+    href="css/destination.css"
+  >
+
+</head>
+
+<body>
+
+ <body>
+
+  <header class="site-header">
+
+    <div class="container header-container">
+
+      <a
+        href="index.html"
+        class="brand"
+        aria-label="Coast Connect Kenya homepage"
+      >
+        <span class="brand-icon">CC</span>
+
+        <span class="brand-text">
+          <strong>Coast Connect</strong>
+          <small>Kenya</small>
+        </span>
+      </a>
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+        id="mobileMenuButton"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="mainNavigation"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav
+        class="main-navigation"
+        id="mainNavigation"
+        aria-label="Main navigation"
+      >
+        <a href="index.html">
+          Home
+        </a>
+
+        <a href="providers.html">
+          Services
+        </a>
+
+        <a href="restaurants.html">
+          Restaurants
+        </a>
+
+        <a
+          href="destination.html"
+          class="active"
+        >
+          Destinations
+        </a>
+
+        <a href="about.html">
+          About
+        </a>
+
+        <div class="mobile-auth-actions">
+
+          <a
+            href="login.html"
+            id="mobileLoginLink"
+            class="mobile-login-link"
+          >
+            Log in
+          </a>
+
+          <a
+            href="join.html"
+            id="mobileJoinLink"
+            class="mobile-join-link"
+          >
+            Join Coast Connect
+          </a>
+
+        </div>
+
+        <div
+          class="mobile-account-actions"
+          id="mobileAccountActions"
+          hidden
+        >
+
+          <a
+            href="customer-bookings.html"
+            id="mobileCustomerAccountLink"
+            class="mobile-account-link"
+          >
+            My Bookings
+          </a>
+
+          <a
+            href="customer-orders.html"
+            class="mobile-account-link"
+          >
+            My Orders
+          </a>
+
+          <button
+            type="button"
+            id="mobileLogoutButton"
+            class="mobile-logout-button"
+          >
+            Log out
+          </button>
+
+        </div>
+
+      </nav>
+
+      <div class="header-actions">
+
+        <a
+          href="login.html"
+          class="login-link"
+          id="loginLink"
+        >
+          Log in
+        </a>
+
+        <a
+          href="join.html"
+          class="primary-button"
+          id="joinLink"
+        >
+          Join Coast Connect
+        </a>
+
+        <a
+          href="#"
+          class="primary-button"
+          id="dashboardLink"
+          hidden
+        >
+          Dashboard
+        </a>
+
+        <a
+          href="customer-orders.html"
+          id="accountOrdersLink"
+          hidden
+        >
+          My Orders
+        </a>
+
+        <div
+          class="account-menu"
+          id="accountMenu"
+          hidden
+        >
+
+          <button
+            type="button"
+            class="account-menu-button"
+            id="accountMenuButton"
+            aria-expanded="false"
+          >
+            <span
+              class="account-avatar"
+              id="accountAvatar"
+            >
+              U
+            </span>
+
+            <span
+              class="account-name"
+              id="accountName"
+            >
+              Account
+            </span>
+
+            <span class="account-chevron">
+              ▾
+            </span>
+          </button>
+
+          <div
+            class="account-dropdown"
+            id="accountDropdown"
+            hidden
+          >
+
+            <div class="account-dropdown-user">
+
+              <strong id="accountDropdownName">
+                User
+              </strong>
+
+              <span id="accountDropdownEmail">
+                user@example.com
+              </span>
+
+            </div>
+
+            <a
+              href="#"
+              id="accountDashboardLink"
+            >
+              Dashboard
+            </a>
+
+            <button
+              type="button"
+              id="logoutButton"
+              class="account-logout-button"
+            >
+              Log out
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <main>
+
+    <section class="page-hero">
+
+      <div class="container">
+
+        <span class="section-label">
+          Explore the coast
+        </span>
+
+        <h1 id="destinationTitle">
+          Explore Coastal Kenya
+        </h1>
+
+        <p id="destinationSubtitle">
+          Discover restaurants and trusted local services.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <section class="destination-results-section">
+
+      <div class="container">
+
+        <div
+          id="destinationMessage"
+          class="page-message"
+          role="alert"
+          aria-live="polite"
+        ></div>
+
+
+        <section
+          id="destinationRestaurantsSection"
+        >
+
+          <div class="section-heading">
+
+            <div>
+
+              <span class="section-label">
+                Food & dining
+              </span>
+
+              <h2 id="restaurantsHeading">
+                Restaurants
+              </h2>
+
+            </div>
+
+            <a
+              id="viewAllRestaurantsLink"
+              href="restaurants.html"
+              class="text-link"
+            >
+              View all restaurants
+            </a>
+
+          </div>
+
+
+          <div
+            id="destinationRestaurantsGrid"
+            class="restaurants-grid"
+          >
+          </div>
+
+        </section>
+
+
+        <section
+          id="destinationProvidersSection"
+        >
+
+          <div class="section-heading">
+
+            <div>
+
+              <span class="section-label">
+                Local services
+              </span>
+
+              <h2 id="providersHeading">
+                Available services
+              </h2>
+
+            </div>
+
+            <a
+              id="viewAllProvidersLink"
+              href="providers.html"
+              class="text-link"
+            >
+              View all services
+            </a>
+
+          </div>
+
+
+          <div
+            id="destinationProvidersGrid"
+            class="providers-grid"
+          >
+          </div>
+
+        </section>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+
+  <div class="container footer-grid">
+
+    <div class="footer-brand">
+
+      <a href="index.html" class="brand">
+
+        <span class="brand-icon">
+          CC
+        </span>
+
+        <span class="brand-text">
+
+          <strong>
+            Coast Connect
+          </strong>
+
+          <small>
+            Kenya
+          </small>
+
+        </span>
+
+      </a>
+
+      <p>
+        Connecting you with trusted catering, unforgettable tour experiences
+        and exceptional dining across Coastal Kenya.
+      </p>
+
+    </div>
+
+
+    <div class="footer-column">
+
+      <h3>
+        Explore
+      </h3>
+
+      <a href="providers.html">
+        Catering and tour experiences
+      </a>
+
+      <a href="restaurants.html">
+        Restaurants
+      </a>
+
+      <a href="destination.html">
+        Destinations
+      </a>
+
+    </div>
+
+
+    <div class="footer-column">
+
+      <h3>
+        Business
+      </h3>
+
+      <a href="register.html?role=provider">
+        Become a provider
+      </a>
+
+      <a href="register.html?role=restaurant-owner">
+        List a restaurant
+      </a>
+
+      <a href="login.html">
+        Business login
+      </a>
+
+    </div>
+
+
+    <div class="footer-column">
+
+      <h3>
+        Company
+      </h3>
+
+      <a href="about.html">
+        About us
+      </a>
+
+      <a href="contact.html">
+        Contact
+      </a>
+
+      <a href="privacy.html">
+        Privacy policy
+      </a>
+
+      <a href="terms.html">
+        Terms of service
+      </a>
+
+    </div>
+
+  </div>
+
+
+  <div class="container footer-bottom">
+
+    <p>
+      &copy;
+      <span id="currentYear"></span>
+      Coast Connect Kenya. All rights reserved.
+    </p>
+
+  </div>
+
+</footer>
+
+
+  <script src="js/main.js"></script>
+
+  <script src="js/destination.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,874 @@
+/* =========================================================
+   DESTINATION PAGE
+   Coast Connect Kenya
+   ========================================================= */
+
+
+/* =========================================================
+   PAGE HERO
+   ========================================================= */
+
+.page-hero {
+  padding: 72px 0 56px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(15, 118, 110, 0.08),
+      rgba(255, 255, 255, 0)
+    );
+}
+
+.page-hero .container {
+  max-width: 1180px;
+}
+
+.page-hero h1 {
+  margin: 12px 0 14px;
+
+  font-size: clamp(
+    38px,
+    5vw,
+    64px
+  );
+
+  line-height: 1.05;
+}
+
+.page-hero p {
+  max-width: 650px;
+
+  margin: 0;
+
+  font-size: 18px;
+  line-height: 1.7;
+
+  color: var(
+    --text-muted,
+    #64748b
+  );
+}
+
+
+/* =========================================================
+   RESULTS SECTION
+   ========================================================= */
+
+.destination-results-section {
+  padding:
+    24px 0
+    80px;
+}
+
+.destination-results-section
+.container {
+  max-width: 1180px;
+}
+
+
+/* =========================================================
+   SECTION SPACING
+   ========================================================= */
+
+#destinationRestaurantsSection,
+#destinationProvidersSection {
+  margin-top: 56px;
+}
+
+#destinationRestaurantsSection {
+  margin-top: 0;
+}
+
+
+/* =========================================================
+   SECTION HEADINGS
+   ========================================================= */
+
+.destination-results-section
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 28px;
+}
+
+.destination-results-section
+.section-heading h2 {
+  margin:
+    8px 0 0;
+
+  font-size: clamp(
+    30px,
+    4vw,
+    46px
+  );
+
+  line-height: 1.1;
+}
+
+.destination-results-section
+.text-link {
+  display: inline-flex;
+  align-items: center;
+
+  flex-shrink: 0;
+
+  color: var(
+    --primary-color,
+    #0f766e
+  );
+
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.destination-results-section
+.text-link:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================================
+   PAGE MESSAGE
+   ========================================================= */
+
+.page-message {
+  display: none;
+
+  margin-bottom: 28px;
+  padding: 16px 18px;
+
+  border-radius: 12px;
+
+  background:
+    #fff7ed;
+
+  color:
+    #9a3412;
+}
+
+.page-message:not(:empty) {
+  display: block;
+}
+
+
+/* =========================================================
+   RESTAURANTS GRID
+   ========================================================= */
+
+#destinationRestaurantsGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 24px;
+}
+
+
+/* =========================================================
+   RESTAURANT CARD
+   ========================================================= */
+
+#destinationRestaurantsGrid
+.restaurant-card {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(15, 23, 42, 0.08);
+
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 30px
+    rgba(15, 23, 42, 0.06);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#destinationRestaurantsGrid
+.restaurant-card:hover {
+  transform:
+    translateY(-4px);
+
+  box-shadow:
+    0 18px 42px
+    rgba(15, 23, 42, 0.12);
+}
+
+
+/* =========================================================
+   RESTAURANT IMAGE
+   ========================================================= */
+
+.destination-restaurant-card-image {
+  width: 100%;
+  height: 210px;
+
+  overflow: hidden;
+
+  background:
+    #f1f5f9;
+}
+
+.destination-restaurant-card-image img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.restaurant-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  font-size: 42px;
+
+  background:
+    #f1f5f9;
+}
+
+
+/* =========================================================
+   RESTAURANT CONTENT
+   ========================================================= */
+
+.destination-restaurant-card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  min-width: 0;
+
+  padding: 20px;
+}
+
+.destination-restaurant-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  margin-bottom: 10px;
+}
+
+.destination-restaurant-card-header h3 {
+  margin: 0;
+
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.destination-restaurant-card-header span {
+  display: inline-flex;
+  align-items: center;
+
+  flex-shrink: 0;
+
+  padding:
+    6px 9px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(245, 158, 11, 0.12);
+
+  color:
+    #b45309;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.destination-restaurant-card-content > p {
+  margin:
+    0 0 18px;
+
+  color:
+    var(
+      --text-muted,
+      #64748b
+    );
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   RESTAURANT META
+   ========================================================= */
+
+.destination-restaurant-meta {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap:
+    8px 14px;
+
+  margin-bottom: 20px;
+
+  color:
+    #64748b;
+
+  font-size: 14px;
+}
+
+.destination-restaurant-meta span {
+  display: inline-flex;
+  align-items: center;
+}
+
+
+/* =========================================================
+   RESTAURANT BUTTON
+   ========================================================= */
+
+.destination-restaurant-view-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 46px;
+
+  margin-top: auto;
+  padding:
+    0 18px;
+
+  border-radius: 10px;
+
+  background:
+    var(
+      --primary-color,
+      #0f766e
+    );
+
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.destination-restaurant-view-button:hover {
+  color: #ffffff;
+
+  text-decoration: none;
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 8px 18px
+    rgba(15, 118, 110, 0.2);
+}
+
+.destination-restaurant-view-button:focus-visible {
+  outline:
+    3px solid
+    rgba(15, 118, 110, 0.3);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   PROVIDERS GRID
+   ========================================================= */
+
+#destinationProvidersGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 24px;
+}
+
+
+/* =========================================================
+   PROVIDER CARD
+   ========================================================= */
+
+#destinationProvidersGrid
+.provider-card {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(15, 23, 42, 0.08);
+
+  border-radius: 18px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    0 10px 30px
+    rgba(15, 23, 42, 0.06);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#destinationProvidersGrid
+.provider-card:hover {
+  transform:
+    translateY(-4px);
+
+  box-shadow:
+    0 18px 42px
+    rgba(15, 23, 42, 0.12);
+}
+
+
+/* =========================================================
+   PROVIDER TOP
+   ========================================================= */
+
+#destinationProvidersGrid
+.provider-card-top {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding:
+    20px 20px 16px;
+}
+
+#destinationProvidersGrid
+.provider-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex:
+    0 0 58px;
+
+  width: 58px;
+  height: 58px;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+
+  background:
+    rgba(15, 118, 110, 0.1);
+
+  color:
+    var(
+      --primary-color,
+      #0f766e
+    );
+
+  font-size: 20px;
+  font-weight: 800;
+}
+
+#destinationProvidersGrid
+.provider-avatar img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+#destinationProvidersGrid
+.provider-card-top > div:last-child {
+  min-width: 0;
+}
+
+#destinationProvidersGrid
+.provider-category {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color:
+    var(
+      --primary-color,
+      #0f766e
+    );
+
+  font-size: 12px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#destinationProvidersGrid
+.provider-card-top h3 {
+  margin: 0;
+
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+#destinationProvidersGrid
+.provider-card-top p {
+  margin:
+    5px 0 0;
+
+  color:
+    #64748b;
+
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   PROVIDER BODY
+   ========================================================= */
+
+#destinationProvidersGrid
+.provider-card-body {
+  flex: 1;
+
+  padding:
+    0 20px 20px;
+}
+
+#destinationProvidersGrid
+.provider-card-body > p {
+  margin:
+    0 0 16px;
+
+  color:
+    #64748b;
+
+  line-height: 1.6;
+}
+
+#destinationProvidersGrid
+.provider-meta {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap:
+    8px 14px;
+
+  color:
+    #475569;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   PROVIDER FOOTER
+   ========================================================= */
+
+#destinationProvidersGrid
+.provider-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding:
+    16px 20px 20px;
+
+  border-top:
+    1px solid
+    rgba(15, 23, 42, 0.07);
+}
+
+#destinationProvidersGrid
+.provider-card-footer > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  min-width: 0;
+}
+
+#destinationProvidersGrid
+.provider-card-footer strong {
+  color:
+    #0f172a;
+
+  font-size: 18px;
+}
+
+#destinationProvidersGrid
+.provider-card-footer span {
+  color:
+    #64748b;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   PROVIDER BUTTON
+   ========================================================= */
+
+.destination-provider-view-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  min-height: 44px;
+
+  padding:
+    0 18px;
+
+  border-radius: 10px;
+
+  background:
+    var(
+      --primary-color,
+      #0f766e
+    );
+
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  text-decoration: none;
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.destination-provider-view-button:hover {
+  color: #ffffff;
+
+  text-decoration: none;
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 8px 18px
+    rgba(15, 118, 110, 0.2);
+}
+
+.destination-provider-view-button:focus-visible {
+  outline:
+    3px solid
+    rgba(15, 118, 110, 0.3);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   EMPTY STATES
+   ========================================================= */
+
+#destinationRestaurantsGrid
+.restaurants-empty-state,
+
+#destinationProvidersGrid
+.providers-empty-state {
+  grid-column:
+    1 / -1;
+
+  padding:
+    40px 24px;
+
+  border:
+    1px dashed
+    rgba(15, 23, 42, 0.15);
+
+  border-radius: 16px;
+
+  text-align: center;
+
+  background:
+    #ffffff;
+}
+
+.restaurants-empty-state h3,
+.providers-empty-state h3 {
+  margin:
+    0 0 8px;
+
+  font-size: 22px;
+}
+
+.restaurants-empty-state p,
+.providers-empty-state p {
+  max-width: 560px;
+
+  margin:
+    0 auto;
+
+  color:
+    #64748b;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (
+  max-width: 1000px
+) {
+
+  #destinationRestaurantsGrid,
+  #destinationProvidersGrid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (
+  max-width: 700px
+) {
+
+  .page-hero {
+    padding:
+      48px 0
+      38px;
+  }
+
+  .page-hero p {
+    font-size: 16px;
+  }
+
+  .destination-results-section {
+    padding-bottom: 56px;
+  }
+
+  #destinationRestaurantsSection,
+  #destinationProvidersSection {
+    margin-top: 44px;
+  }
+
+  .destination-results-section
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 14px;
+
+    margin-bottom: 22px;
+  }
+
+  #destinationRestaurantsGrid,
+  #destinationProvidersGrid {
+    grid-template-columns:
+      1fr;
+
+    gap: 18px;
+  }
+
+  .destination-restaurant-card-image {
+    height: 220px;
+  }
+
+  #destinationProvidersGrid
+  .provider-card-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .destination-provider-view-button {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (
+  max-width: 480px
+) {
+
+  .page-hero h1 {
+    font-size: 36px;
+  }
+
+  .destination-restaurant-card-content {
+    padding: 18px;
+  }
+
+  #destinationProvidersGrid
+  .provider-card-top {
+    padding:
+      18px 18px 14px;
+  }
+
+  #destinationProvidersGrid
+  .provider-card-body {
+    padding:
+      0 18px 18px;
+  }
+
+  #destinationProvidersGrid
+  .provider-card-footer {
+    padding:
+      16px 18px 18px;
+  }
+
+  .destination-restaurant-card-image {
+    height: 200px;
+  }
+
+}

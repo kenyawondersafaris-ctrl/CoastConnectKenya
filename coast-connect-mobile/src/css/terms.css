@@ -1,0 +1,17 @@
+@import url("./privacy.css");
+
+.policy-inline-link {
+  display: inline-block;
+
+  margin-top: 4px;
+
+  color: var(--primary-dark);
+
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.policy-inline-link:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,293 @@
+/* ==========================================
+   Coast Connect - Email Verification
+========================================== */
+
+.auth-page {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 48px 20px;
+
+  background:
+    radial-gradient(
+      circle at 15% 15%,
+      rgba(15, 118, 110, 0.10),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 90% 85%,
+      rgba(245, 158, 11, 0.10),
+      transparent 28%
+    ),
+    var(--background);
+}
+
+
+/* Verification card */
+
+.verify-email-card {
+  width: min(100%, 520px);
+
+  border: 1px solid var(--border);
+  border-radius: 26px;
+
+  padding: 42px;
+
+  background: var(--white);
+
+  box-shadow:
+    0 24px 70px
+    rgba(16, 42, 46, 0.12);
+}
+
+
+/* Small verification icon */
+
+.verify-email-card::before {
+  content: "✓";
+
+  display: flex;
+  width: 58px;
+  height: 58px;
+
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 22px;
+
+  border-radius: 18px;
+
+  background: var(--primary-light);
+  color: var(--primary);
+
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+
+/* Heading */
+
+.verify-email-card h1 {
+  margin: 0 0 12px;
+
+  color: var(--text);
+
+  text-align: center;
+
+  font-size: clamp(
+    1.8rem,
+    5vw,
+    2.25rem
+  );
+
+  font-weight: 850;
+
+  letter-spacing: -0.035em;
+
+  line-height: 1.15;
+}
+
+
+/* Description */
+
+.verify-email-card .auth-subtitle {
+  max-width: 430px;
+
+  margin: 0 auto;
+
+  color: var(--text-soft);
+
+  text-align: center;
+
+  font-size: 0.96rem;
+
+  line-height: 1.7;
+}
+
+.verify-email-card
+.auth-subtitle strong {
+  color: var(--text);
+  font-weight: 800;
+}
+
+
+/* Verification inputs */
+
+.verification-code-inputs {
+  display: grid;
+
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin: 32px 0 26px;
+}
+
+.verification-digit {
+  width: 100%;
+  min-width: 0;
+  height: 62px;
+
+  border:
+    1.5px solid
+    var(--border);
+
+  border-radius: 14px;
+
+  background: #fbfdfc;
+
+  color: var(--text);
+
+  text-align: center;
+
+  font-size: 1.65rem;
+  font-weight: 850;
+
+  caret-color: var(--primary);
+
+  outline: none;
+
+  transition:
+    border-color var(--transition),
+    background var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
+}
+
+.verification-digit:hover {
+  border-color:
+    rgba(15, 118, 110, 0.45);
+}
+
+.verification-digit:focus {
+  border-color: var(--primary);
+
+  background: var(--white);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(15, 118, 110, 0.10);
+
+  transform: translateY(-1px);
+}
+
+
+/* Actions */
+
+.verification-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.verification-actions button {
+  width: 100%;
+  min-height: 54px;
+
+  font-size: 0.97rem;
+}
+
+
+/* Disabled resend */
+
+#resendCodeButton:disabled {
+  opacity: 0.58;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+
+/* Status message */
+
+.verification-message {
+  min-height: 24px;
+
+  margin: 18px 0 0;
+
+  text-align: center;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.verification-message.success {
+  color: #15803d;
+}
+
+.verification-message.error {
+  color: #dc2626;
+}
+
+
+/* Mobile */
+
+@media (max-width: 560px) {
+
+  .auth-page {
+    align-items: flex-start;
+
+    padding:
+      28px 14px;
+  }
+
+  .verify-email-card {
+    margin-top: 20px;
+
+    border-radius: 22px;
+
+    padding:
+      30px 18px;
+  }
+
+  .verify-email-card::before {
+    width: 52px;
+    height: 52px;
+
+    margin-bottom: 18px;
+
+    border-radius: 16px;
+  }
+
+  .verification-code-inputs {
+    gap: 7px;
+
+    margin:
+      28px 0 24px;
+  }
+
+  .verification-digit {
+    height: 54px;
+
+    border-radius: 11px;
+
+    font-size: 1.35rem;
+  }
+
+}
+
+
+/* Very small phones */
+
+@media (max-width: 380px) {
+
+  .verify-email-card {
+    padding:
+      26px 14px;
+  }
+
+  .verification-code-inputs {
+    gap: 5px;
+  }
+
+  .verification-digit {
+    height: 49px;
+
+    font-size: 1.2rem;
+  }
+
+}

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Explore top destinations across Coastal Kenya including Mombasa, Diani, Nyali, Bamburi, Kilifi, Malindi, Watamu and Lamu."
+  >
+
+  <title>
+    Destinations | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/styles.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="css/destinations.css"
+  >
+</head>
+
+<body>
+
+<header class="site-header">
+
+  <div class="container header-container">
+
+    <a
+      href="index.html"
+      class="brand"
+      aria-label="Coast Connect Kenya homepage"
+    >
+      <span class="brand-icon">
+        CC
+      </span>
+
+      <span class="brand-text">
+        <strong>
+          Coast Connect
+        </strong>
+
+        <small>
+          Kenya
+        </small>
+      </span>
+    </a>
+
+    <button
+      type="button"
+      class="mobile-menu-button"
+      id="mobileMenuButton"
+      aria-label="Open navigation menu"
+      aria-expanded="false"
+      aria-controls="mainNavigation"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav
+      class="main-navigation"
+      id="mainNavigation"
+      aria-label="Main navigation"
+    >
+      <a href="index.html">
+        Home
+      </a>
+
+      <a href="providers.html">
+        Services
+      </a>
+
+      <a href="restaurants.html">
+        Restaurants
+      </a>
+
+      <a
+        href="destinations.html"
+        class="active"
+      >
+        Destinations
+      </a>
+
+      <a href="about.html">
+        About
+      </a>
+    </nav>
+
+    <div class="header-actions">
+
+      <a
+        href="login.html"
+        class="login-link"
+        id="loginLink"
+      >
+        Log in
+      </a>
+
+      <a
+        href="join.html"
+        class="primary-button"
+        id="joinLink"
+      >
+        Join Coast Connect
+      </a>
+
+      <a
+        href="#"
+        class="primary-button"
+        id="dashboardLink"
+        hidden
+      >
+        Dashboard
+      </a>
+
+      <div
+        class="account-menu"
+        id="accountMenu"
+        hidden
+      >
+        <button
+          type="button"
+          class="account-menu-button"
+          id="accountMenuButton"
+          aria-expanded="false"
+        >
+          <span
+            class="account-avatar"
+            id="accountAvatar"
+          >
+            U
+          </span>
+
+          <span
+            class="account-name"
+            id="accountName"
+          >
+            Account
+          </span>
+
+          <span class="account-chevron">
+            ▾
+          </span>
+        </button>
+
+        <div
+          class="account-dropdown"
+          id="accountDropdown"
+          hidden
+        >
+          <div class="account-dropdown-user">
+            <strong id="accountDropdownName">
+              User
+            </strong>
+
+            <span id="accountDropdownEmail">
+              user@example.com
+            </span>
+          </div>
+
+          <a
+            href="#"
+            id="accountDashboardLink"
+          >
+            Dashboard
+          </a>
+
+          <button
+            type="button"
+            id="logoutButton"
+            class="account-logout-button"
+          >
+            Log out
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</header>
+
+<main>
+
+  <section class="destinations-hero">
+
+    <div class="container destinations-hero-container">
+
+      <div class="destinations-hero-content">
+
+        <span class="section-label">
+          Explore Coastal Kenya
+        </span>
+
+        <h1>
+          Discover places worth experiencing
+        </h1>
+
+        <p>
+          Explore popular coastal destinations, then find restaurants,
+          trusted services and local experiences available in each area.
+        </p>
+
+        <form
+          class="destination-search"
+          id="destinationSearchForm"
+        >
+
+          <div class="destination-search-field">
+
+            <label for="destinationSearchInput">
+              Search destination
+            </label>
+
+            <input
+              type="search"
+              id="destinationSearchInput"
+              placeholder="Search Mombasa, Diani, Watamu..."
+              autocomplete="off"
+            >
+
+          </div>
+
+          <button
+            type="submit"
+            class="primary-button"
+          >
+            Search
+          </button>
+
+        </form>
+
+      </div>
+
+      <div class="destinations-hero-highlight">
+
+        <span>
+          Coastal experiences
+        </span>
+
+        <strong>
+          Food. Services. Places.
+        </strong>
+
+        <p>
+          Coast Connect helps you move from discovering a destination
+          to finding what you need there.
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="destinations-section-main">
+
+    <div class="container">
+
+      <div class="section-heading">
+
+        <div>
+          <span class="section-label">
+            Featured destinations
+          </span>
+
+          <h2>
+            Explore the coast
+          </h2>
+        </div>
+
+        <p class="destinations-results-count">
+          <span id="destinationCount">
+            8
+          </span>
+          destinations
+        </p>
+
+      </div>
+
+      <div
+        id="destinationsGrid"
+        class="destinations-grid"
+      >
+
+        <article
+          class="destination-explore-card"
+          data-destination-name="Mombasa"
+        >
+
+          <div class="destination-card-visual destination-mombasa">
+
+            <span class="destination-card-badge">
+              Popular
+            </span>
+
+            <div class="destination-card-overlay">
+              <span>
+                Mombasa County
+              </span>
+
+              <h3>
+                Mombasa
+              </h3>
+            </div>
+
+          </div>
+
+          <div class="destination-card-body">
+
+            <p>
+              Discover coastal food, historic neighborhoods,
+              beaches and trusted local services across Mombasa.
+            </p>
+
+            <div class="destination-card-actions">
+
+              <a
+                href="restaurants.html?location=mombasa"
+                class="destination-secondary-action"
+              >
+                Restaurants
+              </a>
+
+              <a
+                href="providers.html?location=mombasa"
+                class="destination-primary-action"
+              >
+                Local services
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+        <article
+          class="destination-explore-card"
+          data-destination-name="Nyali"
+        >
+
+          <div class="destination-card-visual destination-nyali">
+
+            <div class="destination-card-overlay">
+              <span>
+                Mombasa North Coast
+              </span>
+
+              <h3>
+                Nyali
+              </h3>
+            </div>
+
+          </div>
+
+          <div class="destination-card-body">
+
+            <p>
+              Explore restaurants and professional
+              local services around Nyali.
+            </p>
+
+            <div class="destination-card-actions">
+
+              <a
+                href="restaurants.html?location=nyali"
+                class="destination-secondary-action"
+              >
+                Restaurants
+              </a>
+
+              <a
+                href="providers.html?location=nyali"
+                class="destination-primary-action"
+              >
+                Local services
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+        <article
+          class="destination-explore-card"
+          data-destination-name="Bamburi"
+        >
+
+          <div class="destination-card-visual destination-bamburi">
+
+            <div class="destination-card-overlay">
+              <span>
+                North Coast
+              </span>
+
+              <h3>
+                Bamburi
+              </h3>
+            </div>
+
+          </div>
+
+          <div class="destination-card-body">
+
+            <p>
+              Find nearby dining options, bbq services, delivery surprise,
+               and other trusted services around Bamburi.
+            </p>
+
+            <div class="destination-card-actions">
+
+              <a
+                href="restaurants.html?location=bamburi"
+                class="destination-secondary-action"
+              >
+                Restaurants
+              </a>
+
+              <a
+                href="providers.html?location=bamburi"
+                class="destination-primary-action"
+              >
+                Local services
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+        <article
+          class="destination-explore-card"
+          data-destination-name="Diani"
+        >
+
+          <div class="destination-card-visual destination-diani">
+
+            <span class="destination-card-badge">
+              Beach destination
+            </span>
+
+            <div class="destination-card-overlay">
+              <span>
+                Kwale County
+              </span>
+
+              <h3>
+                Diani
+              </h3>
+            </div>
+
+          </div>
+
+          <div class="destination-card-body">
+
+            <p>
+              Discover Diani restaurants, private chefs, cleaners,
+              drivers and services for villas, apartments and holidays.
+            </p>
+
+            <div class="destination-card-actions">
+
+              <a
+                href="restaurants.html?location=diani"
+                class="destination-secondary-action"
+              >
+                Restaurants
+              </a>
+
+              <a
+                href="providers.html?location=diani"
+                class="destination-primary-action"
+              >
+                Local services
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+        <article
+          class="destination-explore-card"
+          data-destination-name="Kilifi"
+        >
+
+          <div class="destination-card-visual destination-kilifi">
+
+            <div class="destination-card-overlay">
+              <span>
+                Kilifi County
+              </span>
+
+              <h3>
+                Kilifi
+              </h3>
+            </div>
+
+          </div>
+
+          <div class="destination-card-body">
+
+            <p>
+              Explore restaurants, coastal activities and trusted
+              professionals serving Kilifi and nearby areas.
+            </p>
+
+            <div class="destination-card-actions">
+
+              <a
+                href="restaurants.html?location=kilifi"
+                class="destination-secondary-action"
+              >
+                Restaurants
+              </a>
+
+              <a
+                href="providers.html?location=kilifi"
+                class="destination-primary-action"
+              >
+                Local services
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+        <article
+          class="destination-explore-card"
+          data-destination-name="Malindi"
+        >
+
+          <div class="destination-card-visual destination-malindi">
+
+            <div class="destination-card-overlay">
+              <span>
+                Kilifi County
+              </span>
+
+              <h3>
+                Malindi
+              </h3>
+            </div>
+
+          </div>
+
+          <div class="destination-card-body">
+
+            <p>
+              Explore restaurants, local professionals and services
+              available across Malindi.
+            </p>
+
+            <div class="destination-card-actions">
+
+              <a
+                href="restaurants.html?location=malindi"
+                class="destination-secondary-action"
+              >
+                Restaurants
+              </a>
+
+              <a
+                href="providers.html?location=malindi"
+                class="destination-primary-action"
+              >
+                Local services
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+        <article
+          class="destination-explore-card"
+          data-destination-name="Watamu"
+        >
+
+          <div class="destination-card-visual destination-watamu">
+
+            <span class="destination-card-badge">
+              Coastal escape
+            </span>
+
+            <div class="destination-card-overlay">
+              <span>
+                Kilifi County
+              </span>
+
+              <h3>
+                Watamu
+              </h3>
+            </div>
+
+          </div>
+
+          <div class="destination-card-body">
+
+            <p>
+              Find restaurants, private services and trusted local
+              professionals around Watamu.
+            </p>
+
+            <div class="destination-card-actions">
+
+              <a
+                href="restaurants.html?location=watamu"
+                class="destination-secondary-action"
+              >
+                Restaurants
+              </a>
+
+              <a
+                href="providers.html?location=watamu"
+                class="destination-primary-action"
+              >
+                Local services
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+        <article
+          class="destination-explore-card"
+          data-destination-name="Lamu"
+        >
+
+          <div class="destination-card-visual destination-lamu">
+
+            <div class="destination-card-overlay">
+              <span>
+                Lamu County
+              </span>
+
+              <h3>
+                Lamu
+              </h3>
+            </div>
+
+          </div>
+
+          <div class="destination-card-body">
+
+            <p>
+              Explore dining, local experiences and service providers
+              across one of Kenya's most distinctive coastal destinations.
+            </p>
+
+            <div class="destination-card-actions">
+
+              <a
+                href="restaurants.html?location=lamu"
+                class="destination-secondary-action"
+              >
+                Restaurants
+              </a>
+
+              <a
+                href="providers.html?location=lamu"
+                class="destination-primary-action"
+              >
+                Local services
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+      </div>
+
+      <div
+        id="destinationsEmptyState"
+        class="destinations-empty-state"
+        hidden
+      >
+        <h3>
+          No destination found
+        </h3>
+
+        <p>
+          Try another coastal location.
+        </p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="destination-cta-section">
+
+    <div class="container destination-cta">
+
+      <div>
+
+        <span class="section-label">
+          Need something locally?
+        </span>
+
+        <h2>
+          Find trusted help wherever you stay
+        </h2>
+
+        <p>
+          Book cleaners, househelps, drivers, chefs and other
+          professionals across Coastal Kenya.
+        </p>
+
+      </div>
+
+      <div class="destination-cta-actions">
+
+        <a
+          href="providers.html"
+          class="primary-button"
+        >
+          Browse Services
+        </a>
+
+        <a
+          href="restaurants.html"
+          class="secondary-button"
+        >
+          Browse Restaurants
+        </a>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+<footer class="site-footer">
+
+  <div class="container footer-grid">
+
+    <div class="footer-brand">
+
+      <a
+        href="index.html"
+        class="brand"
+      >
+        <span class="brand-icon">
+          CC
+        </span>
+
+        <span class="brand-text">
+          <strong>
+            Coast Connect
+          </strong>
+
+          <small>
+            Kenya
+          </small>
+        </span>
+      </a>
+
+      <p>
+        Connecting customers with trusted restaurants and local
+        services across Coastal Kenya.
+      </p>
+
+    </div>
+
+    <div class="footer-column">
+
+      <h3>
+        Explore
+      </h3>
+
+      <a href="restaurants.html">
+        Restaurants
+      </a>
+
+      <a href="providers.html">
+        Local services
+      </a>
+
+      <a href="destinations.html">
+        Destinations
+      </a>
+
+    </div>
+
+    <div class="footer-column">
+
+      <h3>
+        Business
+      </h3>
+
+      <a href="register.html?role=provider">
+        Become a provider
+      </a>
+
+      <a href="register.html?role=restaurant-owner">
+        List a restaurant
+      </a>
+
+      <a href="login.html">
+        Business login
+      </a>
+
+    </div>
+
+    <div class="footer-column">
+
+      <h3>
+        Company
+      </h3>
+
+      <a href="about.html">
+        About us
+      </a>
+
+      <a href="contact.html">
+        Contact
+      </a>
+
+      <a href="privacy.html">
+        Privacy policy
+      </a>
+
+      <a href="terms.html">
+        Terms of service
+      </a>
+
+    </div>
+
+  </div>
+
+  <div class="container footer-bottom">
+
+    <p>
+      &copy;
+      <span id="currentYear"></span>
+      Coast Connect Kenya.
+      All rights reserved.
+    </p>
+
+  </div>
+
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/destinations.js"></script>
+
+</body>
+</html>

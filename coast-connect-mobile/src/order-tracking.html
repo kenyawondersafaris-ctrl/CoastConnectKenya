@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Track your Coast Connect Kenya restaurant order in real time."
+  >
+
+  <title>Track Your Order | Coast Connect Kenya</title>
+
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/order-tracking.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-container">
+
+      <a
+        href="index.html"
+        class="brand"
+        aria-label="Coast Connect Kenya homepage"
+      >
+        <span class="brand-icon">CC</span>
+
+        <span class="brand-text">
+          <strong>Coast Connect</strong>
+          <small>Kenya</small>
+        </span>
+      </a>
+
+      <nav
+        class="main-navigation"
+        aria-label="Main navigation"
+      >
+        <a href="index.html">Home</a>
+        <a href="restaurants.html">Restaurants</a>
+      </nav>
+
+    </div>
+  </header>
+
+  <main class="order-tracking-page">
+
+    <section class="order-tracking-section">
+      <div class="container">
+
+        <div
+          class="tracking-status-card"
+          id="trackingLoadingState"
+        >
+          Loading your order...
+        </div>
+
+        <div
+          class="tracking-error-card"
+          id="trackingErrorState"
+          hidden
+        >
+          <h1>Order could not be loaded</h1>
+
+          <p id="trackingErrorMessage">
+            The tracking link may be invalid or expired.
+          </p>
+
+          <a
+            href="restaurants.html"
+            class="primary-button"
+          >
+            Browse restaurants
+          </a>
+        </div>
+
+        <div
+          class="tracking-content"
+          id="trackingContent"
+          hidden
+        >
+          <div
+  id="customerOrderNotification"
+  class="customer-order-notification"
+  hidden
+  aria-live="polite"
+>
+  <div class="customer-order-notification-icon">
+    🔔
+  </div>
+
+  <div>
+    <strong id="customerOrderNotificationTitle">
+      Order update
+    </strong>
+
+    <p id="customerOrderNotificationMessage">
+      Your restaurant order has been updated.
+    </p>
+  </div>
+</div>
+          <div class="tracking-heading">
+            <span class="section-label">
+              Live order tracking
+            </span>
+
+            <h1>Track your order</h1>
+
+            <p>
+              Your order status updates automatically as the restaurant
+              prepares it.
+            </p>
+          </div>
+
+          <section class="tracking-order-card">
+
+            <div class="tracking-order-header">
+              <div>
+                <span class="tracking-label">
+                  Order number
+                </span>
+
+                <strong id="trackingOrderNumber">
+                  —
+                </strong>
+              </div>
+
+              <span
+                class="tracking-status-badge"
+                id="trackingStatusBadge"
+              >
+                PENDING
+              </span>
+            </div>
+
+            <div class="tracking-live-message"
+             id="trackingLiveMessage"
+              aria-live="polite"> 
+              Your order has been received.
+            </div>
+
+            <div class="tracking-order-meta">
+              <div>
+                <span>Restaurant</span>
+                <strong id="trackingRestaurantName">—</strong>
+              </div>
+
+              <div>
+                <span>Order type</span>
+                <strong id="trackingOrderType">—</strong>
+              </div>
+
+              <div>
+                <span>Total</span>
+                <strong id="trackingTotalAmount">KES 0</strong>
+              </div>
+
+ <div class="tracking-estimated-card">
+  <span>Estimated preparation</span>
+
+  <strong id="trackingEstimatedTime">
+    —
+  </strong>
+
+  <div class="tracking-time-progress">
+    <div
+      class="tracking-time-progress-bar"
+      id="trackingTimeProgressBar"
+    ></div>
+  </div>
+</div>
+
+            </div>
+
+            <div class="tracking-progress">
+
+              <div
+                class="tracking-step"
+                data-status-step="PENDING"
+              >
+                <span class="tracking-step-marker">1</span>
+
+                <div>
+                  <strong>Order received</strong>
+                  <p>The restaurant has received your order.</p>
+                </div>
+              </div>
+
+              <div
+                class="tracking-step"
+                data-status-step="ACCEPTED"
+              >
+                <span class="tracking-step-marker">2</span>
+
+                <div>
+                  <strong>Accepted</strong>
+                  <p>The restaurant has accepted your order.</p>
+                </div>
+              </div>
+
+              <div
+                class="tracking-step"
+                data-status-step="PREPARING"
+              >
+                <span class="tracking-step-marker">3</span>
+
+                <div>
+                  <strong>Preparing</strong>
+                  <p>Your food is being prepared.</p>
+                </div>
+              </div>
+
+              <div
+                class="tracking-step"
+                data-status-step="READY"
+              >
+                <span class="tracking-step-marker">4</span>
+
+                <div>
+                  <strong>Ready</strong>
+                  <p>Your order is ready.</p>
+                </div>
+              </div>
+
+              <div
+  class="tracking-step"
+  id="outForDeliveryTrackingStep"
+  data-status-step="OUT_FOR_DELIVERY"
+>
+  <span class="tracking-step-marker">6</span>
+
+  <div>
+    <strong>Out for Delivery</strong>
+    <p>Your order is on the way to you.</p>
+  </div>
+</div>
+
+              <div
+                class="tracking-step"
+                data-status-step="COMPLETED"
+              >
+                <span class="tracking-step-marker">5</span>
+
+                <div>
+                  <strong>Completed</strong>
+                  <p>Your order has been completed.</p>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="tracking-items-section">
+              <h2>Order items</h2>
+
+              <div id="trackingItems"></div>
+            </div>
+
+          </section>
+
+          <section
+  class="tracking-review-section"
+  id="trackingReviewSection"
+  hidden
+>
+  <div class="tracking-review-header">
+    <span class="section-label">
+      Share your experience
+    </span>
+
+    <h2>Rate this restaurant</h2>
+
+    <p>
+      Your feedback helps other customers choose confidently.
+    </p>
+  </div>
+
+  <form id="trackingReviewForm">
+
+    <fieldset class="review-rating-fieldset">
+      <legend>Your rating</legend>
+
+      <div class="review-star-options">
+
+        <label>
+          <input
+            type="radio"
+            name="rating"
+            value="1"
+            required
+          >
+          <span>★</span>
+          <small>1</small>
+        </label>
+
+        <label>
+          <input
+            type="radio"
+            name="rating"
+            value="2"
+          >
+          <span>★</span>
+          <small>2</small>
+        </label>
+
+        <label>
+          <input
+            type="radio"
+            name="rating"
+            value="3"
+          >
+          <span>★</span>
+          <small>3</small>
+        </label>
+
+        <label>
+          <input
+            type="radio"
+            name="rating"
+            value="4"
+          >
+          <span>★</span>
+          <small>4</small>
+        </label>
+
+        <label>
+          <input
+            type="radio"
+            name="rating"
+            value="5"
+          >
+          <span>★</span>
+          <small>5</small>
+        </label>
+
+      </div>
+    </fieldset>
+
+    <div class="form-group">
+      <label for="trackingReviewComment">
+        Review comment
+      </label>
+
+      <textarea
+        id="trackingReviewComment"
+        rows="5"
+        maxlength="1000"
+        placeholder="Tell us about the food, service, and overall experience."
+      ></textarea>
+    </div>
+
+    <p
+      class="form-message"
+      id="trackingReviewMessage"
+      aria-live="polite"
+    ></p>
+
+    <button
+      type="submit"
+      class="primary-button"
+      id="submitTrackingReviewButton"
+    >
+      Submit Review
+    </button>
+
+  </form>
+</section>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="js/order-tracking.js"></script>
+</body>
+</html>

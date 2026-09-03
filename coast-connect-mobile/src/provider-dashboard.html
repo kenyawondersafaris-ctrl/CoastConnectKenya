@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Provider Dashboard | Coast Connect Kenya
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/provider-dashboard.css"
+  >
+</head>
+
+<body>
+
+  <header class="provider-header">
+    <div class="provider-header-inner">
+
+      <a
+        href="index.html"
+        class="provider-brand"
+      >
+        <span class="provider-brand-icon">
+          CC
+        </span>
+
+        <span>
+          <strong>Coast Connect</strong>
+          <small>Provider Portal</small>
+        </span>
+      </a>
+
+      <div class="provider-header-actions">
+
+  <a
+    href="#"
+    id="providerBookingsLink"
+    class="provider-bookings-link"
+  >
+    📅 Bookings
+  </a>
+
+  <div
+    class="provider-account-menu"
+    id="providerAccountMenu"
+  >
+
+    <button
+      type="button"
+      class="provider-account-button"
+      id="providerAccountButton"
+      aria-expanded="false"
+    >
+
+      <span
+        class="provider-account-avatar"
+        id="providerAccountAvatar"
+      >
+        P
+      </span>
+
+      <span
+        class="provider-account-name"
+        id="providerHeaderName"
+      >
+        Provider
+      </span>
+
+      <span class="provider-account-chevron">
+        ▾
+      </span>
+
+    </button>
+
+    <div
+      class="provider-account-dropdown"
+      id="providerAccountDropdown"
+      hidden
+    >
+
+      <div class="provider-account-user">
+
+        <strong id="providerDropdownName">
+          Provider
+        </strong>
+
+        <span id="providerDropdownEmail">
+          provider@example.com
+        </span>
+
+      </div>
+
+      <a href="index.html">
+        View Marketplace
+      </a>
+
+      <button
+        type="button"
+        id="providerLogoutButton"
+        class="provider-account-logout"
+      >
+        Log out
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+    </div>
+  </header>
+
+  <main class="provider-main">
+
+    <section class="provider-hero">
+
+      <div>
+        <span class="provider-label">
+          Local Services
+        </span>
+
+        <h1>
+          Provider Dashboard
+        </h1>
+
+        <p>
+          Manage your profile, services,
+          availability, bookings and reviews.
+        </p>
+      </div>
+
+      <div class="provider-status-card">
+        <span>
+          Verification status
+        </span>
+
+        <strong
+          id="providerVerificationStatus"
+          class="status-badge status-pending"
+        >
+          Pending
+        </strong>
+      </div>
+
+    </section>
+
+    <div
+      id="providerDashboardMessage"
+      class="dashboard-message"
+      role="status"
+      aria-live="polite"
+    ></div>
+
+   <section class="provider-grid">
+
+  <!-- PROVIDER PROFILE -->
+  <article class="provider-panel">
+
+    <div class="panel-heading">
+      <div>
+        <span class="provider-label">
+          Profile setup
+        </span>
+
+        <h2>
+          Your provider profile
+        </h2>
+      </div>
+
+      <span
+        id="providerProfileState"
+        class="profile-state"
+      >
+        Loading...
+      </span>
+    </div>
+
+    <form id="providerProfileForm">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="providerServiceArea">
+            Service area
+          </label>
+
+          <input
+            type="text"
+            id="providerServiceArea"
+            placeholder="Example: Nyali, Mombasa"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="providerExperienceYears">
+            Years of experience
+          </label>
+
+          <input
+            type="number"
+            id="providerExperienceYears"
+            min="0"
+            max="60"
+            value="0"
+            required
+          >
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="providerBio">
+            Professional bio
+          </label>
+
+          <textarea
+            id="providerBio"
+            rows="5"
+            maxlength="1500"
+            placeholder="Describe your experience, skills and the type of work you provide."
+          ></textarea>
+        </div>
+
+       <div
+  class="form-group form-group-full"
+>
+  <label for="providerProfilePhoto">
+    Profile photo
+  </label>
+
+  <div class="provider-profile-photo-upload">
+
+    <div
+      id="providerProfilePhotoPreview"
+      class="provider-profile-photo-preview"
+      hidden
+    >
+      <img
+        id="providerProfilePhotoPreviewImage"
+        src=""
+        alt="Profile photo preview"
+      >
+    </div>
+
+    <input
+      type="file"
+      id="providerProfilePhoto"
+      name="profilePhoto"
+      accept=".jpg,.jpeg,.png,.webp"
+    >
+
+    <small>
+      Upload a clear profile photo. JPG, PNG or WebP only,
+      maximum 5MB.
+    </small>
+
+    <input
+      type="hidden"
+      id="providerProfilePhotoUrl"
+      value=""
+    >
+
+  </div>
+</div>
+
+      </div>
+
+      <div
+        id="providerProfileMessage"
+        class="form-message"
+      ></div>
+
+      <button
+        type="submit"
+        id="saveProviderProfileButton"
+        class="primary-button"
+      >
+        Create Provider Profile
+      </button>
+
+    </form>
+
+  </article>
+
+
+  <!-- PROVIDER SIDEBAR -->
+  <aside class="provider-sidebar">
+
+    <article class="provider-summary-card">
+
+      <h3>
+        Availability
+      </h3>
+
+      <strong
+        id="providerAvailabilityStatus"
+        class="status-badge status-offline"
+      >
+        Offline
+      </strong>
+
+      <div class="form-group">
+
+        <label for="providerAvailabilitySelect">
+          Change status
+        </label>
+
+        <select
+          id="providerAvailabilitySelect"
+        >
+          <option value="OFFLINE">
+            Offline
+          </option>
+
+          <option value="AVAILABLE">
+            Available
+          </option>
+
+          <option value="BUSY">
+            Busy
+          </option>
+
+          <option value="AWAY">
+            Away
+          </option>
+        </select>
+
+      </div>
+
+      <button
+        type="button"
+        id="saveAvailabilityButton"
+        class="primary-button"
+      >
+        Update Status
+      </button>
+
+      <div
+        id="availabilityMessage"
+        class="form-message"
+      ></div>
+
+    </article>
+
+
+    <article class="provider-summary-card">
+
+      <h3>
+        Rating
+      </h3>
+
+      <strong id="providerAverageRating">
+        0.0
+      </strong>
+
+      <p>
+        <span id="providerTotalReviews">
+          0
+        </span>
+        customer reviews
+      </p>
+
+    </article>
+
+
+    <article class="provider-summary-card">
+
+      <h3>
+        Next step
+      </h3>
+
+      <p>
+        After creating your profile,
+        you will add the services you offer,
+        pricing and availability.
+      </p>
+
+    </article>
+
+  </aside>
+
+
+  <!-- PROFESSIONAL VERIFICATION -->
+  <article class="provider-panel provider-verification-panel">
+
+    <div class="panel-heading">
+
+      <div>
+        <span class="panel-label">
+          Professional Verification
+        </span>
+
+        <h2>
+          Verify Your Professional Qualifications
+        </h2>
+
+        <p>
+          Submit your qualifications and supporting documents for review.
+        </p>
+      </div>
+
+      <span
+        id="professionalVerificationStatus"
+        class="verification-status-badge pending"
+      >
+        Pending
+      </span>
+
+    </div>
+
+
+    <form id="professionalVerificationForm">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label for="qualificationTitle">
+            Professional Qualification
+            <span class="required-mark">*</span>
+          </label>
+
+          <input
+            type="text"
+            id="qualificationTitle"
+            name="qualificationTitle"
+            placeholder="Example: Professional Chef Certificate"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="institutionName">
+            Institution or Training Provider
+            <span class="required-mark">*</span>
+          </label>
+
+          <input
+            type="text"
+            id="institutionName"
+            name="institutionName"
+            placeholder="Example: Kenya Utalii College"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="qualificationYear">
+            Year Completed
+            <span class="required-mark">*</span>
+          </label>
+
+          <input
+            type="number"
+            id="qualificationYear"
+            name="qualificationYear"
+            min="1950"
+            max="2100"
+            placeholder="Example: 2024"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="professionalExperience">
+          Professional Experience
+          <span class="required-mark">*</span>
+        </label>
+
+        <textarea
+          id="professionalExperience"
+          name="professionalExperience"
+          rows="4"
+          placeholder="Describe your professional experience, training and relevant skills."
+        ></textarea>
+
+      </div>
+
+      <div class="form-group">
+  <label for="providerNotes">
+    Provider Notes
+    <span class="required-mark">*</span>
+  </label>
+
+  <textarea
+    id="providerNotes"
+    name="providerNotes"
+    rows="4"
+    maxlength="2000"
+    placeholder="Add any additional information you would like the verification team to know."
+  ></textarea>
+</div>
+
+<div
+  id="verificationReviewFeedback"
+  class="verification-review-feedback"
+  hidden
+>
+
+  <div
+    class="verification-review-feedback__header"
+  >
+
+    <span
+      class="verification-review-feedback__label"
+    >
+      Verification Team Feedback
+    </span>
+
+    <span
+      id="verificationReviewFeedbackStatus"
+      class="verification-review-feedback__status"
+    >
+    </span>
+
+  </div>
+
+  <p
+    id="verificationReviewFeedbackText"
+    class="verification-review-feedback__text"
+  >
+  </p>
+
+</div>
+
+
+      <!-- DOCUMENT UPLOAD -->
+      <div class="form-group">
+
+        <label for="verificationDocument">
+          Upload Supporting Document
+          <span class="required-mark">*</span>
+        </label>
+
+        <select
+          id="verificationDocumentType"
+          name="documentType"
+        >
+          <option value="">
+            Select document type
+          </option>
+
+          <option value="QUALIFICATION">
+            Qualification Certificate
+          </option>
+
+          <option value="LICENCE">
+            Professional Licence
+          </option>
+
+          <option value="IDENTIFICATION">
+            Identification Document
+          </option>
+
+          <option value="PORTFOLIO">
+            Portfolio / Work Evidence
+          </option>
+
+          <option value="OTHER">
+            Other Supporting Document
+          </option>
+        </select>
+
+        <input
+          type="file"
+          id="verificationDocument"
+          name="document"
+          accept=".jpg,.jpeg,.png,.webp"
+        >
+
+        <small>
+          Upload a certificate, licence, qualification or other supporting
+          document. JPG, PNG or WebP only, maximum 5MB.
+        </small>
+
+      </div>
+
+
+      <div
+        id="verificationDocumentsList"
+        class="verification-documents-list"
+      ></div>
+
+
+      <div
+  id="professionalVerificationMessage"
+  class="professional-verification-message"
+  role="status"
+  aria-live="polite"
+></div>
+
+
+      <div class="verification-actions">
+
+        <button
+          type="submit"
+          class="primary-button"
+        >
+          Save Verification Details
+        </button>
+
+        <button
+          type="button"
+          id="submitVerificationButton"
+          class="secondary-button"
+        >
+          Submit for Review
+        </button>
+
+      </div>
+
+    </form>
+
+  </article>
+
+</section>
+
+    <section class="provider-services-section">
+
+  <div class="services-section-heading">
+    <div>
+      <span class="provider-label">
+        Service management
+      </span>
+
+      <h2>
+        My Services
+      </h2>
+
+      <p>
+        Add the services you offer, set pricing,
+        and control whether customers can book them.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      id="showServiceFormButton"
+      class="primary-button"
+    >
+      Add Service
+    </button>
+  </div>
+
+  <div
+    id="providerServicesMessage"
+    class="dashboard-message"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <article
+    id="providerServiceFormPanel"
+    class="provider-panel service-form-panel"
+    hidden
+  >
+
+    <div class="panel-heading">
+      <div>
+        <span class="provider-label">
+          Service details
+        </span>
+
+        <h3 id="providerServiceFormTitle">
+          Add a new service
+        </h3>
+      </div>
+
+      <button
+        type="button"
+        id="cancelServiceFormButton"
+        class="secondary-button"
+      >
+        Cancel
+      </button>
+    </div>
+
+    <form id="providerServiceForm">
+
+      <input
+        type="hidden"
+        id="providerServiceId"
+      >
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="providerServiceCategory">
+            Service category
+          </label>
+
+          <select
+            id="providerServiceCategory"
+            required
+          >
+            <option value="">
+              Select category
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="providerServiceTitle">
+            Service title
+          </label>
+
+          <input
+            type="text"
+            id="providerServiceTitle"
+            maxlength="150"
+            placeholder="Example: Professional House Cleaning"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="providerServicePricingType">
+            Pricing type
+          </label>
+
+          <select
+            id="providerServicePricingType"
+            required
+          >
+            <option value="FIXED">
+              Fixed price
+            </option>
+
+            <option value="HOURLY">
+              Per hour
+            </option>
+
+            <option value="DAILY">
+              Per day
+            </option>
+
+            <option value="PER_VISIT">
+              Per visit
+            </option>
+
+            <option value="PER_TRIP">
+              Per trip
+            </option>
+
+            <option value="PER_PERSON">
+              Per person
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="providerServicePrice">
+            Price in KSh
+          </label>
+
+          <input
+            type="number"
+            id="providerServicePrice"
+            min="1"
+            step="0.01"
+            placeholder="2500"
+            required
+          >
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="providerServiceDescription">
+            Description
+          </label>
+
+          <textarea
+            id="providerServiceDescription"
+            rows="4"
+            maxlength="2000"
+            placeholder="Describe what is included in this service."
+          ></textarea>
+        </div>
+
+        <div
+          id="providerServiceActiveGroup"
+          class="form-group form-group-full"
+          hidden
+        >
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              id="providerServiceIsActive"
+              checked
+            >
+
+            Make this service available to customers
+          </label>
+        </div>
+
+      </div>
+
+      <div
+        id="providerServiceFormMessage"
+        class="form-message"
+      ></div>
+
+      <button
+        type="submit"
+        id="saveProviderServiceButton"
+        class="primary-button"
+      >
+        Save Service
+      </button>
+
+    </form>
+
+  </article>
+
+  <div
+    id="providerServicesList"
+    class="provider-services-list"
+  >
+    <p class="services-empty-state">
+      Loading services...
+    </p>
+  </div>
+
+</section>
+
+<section
+  id="providerBookingsSection"
+  hidden
+>
+
+<div class="section-header">
+
+<h2>
+Customer Bookings
+</h2>
+
+<p>
+Manage booking requests from customers.
+</p>
+
+</div>
+
+<div
+class="booking-summary">
+
+<div class="summary-card">
+<h3>Pending</h3>
+<strong
+id="providerPendingBookings">
+0
+</strong>
+</div>
+
+<div class="summary-card">
+<h3>Confirmed</h3>
+<strong
+id="providerConfirmedBookings">
+0
+</strong>
+</div>
+
+<div class="summary-card">
+<h3>In Progress</h3>
+<strong
+id="providerProgressBookings">
+0
+</strong>
+</div>
+
+<div class="summary-card">
+<h3>Completed</h3>
+<strong
+id="providerCompletedBookings">
+0
+</strong>
+</div>
+
+</div>
+
+<div
+id="providerBookingsMessage"
+class="dashboard-message">
+</div>
+
+<div
+id="providerBookingsGrid"
+class="provider-bookings-grid">
+
+<p>
+Loading bookings...
+</p>
+
+</div>
+
+</section>
+<section
+  id="providerSubscriptionSection"
+  class="provider-subscription-section"
+>
+  <div class="services-section-heading">
+    <div>
+      <span class="provider-label">
+        Subscription
+      </span>
+
+      <h2>
+        Subscription & Billing
+      </h2>
+
+      <p>
+        View your current subscription plan and
+        choose or renew a plan to continue managing
+        your services.
+      </p>
+    </div>
+  </div>
+
+  <div
+  id="providerSubscriptionMessage"
+  class="dashboard-message"
+  role="status"
+  aria-live="polite"
+></div>
+
+  <div
+    id="providerSubscriptionStatusContainer"
+    class="subscription-status-container"
+  >
+    <div class="empty-state">
+      <div class="empty-icon">
+        ⏳
+      </div>
+
+      <h3>
+        Loading subscription...
+      </h3>
+
+      <p>
+        Please wait while we load your
+        subscription details.
+      </p>
+    </div>
+  </div>
+
+
+  <div
+    id="providerSubscriptionPlansContainer"
+    class="subscription-plans-container"
+  >
+  </div>
+</section>
+
+<section
+  class="provider-payment-disputes-section"
+  id="providerPaymentDisputesSection"
+>
+  <div class="section-header">
+    <div>
+      <span class="section-label">
+        PAYMENT PROTECTION
+      </span>
+
+      <h2>
+        Payment Disputes
+      </h2>
+
+      <p>
+        Review customer payment disputes and submit your response or evidence.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="providerPaymentDisputesContainer"
+    class="provider-payment-disputes-container"
+  >
+    <p>
+      Loading payment disputes...
+    </p>
+  </div>
+</section>
+  </main>
+
+  <div
+  class="provider-input-modal"
+  id="providerInputModal"
+  hidden
+>
+  <div
+    class="provider-input-modal__backdrop"
+    data-provider-input-close
+  ></div>
+
+  <div
+    class="provider-input-modal__dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="providerInputModalTitle"
+  >
+    <div
+      class="provider-input-modal__header"
+    >
+      <div>
+        <span
+          class="provider-input-modal__eyebrow"
+        >
+          PAYMENT DISPUTE
+        </span>
+
+        <h3
+          id="providerInputModalTitle"
+        >
+          Submit Response
+        </h3>
+      </div>
+
+      <button
+        type="button"
+        class="provider-input-modal__close"
+        data-provider-input-close
+        aria-label="Close"
+      >
+        ×
+      </button>
+    </div>
+
+    <p
+      class="provider-input-modal__message"
+      id="providerInputModalMessage"
+    ></p>
+
+    <textarea
+      id="providerInputModalTextarea"
+      class="provider-input-modal__textarea"
+      rows="6"
+      placeholder="Enter your response..."
+    ></textarea>
+
+    <p
+      class="provider-input-modal__error"
+      id="providerInputModalError"
+      hidden
+    ></p>
+
+    <div
+      class="provider-input-modal__actions"
+    >
+      <button
+        type="button"
+        class="provider-input-modal__cancel"
+        data-provider-input-close
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="provider-input-modal__submit"
+        id="providerInputModalSubmit"
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  id="providerSubscriptionPaymentModal"
+  class="subscription-payment-modal"
+  aria-hidden="true"
+>
+  <div
+    class="subscription-payment-modal-backdrop"
+  ></div>
+
+  <div
+    class="subscription-payment-modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="providerSubscriptionPaymentTitle"
+  >
+    <button
+      type="button"
+      class="subscription-payment-modal-close"
+      id="providerSubscriptionPaymentClose"
+      aria-label="Close payment dialog"
+    >
+      ×
+    </button>
+
+    <div class="subscription-payment-modal-header">
+      <span>
+        Subscription Payment
+      </span>
+
+      <h2
+        id="providerSubscriptionPaymentTitle"
+      >
+        Pay with M-Pesa
+      </h2>
+
+      <p
+        id="providerSubscriptionPaymentDescription"
+      >
+        Enter the M-Pesa number you would like to use for this payment.
+      </p>
+    </div>
+
+    <div class="subscription-payment-phone">
+      <label for="providerSubscriptionPhone">
+        M-Pesa phone number
+      </label>
+
+      <input
+        type="tel"
+        id="providerSubscriptionPhone"
+        placeholder="07********"
+        autocomplete="tel"
+      >
+    </div>
+
+    <div class="subscription-payment-modal-actions">
+      <button
+        type="button"
+        class="secondary-button"
+        id="providerSubscriptionPaymentCancel"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        id="providerSubscriptionPaymentConfirm"
+      >
+        Continue
+      </button>
+    </div>
+  </div>
+</div>
+   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+   <script src="js/ui-feedback.js"></script>
+  <script src="js/provider-dashboard.js"></script>
+</body>
+</html>
