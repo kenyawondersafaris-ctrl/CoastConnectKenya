@@ -3853,7 +3853,7 @@ menuImagePreview.hidden = true;
   clearMenuFormMessage();
 }
 
-function openMenuItemForm(menuItem = null) {
+async function openMenuItemForm(menuItem = null) {
   if (!ownerRestaurant) {
     showMessage(
       "Create your restaurant profile before adding menu items."
@@ -3863,21 +3863,24 @@ function openMenuItemForm(menuItem = null) {
     return;
   }
 
-    if (
-  !menuItem &&
-  (
-    !currentSubscription ||
-    String(
-      currentSubscription.status || ""
-    ).toUpperCase() !== "ACTIVE"
-  )
-) {
-    showMessage(
-      "An active subscription is required to add menu items."
-    );
+  if (!menuItem) {
+    if (!currentSubscription) {
+      await loadCurrentSubscription();
+    }
 
-    showSection("subscription");
-    return;
+    if (
+      !currentSubscription ||
+      String(
+        currentSubscription.status || ""
+      ).toUpperCase() !== "ACTIVE"
+    ) {
+      showMessage(
+        "An active subscription is required to add menu items."
+      );
+
+      showSection("subscription");
+      return;
+    }
   }
 
   resetMenuItemForm();
@@ -8283,8 +8286,8 @@ viewRestaurantButton.addEventListener(
 
 addMenuItemButton.addEventListener(
   "click",
-  () => {
-    openMenuItemForm();
+  async () => {
+    await openMenuItemForm();
   }
 );
 
