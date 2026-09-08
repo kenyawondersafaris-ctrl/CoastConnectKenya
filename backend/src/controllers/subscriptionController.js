@@ -105,6 +105,16 @@ async function getMySubscription(
             bs.cancelled_at,
             bs.created_at,
 
+            CASE
+              WHEN NOT EXISTS (
+                SELECT 1
+                FROM subscription_payments spay
+                WHERE spay.subscription_id = bs.id
+              )
+              THEN TRUE
+              ELSE FALSE
+            END AS is_trial,
+
             sp.id AS plan_id,
             sp.name AS plan_name,
             sp.billing_period,
@@ -368,6 +378,81 @@ async function initializeSubscriptionPayment(
         success: false,
         message:
           "Your business must be approved before you can purchase a subscription.",
+      });
+    }
+
+        /*
+    |--------------------------------------------------------------------------
+    | First subscription: 30-day free trial
+    |--------------------------------------------------------------------------
+    */
+
+    const previousSubscriptionResult =
+  await client.query(
+    `
+      SELECT id
+      FROM business_subscriptions
+      WHERE user_id = $1
+        AND business_type = $2
+        AND status IN (
+          'ACTIVE',
+          'EXPIRED',
+          'CANCELLED',
+          'SUSPENDED'
+        )
+      LIMIT 1
+    `,
+    [
+      userId,
+      businessType,
+    ]
+  );
+
+  
+    const hasUsedTrial =
+      previousSubscriptionResult.rows.length > 0;
+
+    if (!hasUsedTrial) {
+
+      const trialResult =
+        await client.query(
+          `
+            INSERT INTO business_subscriptions (
+              user_id,
+              plan_id,
+              business_type,
+              status,
+              starts_at,
+              expires_at
+            )
+            VALUES (
+              $1,
+              $2,
+              $3,
+              'ACTIVE',
+              CURRENT_TIMESTAMP,
+              CURRENT_TIMESTAMP + INTERVAL '30 days'
+            )
+            RETURNING
+              id,
+              status,
+              starts_at,
+              expires_at
+          `,
+          [
+            userId,
+            plan.id,
+            businessType,
+          ]
+        );
+
+      return res.json({
+        success: true,
+        trial: true,
+        message:
+          "Your 30-day free trial has been activated.",
+        subscription:
+          trialResult.rows[0],
       });
     }
 

@@ -2418,7 +2418,7 @@ function renderSubscriptionPlans() {
                 String(plan.id || "")
               )}"
             >
-             ${currentSubscription ? "Renew" : "Subscribe"}
+            ${currentSubscription?.status === "ACTIVE" ? "Renew" : "Subscribe"}
             </button>
           </article>
         `;
