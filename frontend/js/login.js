@@ -316,14 +316,6 @@ loginForm?.addEventListener(
 
       const data =
         await response.json();
-
-        console.log("LOGIN RESPONSE:", data);
-
-        sessionStorage.setItem(
-  "debugLoginUser",
-  JSON.stringify(data.user)
-);
-
   if (
   !response.ok ||
   !data.success
