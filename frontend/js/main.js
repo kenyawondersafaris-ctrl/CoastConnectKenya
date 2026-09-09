@@ -4,6 +4,80 @@ document.addEventListener("DOMContentLoaded", () => {
   const mobileMenuButton = document.getElementById("mobileMenuButton");
   const mainNavigation = document.getElementById("mainNavigation");
   const heroSearchForm = document.getElementById("heroSearchForm");
+
+  const searchType = document.getElementById("searchType");
+
+async function loadHomeServiceCategories() {
+  if (!searchType) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "https://coastconnectkenya.onrender.com/api/service-categories",
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message ||
+          "Unable to load service categories."
+      );
+    }
+
+    searchType.innerHTML = `
+      <option value="">
+        What are you looking for?
+      </option>
+    `;
+
+    (Array.isArray(data.categories)
+      ? data.categories
+      : []
+    ).forEach((category) => {
+      const option =
+        document.createElement("option");
+
+      option.value = category.name
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      option.textContent =
+        category.name;
+
+      searchType.appendChild(option);
+    });
+
+    const restaurantOption =
+      document.createElement("option");
+
+    restaurantOption.value =
+      "restaurants";
+
+    restaurantOption.textContent =
+      "Restaurants";
+
+    searchType.appendChild(
+      restaurantOption
+    );
+  } catch (error) {
+    console.error(
+      "Load homepage service categories error:",
+      error
+    );
+  }
+}
+
+loadHomeServiceCategories();
   const currentYear = document.getElementById("currentYear");
 
 
