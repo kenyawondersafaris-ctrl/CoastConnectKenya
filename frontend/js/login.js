@@ -133,31 +133,14 @@ function redirectUserByRole(user) {
   }
 
 if (
-  primaryRole === "CUSTOMER"
+  primaryRole === "ADMIN"
 ) {
-  const savedReturnUrl =
-    sessionStorage.getItem(
-      "coastConnectReturnUrl"
-    );
-
-  sessionStorage.removeItem(
-    "coastConnectReturnUrl"
-  );
-
-  const safeReturnUrl =
-    savedReturnUrl &&
-    savedReturnUrl.startsWith("/") &&
-    !savedReturnUrl.startsWith("//");
-
   window.location.replace(
-    safeReturnUrl
-      ? savedReturnUrl
-      : "index.html"
+    "admin-dashboard.html"
   );
 
   return;
 }
-
   if (
     roles.length > 1
   ) {
@@ -333,6 +316,8 @@ loginForm?.addEventListener(
 
       const data =
         await response.json();
+
+        console.log("LOGIN RESPONSE:", data);
 
   if (
   !response.ok ||
